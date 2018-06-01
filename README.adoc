@@ -1,0 +1,29 @@
+:microprofile-health: https://github.com/eclipse/microprofile-health/
+
+image:https://semaphoreci.com/api/v1/smallrye/smallrye-health/branches/master/badge.svg["Semaphore CI", link="https://semaphoreci.com/smallrye/smallrye-health"]
+image:https://img.shields.io/github/license/thorntail/thorntail.svg["License", link="http://www.apache.org/licenses/LICENSE-2.0"]
+
+= SmallRye Health
+
+SmallRye Health is an implementation of {microprofile-health}[Eclipse MicroProfile Health].
+
+== Instructions
+
+Compile and install this project:
+
+[source,bash]
+----
+mvn clean install
+----
+
+=== Project structure
+
+* link:implementation[] - Implementation of the Eclipse MicroProfile Health API.
+* link:tck[] - Test suite to run the implementation against the Eclipse MicroProfile Health TCK.
+* link:docs[] - Project documentation.
+
+=== Links
+
+* http://github.com/smallrye/smallrye-health/[Project Homepage]
+* {microprofile-health}[Eclipse MicroProfile Health]
+
