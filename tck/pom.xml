@@ -53,26 +53,16 @@
       <artifactId>microprofile-health-tck</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-api</artifactId>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-spi</artifactId>
-        <scope>test</scope>
-      </dependency>
-    <dependency>
-      <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-core-impl</artifactId>
-      <scope>test</scope>
+       <groupId>org.jboss.arquillian.container</groupId>
+       <artifactId>arquillian-tomcat-embedded-8</artifactId>
+       <version>1.0.1.Final</version>
+       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.arquillian.container</groupId>
-      <artifactId>arquillian-weld-embedded</artifactId>
-      <scope>test</scope>
+       <groupId>org.jboss.weld.servlet</groupId>
+       <artifactId>weld-servlet-shaded</artifactId>
+       <version>3.0.4.Final</version>
     </dependency>
   </dependencies>
 </project>

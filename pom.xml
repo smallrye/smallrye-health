@@ -87,37 +87,6 @@
         <artifactId>javax.annotation-api</artifactId>
         <version>${version.javax.annotation-api}</version>
       </dependency>
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-api</artifactId>
-        <version>${version.org.jboss.weld}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-spi</artifactId>
-        <version>${version.org.jboss.weld}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-core-impl</artifactId>
-        <version>${version.org.jboss.weld.core.impl}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.arquillian.container</groupId>
-        <artifactId>arquillian-weld-embedded</artifactId>
-        <version>${version.org.jboss.arquillian.container.weld-embedded}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.arquillian</groupId>
-        <artifactId>arquillian-bom</artifactId>
-        <version>${version.org.jboss.arquillian}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
 
       <!-- Dependencies provided by the project -->
       <dependency>

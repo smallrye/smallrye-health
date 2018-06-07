@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.smallrye.health;
 
+import java.net.URL;
 
 import org.jboss.arquillian.container.test.spi.client.deployment.ApplicationArchiveProcessor;
-import org.jboss.arquillian.core.spi.LoadableExtension;
+import org.jboss.arquillian.test.spi.TestClass;
+import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 
-public class SmallRyeHealthExtension implements LoadableExtension {
+public class SmallRyeWarArchiveProcessor implements ApplicationArchiveProcessor {
     @Override
-    public void register(ExtensionBuilder extensionBuilder) {
-    	extensionBuilder.service(ApplicationArchiveProcessor.class, SmallRyeWarArchiveProcessor.class);
-        //extensionBuilder.override(ResourceProvider.class,
-        //                          URIResourceProvider.class,
-        //                          SmallRyeURIResourceProvider.class);
+    public void process(Archive<?> appArchive, TestClass testClass) {
+        if (!(appArchive instanceof WebArchive)) {
+            return;
+        }
+        WebArchive war = WebArchive.class.cast(appArchive);
+        String warName = war.getName();
+        String webXmlName = "/WEB-INF/" + warName + ".xml";
+        URL webXml = SmallRyeWarArchiveProcessor.class.getResource(webXmlName);
+        if (webXml != null) {
+            war.setWebXML(webXml);
+        }
+
     }
+
 }
