@@ -85,6 +85,14 @@
         <version>${version.javax.annotation-api}</version>
       </dependency>
 
+      <dependency>
+         <groupId>org.jboss.arquillian</groupId>
+         <artifactId>arquillian-bom</artifactId>
+         <version>${version.org.jboss.arquillian}</version>
+         <scope>import</scope>
+         <type>pom</type>
+      </dependency>
+
       <!-- Dependencies provided by the project -->
       <dependency>
         <groupId>io.smallrye</groupId>
