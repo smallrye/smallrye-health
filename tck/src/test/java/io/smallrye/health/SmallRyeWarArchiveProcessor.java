@@ -29,9 +29,7 @@ public class SmallRyeWarArchiveProcessor implements ApplicationArchiveProcessor 
             return;
         }
         WebArchive war = WebArchive.class.cast(appArchive);
-        String warName = war.getName();
-        String webXmlName = "/WEB-INF/" + warName + ".xml";
-        URL webXml = SmallRyeWarArchiveProcessor.class.getResource(webXmlName);
+        URL webXml = SmallRyeWarArchiveProcessor.class.getResource("/WEB-INF/web.xml");
         if (webXml != null) {
             war.setWebXML(webXml);
         }
