@@ -76,5 +76,26 @@
        <artifactId>weld-servlet-shaded</artifactId>
        <version>3.0.4.Final</version>
     </dependency>
+
+    <dependency>
+         <groupId>org.apache.tomcat.embed</groupId>
+         <artifactId>tomcat-embed-core</artifactId>
+         <version>8.0.39</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.tomcat.embed</groupId>
+         <artifactId>tomcat-embed-jasper</artifactId>
+         <version>8.0.39</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.tomcat.embed</groupId>
+         <artifactId>tomcat-embed-logging-juli</artifactId>
+         <version>8.0.39</version>
+         <scope>provided</scope>
+      </dependency>
+
   </dependencies>
+
 </project>
