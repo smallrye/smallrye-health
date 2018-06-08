@@ -1,4 +1,4 @@
-package org.wildfly.swarm.health;
+package io.smallrye.health.impl;
 
 import java.util.Map;
 
