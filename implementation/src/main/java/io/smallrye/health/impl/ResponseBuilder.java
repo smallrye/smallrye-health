@@ -6,9 +6,6 @@ import java.util.Map;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
-/**
- * Created by bob on 1/16/18.
- */
 class ResponseBuilder extends HealthCheckResponseBuilder {
 
     @Override

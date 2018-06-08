@@ -24,9 +24,7 @@ import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-/**
- * Created by bob on 1/17/18.
- */
+
 public class HealthServlet extends HttpServlet {
 
     private static final Map<String, ?> JSON_CONFIG = new HashMap<String, Object>() {{

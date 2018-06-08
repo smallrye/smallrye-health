@@ -5,9 +5,6 @@ import java.util.Optional;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-/**
- * Created by bob on 1/16/18.
- */
 class Response extends HealthCheckResponse {
 
     Response(String name, State state, Map<String, Object> data) {
