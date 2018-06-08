@@ -1,4 +1,4 @@
-package io.smallrye.health.impl;
+package io.smallrye.health;
 
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.spi.HealthCheckResponseProvider;

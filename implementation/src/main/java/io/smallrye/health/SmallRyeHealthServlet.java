@@ -1,11 +1,10 @@
-package io.smallrye.health.impl;
+package io.smallrye.health;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
-import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -25,12 +24,10 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 
-public class HealthServlet extends HttpServlet {
-
-    private static final Map<String, ?> JSON_CONFIG = new HashMap<String, Object>() {{
-        put(JsonGenerator.PRETTY_PRINTING, true);
-    }};
-
+@SuppressWarnings("serial")
+public class SmallRyeHealthServlet extends HttpServlet {
+    private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         OutputStream out = resp.getOutputStream();

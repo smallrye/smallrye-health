@@ -1,4 +1,4 @@
-package io.smallrye.health.impl;
+package io.smallrye.health;
 
 import java.util.Map;
 
