@@ -17,12 +17,49 @@
 package io.smallrye.health;
 
 
-import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
+import org.jboss.arquillian.container.test.impl.enricher.resource.URIResourceProvider;
 import org.jboss.arquillian.core.spi.LoadableExtension;
+import org.jboss.arquillian.test.spi.enricher.resource.ResourceProvider;
+import org.jboss.weld.environment.servlet.Container;
+import org.jboss.weld.environment.servlet.Listener;
+import org.jboss.weld.environment.undertow.UndertowContainer;
+
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.resource.ClassPathResourceManager;
+import io.undertow.servlet.Servlets;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
 
 public class SmallRyeHealthExtension implements LoadableExtension {
     @Override
     public void register(ExtensionBuilder builder) {
-        builder.service(DeployableContainer.class, SmallRyeHealthDeployableContainer.class);
+        startContainer();
+        builder.override(ResourceProvider.class, URIResourceProvider.class, SmallRyeURIResourceProvider.class);
+    }
+    
+    private void startContainer() {
+        try {
+            DeploymentInfo servletBuilder = Servlets.deployment().setClassLoader(SmallRyeHealthServlet.class.getClassLoader())
+                    .setResourceManager(new ClassPathResourceManager(SmallRyeHealthServlet.class.getClassLoader()))
+                    .setContextPath("/health")
+                    .setDeploymentName("test.war")
+                    // Weld listener
+                    .addListener(Servlets.listener(Listener.class))
+                    // application components
+                    .addServlet(Servlets.servlet(SmallRyeHealthServlet.class).addMapping("/*").setLoadOnStartup(1))
+                    .addInitParameter(Container.CONTEXT_PARAM_CONTAINER_CLASS, UndertowContainer.class.getName());
+            
+            DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+            manager.deploy();
+            HttpHandler servletHandler = manager.start();
+            PathHandler path = Handlers.path(Handlers.redirect("/")).addPrefixPath("/", servletHandler);
+            Undertow server = Undertow.builder().addHttpListener(8080, "localhost").setHandler(path).build();
+            server.start();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to start Undertow", ex);
+        }
     }
 }
