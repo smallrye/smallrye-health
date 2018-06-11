@@ -60,17 +60,19 @@
         <scope>test</scope>
     </dependency>
     <dependency>
+        <groupId>org.jboss.arquillian.testenricher</groupId>
+        <artifactId>arquillian-testenricher-cdi</artifactId>
+        <version>${version.org.jboss.arquillian}</version>
+        <scope>test</scope>
+    </dependency>
+
+    <dependency>
          <groupId>org.jboss.arquillian.testng</groupId>
          <artifactId>arquillian-testng-container</artifactId>
          <version>${version.org.jboss.arquillian}</version>
          <scope>test</scope>
     </dependency>
-    <dependency>
-       <groupId>org.jboss.arquillian.container</groupId>
-       <artifactId>arquillian-tomcat-embedded-8</artifactId>
-       <version>1.0.1.Final</version>
-       <scope>test</scope>
-    </dependency>
+    
     <dependency>
        <groupId>org.jboss.weld.servlet</groupId>
        <artifactId>weld-servlet-shaded</artifactId>
@@ -78,23 +80,10 @@
     </dependency>
 
     <dependency>
-         <groupId>org.apache.tomcat.embed</groupId>
-         <artifactId>tomcat-embed-core</artifactId>
-         <version>8.0.39</version>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat.embed</groupId>
-         <artifactId>tomcat-embed-jasper</artifactId>
-         <version>8.0.39</version>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat.embed</groupId>
-         <artifactId>tomcat-embed-logging-juli</artifactId>
-         <version>8.0.39</version>
-         <scope>provided</scope>
-      </dependency>
+       <groupId>io.undertow</groupId>
+       <artifactId>undertow-servlet</artifactId>
+       <version>1.4.21.Final</version>
+    </dependency>
 
   </dependencies>
 

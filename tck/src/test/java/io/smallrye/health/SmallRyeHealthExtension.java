@@ -17,15 +17,12 @@
 package io.smallrye.health;
 
 
-import org.jboss.arquillian.container.test.spi.client.deployment.ApplicationArchiveProcessor;
+import org.jboss.arquillian.container.spi.client.container.DeployableContainer;
 import org.jboss.arquillian.core.spi.LoadableExtension;
 
 public class SmallRyeHealthExtension implements LoadableExtension {
     @Override
-    public void register(ExtensionBuilder extensionBuilder) {
-    	extensionBuilder.service(ApplicationArchiveProcessor.class, SmallRyeWarArchiveProcessor.class);
-        //extensionBuilder.override(ResourceProvider.class,
-        //                          URIResourceProvider.class,
-        //                          SmallRyeURIResourceProvider.class);
+    public void register(ExtensionBuilder builder) {
+        builder.service(DeployableContainer.class, SmallRyeHealthDeployableContainer.class);
     }
 }
