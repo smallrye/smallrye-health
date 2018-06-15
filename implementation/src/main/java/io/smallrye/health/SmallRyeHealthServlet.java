@@ -15,6 +15,7 @@ import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 
 
 @SuppressWarnings("serial")
+@WebServlet(name = "SmallRyeHealthServlet", urlPatterns = "/*")
 public class SmallRyeHealthServlet extends HttpServlet {
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
     
