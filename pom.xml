@@ -54,6 +54,7 @@
   </scm>
 
   <modules>
+    <module>docs</module>
     <module>implementation</module>
     <module>tck</module>
   </modules>
