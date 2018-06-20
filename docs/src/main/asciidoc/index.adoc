@@ -1,0 +1,12 @@
+[[index]]
+= SmallRye Health Documentation
+:ext-relative: {outfilesuffix}
+:toc!:
+
+TODO
+
+[[more-resources]]
+== More Resources
+
+* https://github.com/smallrye/smallrye-health/[GitHub project repository]
+* https://github.com/eclipse/microprofile-health/[Eclipse MicroProfile Health]
