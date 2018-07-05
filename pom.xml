@@ -132,6 +132,11 @@
         <artifactId>smallrye-health</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-health-tck</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
