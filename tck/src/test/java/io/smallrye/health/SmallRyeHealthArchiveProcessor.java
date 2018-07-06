@@ -34,7 +34,11 @@ public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcess
             testDeployment.addClass(SmallRyeBeanArchiveHandler.class);
             testDeployment.addAsServiceProvider(BeanArchiveHandler.class, SmallRyeBeanArchiveHandler.class);
             
-            String[] deps = { "io.smallrye:smallrye-health", "org.eclipse.microprofile.health:microprofile-health-tck", "org.jboss.weld.servlet:weld-servlet-core" };
+            String[] deps = { 
+                "io.smallrye:smallrye-health",
+                "io.smallrye:smallrye-health-tck",
+                "org.eclipse.microprofile.health:microprofile-health-tck",
+                "org.jboss.weld.servlet:weld-servlet-core" };
     
             File[] dependencies = Maven.resolver().loadPomFromFile(new File("pom.xml")).resolve(deps).withTransitivity().asFile();
 

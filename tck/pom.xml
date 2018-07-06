@@ -72,7 +72,6 @@
     <dependency>
       <groupId>io.smallrye</groupId>
       <artifactId>smallrye-health</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>

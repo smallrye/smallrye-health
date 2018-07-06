@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -14,39 +15,26 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 
-@SuppressWarnings("serial")
-@WebServlet(name = "SmallRyeHealthServlet", urlPatterns = "/*")
-public class SmallRyeHealthServlet extends HttpServlet {
+@ApplicationScoped
+public class SmallRyeHealthReporter {
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
     
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        OutputStream out = resp.getOutputStream();
+    public void reportHealth(OutputStream out, SmallRyeHealth health) throws IOException {
+        
         JsonWriterFactory factory = Json.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
-
-        JsonObject payload = jsonObject();
-        String outcome = payload.getString("outcome");
-        if ( outcome.equals(HealthCheckResponse.State.DOWN.toString())) {
-            resp.setStatus(503);
-        }
-
-        writer.writeObject(payload);
+        
+        writer.writeObject(health.getPayload());
         writer.close();
     }
 
-    private JsonObject jsonObject() {
+    public SmallRyeHealth getHealth() {
         JsonArrayBuilder results = Json.createArrayBuilder();
         HealthCheckResponse.State outcome = HealthCheckResponse.State.UP;
 
@@ -70,7 +58,7 @@ public class SmallRyeHealthServlet extends HttpServlet {
         builder.add("outcome", outcome.toString());
         builder.add("checks", results);
 
-        return builder.build();
+        return new SmallRyeHealth(builder.build());
     }
 
     private JsonObject jsonObject(HealthCheck check) {
