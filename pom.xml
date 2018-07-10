@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>smallrye-health-parent</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>SmallRye: MicroProfile Health Parent</name>
@@ -118,12 +118,6 @@
         <artifactId>weld-servlet-core</artifactId>
         <version>${version.weld}</version>
         <scope>test</scope>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.jboss.spec.javax.servlet</groupId>
-        <artifactId>jboss-servlet-api_3.1_spec</artifactId>
-        <version>${version.jboss.servlet}</version>
       </dependency>
 
       <!-- Dependencies provided by the project -->
