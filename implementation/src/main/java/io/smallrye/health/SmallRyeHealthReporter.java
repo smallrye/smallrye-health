@@ -1,8 +1,9 @@
 package io.smallrye.health;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -24,12 +25,21 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 @ApplicationScoped
 public class SmallRyeHealthReporter {
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
-    
-    public void reportHealth(OutputStream out, SmallRyeHealth health) throws IOException {
-        
+
+    /**
+     * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
+     */
+    @Inject
+    @Health
+    private Instance<HealthCheck> checks;
+
+    private List<HealthCheck> additionalChecks = new ArrayList<>();
+
+    public void reportHealth(OutputStream out, SmallRyeHealth health) {
+
         JsonWriterFactory factory = Json.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
-        
+
         writer.writeObject(health.getPayload());
         writer.close();
     }
@@ -38,17 +48,14 @@ public class SmallRyeHealthReporter {
         JsonArrayBuilder results = Json.createArrayBuilder();
         HealthCheckResponse.State outcome = HealthCheckResponse.State.UP;
 
-        for (HealthCheck check : checks) {
-            if (check == null) {
-                continue;
+        if (checks != null) {
+            for (HealthCheck check : checks) {
+                outcome = fillCheck(check, results, outcome);
             }
-            JsonObject each = jsonObject(check);
-            results.add(each);
-            if (outcome == HealthCheckResponse.State.UP) {
-                String state = each.getString("state");
-                if (state.equals("DOWN")) {
-                    outcome = HealthCheckResponse.State.DOWN;
-                }
+        }
+        if (!additionalChecks.isEmpty()) {
+            for (HealthCheck check : additionalChecks) {
+                outcome = fillCheck(check, results, outcome);
             }
         }
 
@@ -59,6 +66,21 @@ public class SmallRyeHealthReporter {
         builder.add("checks", results);
 
         return new SmallRyeHealth(builder.build());
+    }
+
+    private HealthCheckResponse.State fillCheck(HealthCheck check, JsonArrayBuilder results, HealthCheckResponse.State globalOutcome) {
+        if (check == null) {
+            return globalOutcome;
+        }
+        JsonObject each = jsonObject(check);
+        results.add(each);
+        if (globalOutcome == HealthCheckResponse.State.UP) {
+            String state = each.getString("state");
+            if (state.equals("DOWN")) {
+                return HealthCheckResponse.State.DOWN;
+            }
+        }
+        return globalOutcome;
     }
 
     private JsonObject jsonObject(HealthCheck check) {
@@ -87,9 +109,15 @@ public class SmallRyeHealthReporter {
         return builder.build();
     }
 
-    @Inject
-    @Health
-    private Instance<HealthCheck> checks;
+    public void addHealthCheck(HealthCheck check) {
+        if (check != null) {
+            additionalChecks.add(check);
+        }
+    }
+
+    public void removeHealthCheck(HealthCheck check) {
+        additionalChecks.remove(check);
+    }
 }
 
 
