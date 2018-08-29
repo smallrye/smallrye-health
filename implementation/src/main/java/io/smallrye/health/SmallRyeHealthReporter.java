@@ -1,6 +1,8 @@
 package io.smallrye.health;
 
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +28,17 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 public class SmallRyeHealthReporter {
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
-    /**
+    private static String getStackTrace(Throwable t) {
+	    StringWriter string = new StringWriter();
+	    
+	    try (PrintWriter pw = new PrintWriter(string)) {
+	        t.printStackTrace(pw);
+	    }
+	    
+	    return string.toString();
+	}
+
+	/**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
     @Inject
@@ -82,9 +94,16 @@ public class SmallRyeHealthReporter {
         }
         return globalOutcome;
     }
-
+    
     private JsonObject jsonObject(HealthCheck check) {
-        return jsonObject(check.call());
+        try {
+            return jsonObject(check.call());
+        } catch (RuntimeException e) {
+            return jsonObject(HealthCheckResponse.named(check.getClass().getName())
+                                                 .withData("stacktrace", getStackTrace(e))
+                                                 .down()
+                                                 .build());
+        }
     }
 
     private JsonObject jsonObject(HealthCheckResponse response) {
