@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -66,6 +67,11 @@ public class SmallRyeHealthReporter {
         return getRootCause(cause);
     }
 
+    @Produces
+    public static UncheckedExceptionDataStyle getDefaultUncheckedExceptionDataStyle() {
+        return UncheckedExceptionDataStyle.ROOT_CAUSE;
+    }
+    
 	/**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
@@ -75,7 +81,7 @@ public class SmallRyeHealthReporter {
     
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
-    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = UncheckedExceptionDataStyle.ROOT_CAUSE;
+    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = getDefaultUncheckedExceptionDataStyle();
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
     
@@ -84,7 +90,7 @@ public class SmallRyeHealthReporter {
 	}
     
     public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle)	{
-	    this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? UncheckedExceptionDataStyle.ROOT_CAUSE : uncheckedExceptionDataStyle;
+	    this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
 	}
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
