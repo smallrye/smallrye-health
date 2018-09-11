@@ -20,7 +20,7 @@ public class SmallRyeHealthReporterTest {
             throw new RuntimeException("this health check has failed");
         }
     }
-	
+    
     public static class DownHealthCheck
     implements HealthCheck {
         @Override
@@ -28,7 +28,7 @@ public class SmallRyeHealthReporterTest {
             return HealthCheckResponse.named("down").down().build();
         }
     }
-	
+    
     public static class UpHealthCheck
     implements HealthCheck {
         @Override
@@ -36,8 +36,8 @@ public class SmallRyeHealthReporterTest {
             return HealthCheckResponse.named("up").up().build();
         }
     }
-	
-	@Test
+    
+    @Test
     public void testDefaultGetHealth() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -47,8 +47,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getString("outcome"), is("UP"));
         assertThat(health.getPayload().getJsonArray("checks"), is(empty()));
     }
-	
-	@Test
+    
+    @Test
     public void testGetHealthWithFailingCheckAndStyleDefault() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -62,8 +62,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("state"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("rootCause"), is("this health check has failed"));
     }
-	
-	@Test
+    
+    @Test
     public void testGetHealthWithFailingCheckAndStyleNone() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -78,8 +78,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("state"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data"), is(nullValue()));
     }
-	
-	@Test
+    
+    @Test
     public void testGetHealthWithFailingCheckAndStyleStackTrace() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -95,7 +95,7 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("stackTrace"), is(notNullValue()));
     }
 
-	@Test
+    @Test
     public void testGetHealthWithMixedChecksAndStyleDefault() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -115,8 +115,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("state"), is("DOWN"));
     }
-	
-	@Test
+    
+    @Test
     public void testGetHealthWithMixedChecksAndStyleNone() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
@@ -137,8 +137,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("state"), is("DOWN"));
     }
-	
-	@Test
+    
+    @Test
     public void testGetHealthWithMixedChecksAndStyleStackTrace() {
         SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
         
