@@ -29,39 +29,39 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
-	public static enum UncheckedExceptionDataStyle {
-	    NONE(null),
-	    ROOT_CAUSE("rootCause"),
-	    STACK_TRACE("stackTrace");
+    public static enum UncheckedExceptionDataStyle {
+        NONE(null),
+        ROOT_CAUSE("rootCause"),
+        STACK_TRACE("stackTrace");
         
-	    private final String dataKey;
-	    
-	    private UncheckedExceptionDataStyle(String dataKey) {
-	        this.dataKey = dataKey;
-	    }
-	    
-	    public String getDataKey() {
-		    return dataKey;
-		}
-	}
-	
+        private final String dataKey;
+        
+        private UncheckedExceptionDataStyle(String dataKey) {
+            this.dataKey = dataKey;
+        }
+        
+        public String getDataKey() {
+            return dataKey;
+        }
+    }
+    
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
     private static String getStackTrace(Throwable t) {
-	    StringWriter string = new StringWriter();
-	    
-	    try (PrintWriter pw = new PrintWriter(string)) {
-	        t.printStackTrace(pw);
-	    }
-	    
-	    return string.toString();
-	}
+        StringWriter string = new StringWriter();
+        
+        try (PrintWriter pw = new PrintWriter(string)) {
+            t.printStackTrace(pw);
+        }
+        
+        return string.toString();
+    }
     
     private static Throwable getRootCause(Throwable t) {
         Throwable cause = t.getCause();
         
         if (cause == null || cause == t) {
-        	return t;
+            return t;
         }
         
         return getRootCause(cause);
@@ -72,7 +72,7 @@ public class SmallRyeHealthReporter {
         return UncheckedExceptionDataStyle.ROOT_CAUSE;
     }
     
-	/**
+    /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
     @Inject
@@ -86,12 +86,12 @@ public class SmallRyeHealthReporter {
     private List<HealthCheck> additionalChecks = new ArrayList<>();
     
     public UncheckedExceptionDataStyle getUncheckedExceptionDataStyle() {
-	    return uncheckedExceptionDataStyle;
-	}
+        return uncheckedExceptionDataStyle;
+    }
     
-    public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle)	{
-	    this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
-	}
+    public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
+        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
+    }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
 
@@ -149,8 +149,8 @@ public class SmallRyeHealthReporter {
             
             switch (uncheckedExceptionDataStyle) {
                 case ROOT_CAUSE:
-                	response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
-                	break;
+                    response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
+                    break;
                 case STACK_TRACE:
                     response.withData(uncheckedExceptionDataStyle.getDataKey(), getStackTrace(e));
                     break;
@@ -158,7 +158,7 @@ public class SmallRyeHealthReporter {
                     // don't add anything
             }
             
-        	return jsonObject(response.build());
+            return jsonObject(response.build());
         }
     }
 
