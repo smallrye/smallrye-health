@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -19,33 +20,78 @@ import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
+    public static enum UncheckedExceptionDataStyle {
+        NONE(null),
+        ROOT_CAUSE("rootCause"),
+        STACK_TRACE("stackTrace");
+        
+        private final String dataKey;
+        
+        private UncheckedExceptionDataStyle(String dataKey) {
+            this.dataKey = dataKey;
+        }
+        
+        public String getDataKey() {
+            return dataKey;
+        }
+    }
+    
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
     private static String getStackTrace(Throwable t) {
-	    StringWriter string = new StringWriter();
-	    
-	    try (PrintWriter pw = new PrintWriter(string)) {
-	        t.printStackTrace(pw);
-	    }
-	    
-	    return string.toString();
-	}
+        StringWriter string = new StringWriter();
+        
+        try (PrintWriter pw = new PrintWriter(string)) {
+            t.printStackTrace(pw);
+        }
+        
+        return string.toString();
+    }
+    
+    private static Throwable getRootCause(Throwable t) {
+        Throwable cause = t.getCause();
+        
+        if (cause == null || cause == t) {
+            return t;
+        }
+        
+        return getRootCause(cause);
+    }
 
-	/**
+    @Produces
+    public static UncheckedExceptionDataStyle getDefaultUncheckedExceptionDataStyle() {
+        return UncheckedExceptionDataStyle.ROOT_CAUSE;
+    }
+    
+    /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
     @Inject
     @Health
     private Instance<HealthCheck> checks;
+    
+    @Inject
+    @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
+    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = getDefaultUncheckedExceptionDataStyle();
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
+    
+    public UncheckedExceptionDataStyle getUncheckedExceptionDataStyle() {
+        return uncheckedExceptionDataStyle;
+    }
+    
+    public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
+        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
+    }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
 
@@ -99,10 +145,20 @@ public class SmallRyeHealthReporter {
         try {
             return jsonObject(check.call());
         } catch (RuntimeException e) {
-            return jsonObject(HealthCheckResponse.named(check.getClass().getName())
-                                                 .withData("stacktrace", getStackTrace(e))
-                                                 .down()
-                                                 .build());
+            HealthCheckResponseBuilder response = HealthCheckResponse.named(check.getClass().getName()).down();
+            
+            switch (uncheckedExceptionDataStyle) {
+                case ROOT_CAUSE:
+                    response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
+                    break;
+                case STACK_TRACE:
+                    response.withData(uncheckedExceptionDataStyle.getDataKey(), getStackTrace(e));
+                    break;
+                default:
+                    // don't add anything
+            }
+            
+            return jsonObject(response.build());
         }
     }
 
