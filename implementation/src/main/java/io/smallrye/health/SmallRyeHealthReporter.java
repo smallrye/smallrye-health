@@ -104,6 +104,14 @@ public class SmallRyeHealthReporter {
         this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
     }
 
+    public State getEmptyChecksOutcome() {
+        return emptyChecksOutcome;
+    }
+    
+    public void setEmptyChecksOutcome(State emptyChecksOutcome) {
+        this.emptyChecksOutcome = emptyChecksOutcome;
+    }
+    
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
 
         JsonWriterFactory factory = Json.createWriterFactory(JSON_CONFIG);
