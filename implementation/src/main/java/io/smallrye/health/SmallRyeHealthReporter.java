@@ -13,6 +13,7 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -24,6 +25,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponse.State;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 
@@ -71,6 +73,11 @@ public class SmallRyeHealthReporter {
     public static UncheckedExceptionDataStyle getDefaultUncheckedExceptionDataStyle() {
         return UncheckedExceptionDataStyle.ROOT_CAUSE;
     }
+
+    @Produces
+    public static State getDefaultEmptyChecksOutcome() {
+        return State.UP;
+    }
     
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
@@ -82,6 +89,10 @@ public class SmallRyeHealthReporter {
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
     private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = getDefaultUncheckedExceptionDataStyle();
+    
+    @Inject
+    @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
+    private State emptyChecksOutcome = getDefaultEmptyChecksOutcome();
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
     
@@ -119,9 +130,10 @@ public class SmallRyeHealthReporter {
 
         JsonObjectBuilder builder = Json.createObjectBuilder();
 
+        JsonArray checkResults = results.build();
 
-        builder.add("outcome", outcome.toString());
-        builder.add("checks", results);
+        builder.add("outcome", checkResults.isEmpty() ? emptyChecksOutcome.toString() : outcome.toString());
+        builder.add("checks", checkResults);
 
         return new SmallRyeHealth(builder.build());
     }
