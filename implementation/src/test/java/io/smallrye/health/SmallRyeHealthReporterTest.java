@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponse.State;
 import org.junit.Test;
 
 import io.smallrye.health.SmallRyeHealthReporter.UncheckedExceptionDataStyle;
@@ -45,6 +46,19 @@ public class SmallRyeHealthReporterTest {
         
         assertThat(health.isDown(), is(false));
         assertThat(health.getPayload().getString("outcome"), is("UP"));
+        assertThat(health.getPayload().getJsonArray("checks"), is(empty()));
+    }
+    
+    @Test
+    public void testGetHealthWithEmptyChecksOutcomeDown() {
+        SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
+        
+        reporter.setEmptyChecksOutcome(State.DOWN);
+        
+        SmallRyeHealth health = reporter.getHealth();
+        
+        assertThat(health.isDown(), is(true));
+        assertThat(health.getPayload().getString("outcome"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks"), is(empty()));
     }
     
