@@ -49,6 +49,18 @@ public class SmallRyeHealthReporter {
     
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
+    /*
+     * the following two constants should not need to be annotated with @Produces
+     * but the TCK fails to bootstrap if @Default instances of each corresponding
+     * enum are not available
+     */
+
+    @Produces
+    public static final UncheckedExceptionDataStyle DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE = UncheckedExceptionDataStyle.ROOT_CAUSE;
+
+    @Produces
+    public static final State DEFAULT_EMPTY_CHECKS_OUTCOME = State.UP;
+
     private static String getStackTrace(Throwable t) {
         StringWriter string = new StringWriter();
         
@@ -69,16 +81,6 @@ public class SmallRyeHealthReporter {
         return getRootCause(cause);
     }
 
-    @Produces
-    public static UncheckedExceptionDataStyle getDefaultUncheckedExceptionDataStyle() {
-        return UncheckedExceptionDataStyle.ROOT_CAUSE;
-    }
-
-    @Produces
-    public static State getDefaultEmptyChecksOutcome() {
-        return State.UP;
-    }
-    
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
@@ -88,11 +90,11 @@ public class SmallRyeHealthReporter {
     
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
-    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = getDefaultUncheckedExceptionDataStyle();
+    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
     
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
-    private State emptyChecksOutcome = getDefaultEmptyChecksOutcome();
+    private State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
     
@@ -101,7 +103,7 @@ public class SmallRyeHealthReporter {
     }
     
     public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
-        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
+        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE : uncheckedExceptionDataStyle;
     }
 
     public State getEmptyChecksOutcome() {
@@ -109,7 +111,7 @@ public class SmallRyeHealthReporter {
     }
     
     public void setEmptyChecksOutcome(State emptyChecksOutcome) {
-        this.emptyChecksOutcome = emptyChecksOutcome;
+        this.emptyChecksOutcome = emptyChecksOutcome == null ? DEFAULT_EMPTY_CHECKS_OUTCOME : emptyChecksOutcome;
     }
     
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
