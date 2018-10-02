@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -35,49 +34,41 @@ public class SmallRyeHealthReporter {
         NONE(null),
         ROOT_CAUSE("rootCause"),
         STACK_TRACE("stackTrace");
-        
+
         private final String dataKey;
-        
+
         private UncheckedExceptionDataStyle(String dataKey) {
             this.dataKey = dataKey;
         }
-        
+
         public String getDataKey() {
             return dataKey;
         }
     }
-    
+
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
-    /*
-     * the following two constants should not need to be annotated with @Produces
-     * but the TCK fails to bootstrap if @Default instances of each corresponding
-     * enum are not available
-     */
-
-    @Produces
     public static final UncheckedExceptionDataStyle DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE = UncheckedExceptionDataStyle.ROOT_CAUSE;
 
-    @Produces
     public static final State DEFAULT_EMPTY_CHECKS_OUTCOME = State.UP;
 
     private static String getStackTrace(Throwable t) {
         StringWriter string = new StringWriter();
-        
+
         try (PrintWriter pw = new PrintWriter(string)) {
             t.printStackTrace(pw);
         }
-        
+
         return string.toString();
     }
-    
+
     private static Throwable getRootCause(Throwable t) {
         Throwable cause = t.getCause();
-        
+
         if (cause == null || cause == t) {
             return t;
         }
-        
+
         return getRootCause(cause);
     }
 
@@ -87,21 +78,21 @@ public class SmallRyeHealthReporter {
     @Inject
     @Health
     private Instance<HealthCheck> checks;
-    
+
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
     private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
-    
+
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
     private State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
-    
+
     public UncheckedExceptionDataStyle getUncheckedExceptionDataStyle() {
         return uncheckedExceptionDataStyle;
     }
-    
+
     public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
         this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE : uncheckedExceptionDataStyle;
     }
@@ -109,11 +100,11 @@ public class SmallRyeHealthReporter {
     public State getEmptyChecksOutcome() {
         return emptyChecksOutcome;
     }
-    
+
     public void setEmptyChecksOutcome(State emptyChecksOutcome) {
         this.emptyChecksOutcome = emptyChecksOutcome == null ? DEFAULT_EMPTY_CHECKS_OUTCOME : emptyChecksOutcome;
     }
-    
+
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
 
         JsonWriterFactory factory = Json.createWriterFactory(JSON_CONFIG);
@@ -162,13 +153,13 @@ public class SmallRyeHealthReporter {
         }
         return globalOutcome;
     }
-    
+
     private JsonObject jsonObject(HealthCheck check) {
         try {
             return jsonObject(check.call());
         } catch (RuntimeException e) {
             HealthCheckResponseBuilder response = HealthCheckResponse.named(check.getClass().getName()).down();
-            
+
             switch (uncheckedExceptionDataStyle) {
                 case ROOT_CAUSE:
                     response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
@@ -179,7 +170,7 @@ public class SmallRyeHealthReporter {
                 default:
                     // don't add anything
             }
-            
+
             return jsonObject(response.build());
         }
     }
