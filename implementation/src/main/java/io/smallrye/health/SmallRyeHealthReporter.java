@@ -10,9 +10,9 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -24,6 +24,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponse.State;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 
@@ -33,64 +34,75 @@ public class SmallRyeHealthReporter {
         NONE(null),
         ROOT_CAUSE("rootCause"),
         STACK_TRACE("stackTrace");
-        
+
         private final String dataKey;
-        
+
         private UncheckedExceptionDataStyle(String dataKey) {
             this.dataKey = dataKey;
         }
-        
+
         public String getDataKey() {
             return dataKey;
         }
     }
-    
+
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
+
+    public static final UncheckedExceptionDataStyle DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE = UncheckedExceptionDataStyle.ROOT_CAUSE;
+
+    public static final State DEFAULT_EMPTY_CHECKS_OUTCOME = State.UP;
 
     private static String getStackTrace(Throwable t) {
         StringWriter string = new StringWriter();
-        
+
         try (PrintWriter pw = new PrintWriter(string)) {
             t.printStackTrace(pw);
         }
-        
+
         return string.toString();
     }
-    
+
     private static Throwable getRootCause(Throwable t) {
         Throwable cause = t.getCause();
-        
+
         if (cause == null || cause == t) {
             return t;
         }
-        
+
         return getRootCause(cause);
     }
 
-    @Produces
-    public static UncheckedExceptionDataStyle getDefaultUncheckedExceptionDataStyle() {
-        return UncheckedExceptionDataStyle.ROOT_CAUSE;
-    }
-    
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
      */
     @Inject
     @Health
     private Instance<HealthCheck> checks;
-    
+
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
-    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = getDefaultUncheckedExceptionDataStyle();
+    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
+
+    @Inject
+    @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
+    private State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
-    
+
     public UncheckedExceptionDataStyle getUncheckedExceptionDataStyle() {
         return uncheckedExceptionDataStyle;
     }
-    
+
     public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
-        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? getDefaultUncheckedExceptionDataStyle() : uncheckedExceptionDataStyle;
+        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE : uncheckedExceptionDataStyle;
+    }
+
+    public State getEmptyChecksOutcome() {
+        return emptyChecksOutcome;
+    }
+
+    public void setEmptyChecksOutcome(State emptyChecksOutcome) {
+        this.emptyChecksOutcome = emptyChecksOutcome == null ? DEFAULT_EMPTY_CHECKS_OUTCOME : emptyChecksOutcome;
     }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
@@ -119,9 +131,10 @@ public class SmallRyeHealthReporter {
 
         JsonObjectBuilder builder = Json.createObjectBuilder();
 
+        JsonArray checkResults = results.build();
 
-        builder.add("outcome", outcome.toString());
-        builder.add("checks", results);
+        builder.add("outcome", checkResults.isEmpty() ? emptyChecksOutcome.toString() : outcome.toString());
+        builder.add("checks", checkResults);
 
         return new SmallRyeHealth(builder.build());
     }
@@ -140,13 +153,13 @@ public class SmallRyeHealthReporter {
         }
         return globalOutcome;
     }
-    
+
     private JsonObject jsonObject(HealthCheck check) {
         try {
             return jsonObject(check.call());
         } catch (RuntimeException e) {
             HealthCheckResponseBuilder response = HealthCheckResponse.named(check.getClass().getName()).down();
-            
+
             switch (uncheckedExceptionDataStyle) {
                 case ROOT_CAUSE:
                     response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
@@ -157,7 +170,7 @@ public class SmallRyeHealthReporter {
                 default:
                     // don't add anything
             }
-            
+
             return jsonObject(response.build());
         }
     }
