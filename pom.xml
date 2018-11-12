@@ -38,7 +38,7 @@
     <version.javax.javaee-api>7.0</version.javax.javaee-api>
     <version.javax.enterprise.cdi-api>2.0</version.javax.enterprise.cdi-api>
     <version.junit>4.11</version.junit>
-    <version.org.jboss.arquillian>1.4.0.Final</version.org.jboss.arquillian>
+    <version.org.jboss.arquillian>1.4.1.Final</version.org.jboss.arquillian>
     <version.org.jboss.logging>2.0.1.Final</version.org.jboss.logging>
     <version.maven-compiler-plugin>3.7.0</version.maven-compiler-plugin>
     <version.weld>2.4.7.Final</version.weld>
