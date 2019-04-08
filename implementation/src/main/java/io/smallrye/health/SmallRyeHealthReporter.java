@@ -77,15 +77,15 @@ public class SmallRyeHealthReporter {
      */
     @Inject
     @Health
-    private Instance<HealthCheck> checks;
+    Instance<HealthCheck> checks;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
-    private UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
+    UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
-    private State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
+    State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
 
