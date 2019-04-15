@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>smallrye-health-parent</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>SmallRye: MicroProfile Health Parent</name>
@@ -54,7 +54,7 @@
     <connection>scm:git:git@github.com:smallrye/smallrye-health.git</connection>
     <developerConnection>scm:git:git@github.com:smallrye/smallrye-health.git</developerConnection>
     <url>https://github.com/smallrye/smallrye-health/</url>
-    <tag>1.0.3</tag>
+    <tag>1.0.0</tag>
   </scm>
 
   <modules>
