@@ -24,53 +24,16 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponse.State;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
-    public static enum UncheckedExceptionDataStyle {
-        NONE(null),
-        ROOT_CAUSE("rootCause"),
-        STACK_TRACE("stackTrace");
+    private static final String ROOT_CAUSE = "rootCause";
 
-        private final String dataKey;
-
-        private UncheckedExceptionDataStyle(String dataKey) {
-            this.dataKey = dataKey;
-        }
-
-        public String getDataKey() {
-            return dataKey;
-        }
-    }
+    private static final String STACK_TRACE = "stackTrace";
 
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
-
-    public static final UncheckedExceptionDataStyle DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE = UncheckedExceptionDataStyle.ROOT_CAUSE;
-
-    public static final State DEFAULT_EMPTY_CHECKS_OUTCOME = State.UP;
-
-    private static String getStackTrace(Throwable t) {
-        StringWriter string = new StringWriter();
-
-        try (PrintWriter pw = new PrintWriter(string)) {
-            t.printStackTrace(pw);
-        }
-
-        return string.toString();
-    }
-
-    private static Throwable getRootCause(Throwable t) {
-        Throwable cause = t.getCause();
-
-        if (cause == null || cause == t) {
-            return t;
-        }
-
-        return getRootCause(cause);
-    }
 
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
@@ -80,29 +43,25 @@ public class SmallRyeHealthReporter {
     Instance<HealthCheck> checks;
 
     @Inject
-    @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = "ROOT_CAUSE")
-    UncheckedExceptionDataStyle uncheckedExceptionDataStyle = DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE;
+    @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = ROOT_CAUSE)
+    String uncheckedExceptionDataStyle;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
-    State emptyChecksOutcome = DEFAULT_EMPTY_CHECKS_OUTCOME;
+    String emptyChecksOutcome;
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
 
-    public UncheckedExceptionDataStyle getUncheckedExceptionDataStyle() {
-        return uncheckedExceptionDataStyle;
+    void setUncheckedExceptionDataStyle(String uncheckedExceptionDataStyle) {
+        if (uncheckedExceptionDataStyle != null) {
+            this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle;
+        }
     }
 
-    public void setUncheckedExceptionDataStyle(UncheckedExceptionDataStyle uncheckedExceptionDataStyle) {
-        this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle == null ? DEFAULT_UNCHECKED_EXCEPTION_DATA_STYLE : uncheckedExceptionDataStyle;
-    }
-
-    public State getEmptyChecksOutcome() {
-        return emptyChecksOutcome;
-    }
-
-    public void setEmptyChecksOutcome(State emptyChecksOutcome) {
-        this.emptyChecksOutcome = emptyChecksOutcome == null ? DEFAULT_EMPTY_CHECKS_OUTCOME : emptyChecksOutcome;
+    void setEmptyChecksOutcome(String emptyChecksOutcome) {
+        if (emptyChecksOutcome != null) {
+            this.emptyChecksOutcome = emptyChecksOutcome;
+        }
     }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
@@ -133,7 +92,7 @@ public class SmallRyeHealthReporter {
 
         JsonArray checkResults = results.build();
 
-        builder.add("outcome", checkResults.isEmpty() ? emptyChecksOutcome.toString() : outcome.toString());
+        builder.add("outcome", checkResults.isEmpty() ? emptyChecksOutcome : outcome.toString());
         builder.add("checks", checkResults);
 
         return new SmallRyeHealth(builder.build());
@@ -158,17 +117,22 @@ public class SmallRyeHealthReporter {
         try {
             return jsonObject(check.call());
         } catch (RuntimeException e) {
+            // Print Stacktrace to server log so an error is not just in Health Check response
+            e.printStackTrace();
+
             HealthCheckResponseBuilder response = HealthCheckResponse.named(check.getClass().getName()).down();
 
-            switch (uncheckedExceptionDataStyle) {
-                case ROOT_CAUSE:
-                    response.withData(uncheckedExceptionDataStyle.getDataKey(), getRootCause(e).getMessage());
-                    break;
-                case STACK_TRACE:
-                    response.withData(uncheckedExceptionDataStyle.getDataKey(), getStackTrace(e));
-                    break;
-                default:
-                    // don't add anything
+            if (null != uncheckedExceptionDataStyle) {
+                switch (uncheckedExceptionDataStyle) {
+                    case ROOT_CAUSE:
+                        response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
+                        break;
+                    case STACK_TRACE:
+                        response.withData(STACK_TRACE, getStackTrace(e));
+                        break;
+                    default:
+                        // don't add anything
+                }
             }
 
             return jsonObject(response.build());
@@ -205,6 +169,26 @@ public class SmallRyeHealthReporter {
 
     public void removeHealthCheck(HealthCheck check) {
         additionalChecks.remove(check);
+    }
+
+    private static String getStackTrace(Throwable t) {
+        StringWriter string = new StringWriter();
+
+        try (PrintWriter pw = new PrintWriter(string)) {
+            t.printStackTrace(pw);
+        }
+
+        return string.toString();
+    }
+
+    private static Throwable getRootCause(Throwable t) {
+        Throwable cause = t.getCause();
+
+        if (cause == null || cause == t) {
+            return t;
+        }
+
+        return getRootCause(cause);
     }
 }
 
