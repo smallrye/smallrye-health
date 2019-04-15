@@ -55,6 +55,10 @@ class ResponseBuilder extends HealthCheckResponseBuilder {
 
     @Override
     public HealthCheckResponse build() {
+        if (null == this.name || this.name.trim().length() == 0) {
+            throw new IllegalArgumentException("Health Check contains an invalid name. Can not be null or empty.");
+        }
+
         return new Response(this.name, this.state, this.data.isEmpty() ? null : this.data);
     }
 
