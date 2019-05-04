@@ -14,7 +14,7 @@ public class SmallRyeHealth {
         return payload;
     }
     public boolean isDown() {
-        return HealthCheckResponse.State.DOWN.toString().equals(payload.getString("outcome"));
+        return HealthCheckResponse.State.DOWN.toString().equals(payload.getString("status"));
     }
 }
 
