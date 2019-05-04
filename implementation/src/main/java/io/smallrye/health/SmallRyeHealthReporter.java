@@ -25,6 +25,8 @@ import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.eclipse.microprofile.health.Liveness;
+import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
 
@@ -43,7 +45,15 @@ public class SmallRyeHealthReporter {
      */
     @Inject
     @Health
-    Instance<HealthCheck> checks;
+    Instance<HealthCheck> healthChecks;
+    
+    @Inject
+    @Liveness
+    Instance<HealthCheck> livenessChecks;
+    
+    @Inject
+    @Readiness
+    Instance<HealthCheck> readinessChecks;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = ROOT_CAUSE)
@@ -75,20 +85,32 @@ public class SmallRyeHealthReporter {
         writer.writeObject(health.getPayload());
         writer.close();
     }
-
+    
     public SmallRyeHealth getHealth() {
+        return getHealth(healthChecks, livenessChecks, readinessChecks);
+    }
+    
+    public SmallRyeHealth getLiveness() {
+        return getHealth(livenessChecks);
+    }
+    
+    public SmallRyeHealth getReadiness() {
+        return getHealth(readinessChecks);
+    }
+
+    @SafeVarargs
+    private final SmallRyeHealth getHealth(Instance<HealthCheck>... checks) {
         JsonArrayBuilder results = Json.createArrayBuilder();
         HealthCheckResponse.State status = HealthCheckResponse.State.UP;
 
         if (checks != null) {
-            for (HealthCheck check : checks) {
-                status = fillCheck(check, results, status);
+            for (Instance<HealthCheck> instance : checks) {
+                status = processChecks(instance, results, status);
             }
         }
+        
         if (!additionalChecks.isEmpty()) {
-            for (HealthCheck check : additionalChecks) {
-                status = fillCheck(check, results, status);
-            }
+            status = processChecks(additionalChecks, results, status);
         }
 
         JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -99,6 +121,16 @@ public class SmallRyeHealthReporter {
         builder.add("checks", checkResults);
 
         return new SmallRyeHealth(builder.build());
+    }
+
+    private HealthCheckResponse.State processChecks(Iterable<HealthCheck> checks, JsonArrayBuilder results, HealthCheckResponse.State status) {
+        if (checks != null) {
+            for (HealthCheck check : checks) {
+                status = fillCheck(check, results, status);
+            }
+        }
+
+        return status;
     }
 
     private HealthCheckResponse.State fillCheck(HealthCheck check, JsonArrayBuilder results, HealthCheckResponse.State globalOutcome) {
