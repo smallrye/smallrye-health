@@ -34,7 +34,7 @@
   <properties>
     <version.asciidoctor.plugin>1.6.0</version.asciidoctor.plugin>
     <version.eclipse.microprofile.config>1.3</version.eclipse.microprofile.config>
-    <version.eclipse.microprofile.health>1.0</version.eclipse.microprofile.health>
+    <version.eclipse.microprofile.health>2.0-RC1</version.eclipse.microprofile.health>
     <version.javax.javaee-api>7.0</version.javax.javaee-api>
     <version.javax.enterprise.cdi-api>2.0</version.javax.enterprise.cdi-api>
     <version.junit>4.11</version.junit>
