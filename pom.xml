@@ -41,7 +41,7 @@
     <version.org.jboss.arquillian>1.4.1.Final</version.org.jboss.arquillian>
     <version.org.jboss.logging>2.0.1.Final</version.org.jboss.logging>
     <version.maven-compiler-plugin>3.8.0</version.maven-compiler-plugin>
-    <version.weld>3.1.0.Final</version.weld>
+    <version.weld>3.1.1.Final</version.weld>
     <version.arquillian.wildfly>2.2.0.Final</version.arquillian.wildfly>
     <version.wildfly>13.0.0.Final</version.wildfly>
     <version.jboss.servlet>1.0.2.Final</version.jboss.servlet>
