@@ -35,9 +35,9 @@ public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcess
             testDeployment.addAsServiceProvider(BeanArchiveHandler.class, SmallRyeBeanArchiveHandler.class);
 
             String[] deps = {
-                "io.smallrye:smallrye-health",
+                "io.smallrye:smallrye-health-2.0",
                 "io.smallrye:smallrye-config",
-                "io.smallrye:smallrye-health-tck",
+                "io.smallrye:smallrye-health-tck-2.0",
                 "org.eclipse.microprofile.health:microprofile-health-tck",
                 "org.jboss.weld.servlet:weld-servlet-core" };
 
