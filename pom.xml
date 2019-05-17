@@ -38,7 +38,7 @@
     <version.smallrye-config>1.3.7</version.smallrye-config>
 
     <!-- Used by release plugin to define git tag -->
-    <tagNameFormat>smallrye-health-2.0-${project.version}</tagNameFormat>
+    <tagNameFormat>smallrye-health-2.0-@{project.version}</tagNameFormat>
   </properties>
 
   <scm>
