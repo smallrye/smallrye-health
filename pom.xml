@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.smallrye</groupId>
     <artifactId>smallrye-parent</artifactId>
-    <version>5</version>
+    <version>6</version>
   </parent>
 
   <artifactId>smallrye-health-parent-2.0</artifactId>
@@ -38,7 +38,7 @@
     <version.smallrye-config>1.3.7</version.smallrye-config>
 
     <!-- Used by release plugin to define git tag -->
-    <tagNameFormat>smallrye-health-2.0</tagNameFormat>
+    <tagNameFormat>smallrye-health-2.0-${project.version}</tagNameFormat>
   </properties>
 
   <scm>
@@ -142,4 +142,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>!release.maven.bug.always.be.active</name>
+        </property>
+      </activation>
+      <modules>
+        <module>release</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
