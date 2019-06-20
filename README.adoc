@@ -1,6 +1,7 @@
 :microprofile-health: https://github.com/eclipse/microprofile-health/
 
 image:https://semaphoreci.com/api/v1/smallrye/smallrye-health/branches/master/badge.svg["Semaphore CI", link="https://semaphoreci.com/smallrye/smallrye-health"]
+image:https://sonarcloud.io/api/project_badges/measure?project=smallrye_smallrye-health&metric=alert_status["Quality Gate Status", link="https://sonarcloud.io/dashboard?id=smallrye_smallrye-health"]
 image:https://img.shields.io/github/license/thorntail/thorntail.svg["License", link="http://www.apache.org/licenses/LICENSE-2.0"]
 
 = SmallRye Health
