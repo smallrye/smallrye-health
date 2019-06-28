@@ -1,8 +1,8 @@
 package io.smallrye.health;
 
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BooleanSupplier;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
@@ -10,6 +10,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with state up.
+     * 
      * @param name of the health check
      * @return Health check with state up and given name.
      */
@@ -19,6 +20,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with state down.
+     * 
      * @param name of the health check
      * @return Health check with state down and given name.
      */
@@ -28,6 +30,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with state set from supplier and default health check name (health-check).
+     * 
      * @param supplier to get state.
      * @return Health check with given state and default name.
      */
@@ -37,6 +40,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given state and default health check name (health-check).
+     * 
      * @param state
      * @return Health check with given state and default name.
      */
@@ -46,6 +50,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given state and health check name.
+     * 
      * @param name of the state.
      * @param supplier to get state.
      * @return Health check with given state and name.
@@ -56,6 +61,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given state and health check name.
+     * 
      * @param name of the state.
      * @param state
      * @return Health check with given state and name.
