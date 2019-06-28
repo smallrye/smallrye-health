@@ -40,7 +40,7 @@ public class HealthStatusTest {
 
         final HealthCheckResponse healthCheckResponse = healthCheck.call();
 
-        assertThat(healthCheckResponse.getName(), startsWith("generated-health-check-"));
+        assertThat(healthCheckResponse.getName(), startsWith("unnamed-health-check-"));
     }
 
     @Test
