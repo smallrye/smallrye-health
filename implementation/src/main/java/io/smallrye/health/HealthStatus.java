@@ -72,7 +72,7 @@ public class HealthStatus {
         }
 
         int suffix = random.nextInt(999);
-        return String.format("random-health-check-%03d", suffix);
+        return String.format("generated-health-check-%03d", suffix);
     }
 
 }
