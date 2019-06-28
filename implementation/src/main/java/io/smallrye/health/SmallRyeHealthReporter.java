@@ -29,7 +29,6 @@ import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
 import org.jboss.logging.Logger;
 
-
 @ApplicationScoped
 public class SmallRyeHealthReporter {
     private static Logger LOG = Logger.getLogger(SmallRyeHealthReporter.class);
@@ -46,11 +45,11 @@ public class SmallRyeHealthReporter {
     @Inject
     @Health
     Instance<HealthCheck> healthChecks;
-    
+
     @Inject
     @Liveness
     Instance<HealthCheck> livenessChecks;
-    
+
     @Inject
     @Readiness
     Instance<HealthCheck> readinessChecks;
@@ -85,15 +84,15 @@ public class SmallRyeHealthReporter {
         writer.writeObject(health.getPayload());
         writer.close();
     }
-    
+
     public SmallRyeHealth getHealth() {
         return getHealth(healthChecks, livenessChecks, readinessChecks);
     }
-    
+
     public SmallRyeHealth getLiveness() {
         return getHealth(livenessChecks);
     }
-    
+
     public SmallRyeHealth getReadiness() {
         return getHealth(readinessChecks);
     }
@@ -108,7 +107,7 @@ public class SmallRyeHealthReporter {
                 status = processChecks(instance, results, status);
             }
         }
-        
+
         if (!additionalChecks.isEmpty()) {
             status = processChecks(additionalChecks, results, status);
         }
@@ -123,7 +122,8 @@ public class SmallRyeHealthReporter {
         return new SmallRyeHealth(builder.build());
     }
 
-    private HealthCheckResponse.State processChecks(Iterable<HealthCheck> checks, JsonArrayBuilder results, HealthCheckResponse.State status) {
+    private HealthCheckResponse.State processChecks(Iterable<HealthCheck> checks, JsonArrayBuilder results,
+            HealthCheckResponse.State status) {
         if (checks != null) {
             for (HealthCheck check : checks) {
                 status = fillCheck(check, results, status);
@@ -133,7 +133,8 @@ public class SmallRyeHealthReporter {
         return status;
     }
 
-    private HealthCheckResponse.State fillCheck(HealthCheck check, JsonArrayBuilder results, HealthCheckResponse.State globalOutcome) {
+    private HealthCheckResponse.State fillCheck(HealthCheck check, JsonArrayBuilder results,
+            HealthCheckResponse.State globalOutcome) {
         if (check == null) {
             return globalOutcome;
         }
@@ -226,5 +227,3 @@ public class SmallRyeHealthReporter {
         return getRootCause(cause);
     }
 }
-
-

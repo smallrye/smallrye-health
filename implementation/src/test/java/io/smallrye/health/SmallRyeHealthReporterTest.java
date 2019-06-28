@@ -72,9 +72,11 @@ public class SmallRyeHealthReporterTest {
 
         assertThat(health.isDown(), is(true));
         assertThat(health.getPayload().getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("rootCause"), is("this health check has failed"));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("rootCause"),
+                is("this health check has failed"));
     }
 
     @Test
@@ -86,7 +88,8 @@ public class SmallRyeHealthReporterTest {
 
         assertThat(health.isDown(), is(true));
         assertThat(health.getPayload().getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data"), is(nullValue()));
     }
@@ -100,9 +103,11 @@ public class SmallRyeHealthReporterTest {
 
         assertThat(health.isDown(), is(true));
         assertThat(health.getPayload().getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("stackTrace"), is(notNullValue()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getJsonObject("data").getString("stackTrace"),
+                is(notNullValue()));
     }
 
     @Test
@@ -117,9 +122,11 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getString("status"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is("up"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("UP"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getJsonObject("data").getString("rootCause"), is("this health check has failed"));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getJsonObject("data").getString("rootCause"),
+                is("this health check has failed"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("status"), is("DOWN"));
     }
@@ -137,7 +144,8 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getString("status"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is("up"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("UP"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("status"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getJsonObject("data"), is(nullValue()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
@@ -157,9 +165,11 @@ public class SmallRyeHealthReporterTest {
         assertThat(health.getPayload().getString("status"), is("DOWN"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("name"), is("up"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(0).getString("status"), is("UP"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"), is(FailingHealthCheck.class.getName()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("name"),
+                is(FailingHealthCheck.class.getName()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getString("status"), is("DOWN"));
-        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getJsonObject("data").getString("stackTrace"), is(notNullValue()));
+        assertThat(health.getPayload().getJsonArray("checks").getJsonObject(1).getJsonObject("data").getString("stackTrace"),
+                is(notNullValue()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("status"), is("DOWN"));
     }

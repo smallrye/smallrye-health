@@ -8,14 +8,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 @SuppressWarnings("serial")
 @WebServlet(name = "SmallRyeHealthServlet", urlPatterns = "/health")
 public class SmallRyeHealthServlet extends HttpServlet {
-    
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        
+
         SmallRyeHealth health = reporter.getHealth();
         if (health.isDown()) {
             resp.setStatus(503);
@@ -26,5 +25,3 @@ public class SmallRyeHealthServlet extends HttpServlet {
     @Inject
     private SmallRyeHealthReporter reporter;
 }
-
-
