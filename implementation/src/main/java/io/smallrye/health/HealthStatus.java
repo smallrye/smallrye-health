@@ -1,12 +1,13 @@
 package io.smallrye.health;
 
+import java.util.Random;
 import java.util.function.BooleanSupplier;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 public class HealthStatus {
 
-    protected static final String DEFAULT_HEALTH_CHECK_NAME = "health-check";
+    private static Random random;
 
     /**
      * Creates a health check with state up.
@@ -41,7 +42,7 @@ public class HealthStatus {
      * @return Health check with given state and default name.
      */
     public static HealthCheck state(boolean state) {
-        return state(DEFAULT_HEALTH_CHECK_NAME, state);
+        return state(generateRandomHealthCheckName(), state);
     }
 
     /**
@@ -62,6 +63,16 @@ public class HealthStatus {
      */
     public static HealthCheck state(String name, boolean state) {
         return () -> HealthCheckResponse.named(name).state(state).build();
+    }
+
+    private static synchronized final String generateRandomHealthCheckName() {
+        // lazy init to avoid loading a random object when not necessary
+        if (random == null) {
+            random = new Random();
+        }
+
+        int suffix = random.nextInt(999);
+        return String.format("random-health-check-%03d", suffix);
     }
 
 }
