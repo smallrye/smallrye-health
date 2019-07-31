@@ -37,7 +37,7 @@ public class UrlHealthCheckTest {
         final HealthCheckResponse healthCheckResponse = urlHealthCheck.call();
 
         assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
-        assertEquals("www.fdghreer.com not found", healthCheckResponse.getData().get().get("error"));
+        assertEquals("java.net.UnknownHostException: www.fdghreer.com", healthCheckResponse.getData().get().get("error"));
 
     }
 
