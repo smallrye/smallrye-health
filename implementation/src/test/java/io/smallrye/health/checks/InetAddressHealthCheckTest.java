@@ -19,7 +19,7 @@ public class InetAddressHealthCheckTest {
 
     @Test
     public void testInetAddressCheckNoneReachable() {
-        final InetAddressHealthCheck inetAddressHealthCheck = new InetAddressHealthCheck("www.fdghreer.com");
+        final InetAddressHealthCheck inetAddressHealthCheck = new InetAddressHealthCheck("www.fdghreer.invalid");
         final HealthCheckResponse healthCheckResponse = inetAddressHealthCheck.call();
 
         assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());

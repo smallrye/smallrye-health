@@ -1,8 +1,10 @@
 package io.smallrye.health.checks;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import java.net.SocketAddress;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -26,15 +28,18 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 public class SocketHealthCheck implements HealthCheck {
 
     static final String DEFAULT_NAME = "Socket Check";
+    static final int DEFAULT_TIMEOUT = 2000;
 
     private String host;
     private String name;
     private int port;
+    private int timeout;
 
     public SocketHealthCheck(String host, int port) {
         this.host = host;
         this.port = port;
         this.name = DEFAULT_NAME;
+        this.timeout = DEFAULT_TIMEOUT;
     }
 
     @Override
@@ -42,7 +47,9 @@ public class SocketHealthCheck implements HealthCheck {
         HealthCheckResponseBuilder healthCheckResponseBuilder = HealthCheckResponse
                 .named(name);
         healthCheckResponseBuilder.withData("host", String.format("%s:%d", this.host, this.port));
-        try (Socket s = new Socket(this.host, this.port)) {
+        try (Socket s = new Socket()) {
+            final SocketAddress socketAddress = new InetSocketAddress(host, port);
+            s.connect(socketAddress, timeout);
             healthCheckResponseBuilder.up();
         } catch (IOException ex) {
             healthCheckResponseBuilder.withData("error", ex.getMessage());
@@ -60,5 +67,17 @@ public class SocketHealthCheck implements HealthCheck {
     public SocketHealthCheck name(String name) {
         this.name = name;
         return this;
+    }
+
+    /**
+     * Sets timeout in millis.
+     *
+     * @param timeout in millis.
+     * @return SocketHealthCheck instance.
+     */
+    public SocketHealthCheck timeout(int timeout) {
+        this.timeout = timeout;
+        return this;
+
     }
 }

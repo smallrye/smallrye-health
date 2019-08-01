@@ -24,12 +24,12 @@ public class SocketHealthCheckTest {
     }
 
     @Test
-    public void testSocketHealtchCheckNoneServiceOnPort() {
-        SocketHealthCheck socketHealthCheck = new SocketHealthCheck("127.0.0.1", 8985);
+    public void testSocketHealthCheckNoneServiceOnPort() {
+        SocketHealthCheck socketHealthCheck = new SocketHealthCheck("198.51.100.0", 8985);
 
         final HealthCheckResponse healthCheckResponse = socketHealthCheck.call();
         assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
-        assertEquals("Connection refused (Connection refused)", healthCheckResponse.getData().get().get("error"));
+        assertEquals("connect timed out", healthCheckResponse.getData().get().get("error"));
     }
 
 }

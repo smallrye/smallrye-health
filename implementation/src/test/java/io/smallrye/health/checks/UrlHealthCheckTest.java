@@ -33,11 +33,11 @@ public class UrlHealthCheckTest {
 
     @Test
     public void testUrlCheckNoneExistingUrl() {
-        final UrlHealthCheck urlHealthCheck = new UrlHealthCheck("http://www.fdghreer.com");
+        final UrlHealthCheck urlHealthCheck = new UrlHealthCheck("http://www.fdghreer.invalid");
         final HealthCheckResponse healthCheckResponse = urlHealthCheck.call();
 
         assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
-        assertEquals("java.net.UnknownHostException: www.fdghreer.com", healthCheckResponse.getData().get().get("error"));
+        assertEquals("java.net.UnknownHostException: www.fdghreer.invalid", healthCheckResponse.getData().get().get("error"));
 
     }
 
