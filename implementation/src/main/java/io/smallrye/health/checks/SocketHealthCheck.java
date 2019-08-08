@@ -3,8 +3,8 @@ package io.smallrye.health.checks;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-
 import java.net.SocketAddress;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
