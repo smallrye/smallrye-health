@@ -36,7 +36,7 @@ public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcess
 
             String[] deps = {
                     "io.smallrye:smallrye-health",
-                    "io.smallrye:smallrye-config",
+                    "io.smallrye.config:smallrye-config",
                     "io.smallrye:smallrye-health-tck",
                     "org.eclipse.microprofile.health:microprofile-health-tck",
                     "org.jboss.weld.servlet:weld-servlet-core" };
