@@ -77,12 +77,34 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.annotation.versioning</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
         <groupId>org.eclipse.microprofile.health</groupId>
         <artifactId>microprofile-health-tck</artifactId>
         <version>${version.eclipse.microprofile.health}</version>
+        <exclusions>
+          <exclusion>
+            <groupId> javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.json</groupId>
+            <artifactId>javax.json-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.mail</groupId>
+            <artifactId>mailapi</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -102,6 +124,12 @@
         <artifactId>weld-servlet-core</artifactId>
         <version>${version.weld.core}</version>
         <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
