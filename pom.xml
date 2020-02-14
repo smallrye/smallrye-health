@@ -64,6 +64,8 @@
     <module>docs</module>
     <module>implementation</module>
     <module>tck</module>
+    <module>extension-api</module>
+    <module>extension-test</module>
   </modules>
 
   <dependencyManagement>
