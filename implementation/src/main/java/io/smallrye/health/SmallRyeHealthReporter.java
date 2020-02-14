@@ -5,11 +5,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -55,6 +59,10 @@ public class SmallRyeHealthReporter {
     Instance<HealthCheck> readinessChecks;
 
     @Inject
+    @Any
+    Instance<HealthCheck> allHealthChecks;
+
+    @Inject
     @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = ROOT_CAUSE)
     String uncheckedExceptionDataStyle;
 
@@ -97,13 +105,36 @@ public class SmallRyeHealthReporter {
         return getHealth(readinessChecks);
     }
 
+    public SmallRyeHealth getHealthGroup(String groupName) {
+        return getHealth(allHealthChecks.select(HealthGroup.Literal.of(groupName)));
+    }
+
+    @Inject
+    BeanManager beanManager;
+
+    public SmallRyeHealth getHealthGroups() {
+        Iterator<Bean<?>> iterator = beanManager.getBeans(HealthCheck.class, Any.Literal.INSTANCE).iterator();
+
+        List<HealthCheck> groupHealthChecks = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            Bean<?> bean = iterator.next();
+            if (bean.getQualifiers().stream().anyMatch(annotation -> annotation.annotationType().equals(HealthGroup.class))) {
+                groupHealthChecks.add((HealthCheck) beanManager.getReference(bean, bean.getBeanClass(),
+                        beanManager.createCreationalContext(bean)));
+            }
+        }
+
+        return getHealth(groupHealthChecks);
+    }
+
     @SafeVarargs
-    private final SmallRyeHealth getHealth(Instance<HealthCheck>... checks) {
+    private final SmallRyeHealth getHealth(Iterable<HealthCheck>... checks) {
         JsonArrayBuilder results = Json.createArrayBuilder();
         HealthCheckResponse.State status = HealthCheckResponse.State.UP;
 
         if (checks != null) {
-            for (Instance<HealthCheck> instance : checks) {
+            for (Iterable<HealthCheck> instance : checks) {
                 status = processChecks(instance, results, status);
             }
         }
