@@ -15,13 +15,13 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
+import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGenerator;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -72,6 +72,8 @@ public class SmallRyeHealthReporter {
 
     private List<HealthCheck> additionalChecks = new ArrayList<>();
 
+    private JsonProvider jsonProvider = JsonProvider.provider();
+
     void setUncheckedExceptionDataStyle(String uncheckedExceptionDataStyle) {
         if (uncheckedExceptionDataStyle != null) {
             this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle;
@@ -86,7 +88,7 @@ public class SmallRyeHealthReporter {
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
 
-        JsonWriterFactory factory = Json.createWriterFactory(JSON_CONFIG);
+        JsonWriterFactory factory = jsonProvider.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
 
         writer.writeObject(health.getPayload());
@@ -130,7 +132,7 @@ public class SmallRyeHealthReporter {
 
     @SafeVarargs
     private final SmallRyeHealth getHealth(Iterable<HealthCheck>... checks) {
-        JsonArrayBuilder results = Json.createArrayBuilder();
+        JsonArrayBuilder results = jsonProvider.createArrayBuilder();
         HealthCheckResponse.State status = HealthCheckResponse.State.UP;
 
         if (checks != null) {
@@ -143,7 +145,7 @@ public class SmallRyeHealthReporter {
             status = processChecks(additionalChecks, results, status);
         }
 
-        JsonObjectBuilder builder = Json.createObjectBuilder();
+        JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
 
         JsonArray checkResults = results.build();
 
@@ -207,11 +209,11 @@ public class SmallRyeHealthReporter {
     }
 
     private JsonObject jsonObject(HealthCheckResponse response) {
-        JsonObjectBuilder builder = Json.createObjectBuilder();
+        JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
         builder.add("name", response.getName());
         builder.add("status", response.getState().toString());
         response.getData().ifPresent(d -> {
-            JsonObjectBuilder data = Json.createObjectBuilder();
+            JsonObjectBuilder data = jsonProvider.createObjectBuilder();
             for (Map.Entry<String, Object> entry : d.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof String) {
@@ -257,4 +259,5 @@ public class SmallRyeHealthReporter {
 
         return getRootCause(cause);
     }
+    
 }
