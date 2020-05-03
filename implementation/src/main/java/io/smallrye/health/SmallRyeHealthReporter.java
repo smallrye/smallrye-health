@@ -87,6 +87,10 @@ public class SmallRyeHealthReporter {
     }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
+        if (health.isDown() && LOG.isInfoEnabled()) {
+            // Log reason, as not reported by container orchestrators, yet container may get killed.
+            LOG.infov("Reporting health down status: {0}", health.getPayload());
+        }
 
         JsonWriterFactory factory = jsonProvider.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
@@ -259,5 +263,5 @@ public class SmallRyeHealthReporter {
 
         return getRootCause(cause);
     }
-    
+
 }

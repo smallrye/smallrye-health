@@ -1,10 +1,17 @@
 package io.smallrye.health;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
+
+import java.io.ByteArrayOutputStream;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -172,5 +179,18 @@ public class SmallRyeHealthReporterTest {
                 is(notNullValue()));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("name"), is("down"));
         assertThat(health.getPayload().getJsonArray("checks").getJsonObject(2).getString("status"), is("DOWN"));
+    }
+
+    @Test
+    public void testReportWhenDown() {
+        ByteArrayOutputStream logStream = new ByteArrayOutputStream();
+        Handler handler = new StreamHandler(logStream, new SimpleFormatter());
+        Logger.getLogger(SmallRyeHealthReporter.class.getName()).addHandler(handler);
+        reporter.addHealthCheck(new DownHealthCheck());
+
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
+
+        handler.flush();
+        assertThat(logStream.toString(), containsString(reporter.getHealth().getPayload().toString()));
     }
 }
