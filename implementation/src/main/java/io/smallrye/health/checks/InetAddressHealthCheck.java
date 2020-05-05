@@ -51,6 +51,8 @@ public class InetAddressHealthCheck implements HealthCheck {
 
             healthCheckResponseBuilder.state(reachable);
         } catch (IOException e) {
+            HealthChecksLogging.log.inetAddressHealthCheckError(e);
+
             healthCheckResponseBuilder.withData("error", e.getMessage());
             healthCheckResponseBuilder.down();
         }

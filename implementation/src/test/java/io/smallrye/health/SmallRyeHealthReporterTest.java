@@ -8,10 +8,7 @@ import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
+import java.util.logging.*;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -185,9 +182,13 @@ public class SmallRyeHealthReporterTest {
     public void testReportWhenDown() {
         ByteArrayOutputStream logStream = new ByteArrayOutputStream();
         Handler handler = new StreamHandler(logStream, new SimpleFormatter());
-        Logger.getLogger(SmallRyeHealthReporter.class.getName()).addHandler(handler);
-        reporter.addHealthCheck(new DownHealthCheck());
 
+        Logger logger = Logger.getLogger("io.smallrye.health");
+        logger.addHandler(handler);
+        logger.setLevel(Level.ALL);
+        logger.setUseParentHandlers(false);
+
+        reporter.addHealthCheck(new DownHealthCheck());
         reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
 
         handler.flush();
