@@ -1,0 +1,43 @@
+# This document is intended to establish the ranges for message IDs in the various sub-projects.
+
+# Range     = owner
+
+00000-00999 = smallrye-health [io.smallrye.health] (messages)
+
+01000-01999 = smallrye-health [io.smallrye.health] (logging)
+
+02000-02999 = smallrye-health [io.smallrye.health.checks] (logging)
+
+03000-03999 =
+
+04000-04999 =
+
+05000-05999 =
+
+06000-06999 =
+
+07000-07999 =
+
+08000-08999 =
+
+09000-09999 =
+
+10000-10999 =
+
+11000-11999 =
+
+12000-12999 =
+
+13000-13999 =
+
+14000-14999 =
+
+15000-15999 =
+
+16000-16999 =
+
+17000-17999 =
+
+18000-18999 =
+
+19000-19999 =

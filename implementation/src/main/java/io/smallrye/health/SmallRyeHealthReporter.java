@@ -31,12 +31,9 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
-    private static Logger LOG = Logger.getLogger(SmallRyeHealthReporter.class);
-
     private static final String ROOT_CAUSE = "rootCause";
 
     private static final String STACK_TRACE = "stackTrace";
@@ -87,9 +84,9 @@ public class SmallRyeHealthReporter {
     }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
-        if (health.isDown() && LOG.isInfoEnabled()) {
+        if (health.isDown() && HealthLogging.log.isInfoEnabled()) {
             // Log reason, as not reported by container orchestrators, yet container may get killed.
-            LOG.infov("Reporting health down status: {0}", health.getPayload());
+            HealthLogging.log.healthDownStatus(health.getPayload().toString());
         }
 
         JsonWriterFactory factory = jsonProvider.createWriterFactory(JSON_CONFIG);
@@ -191,7 +188,7 @@ public class SmallRyeHealthReporter {
             return jsonObject(check.call());
         } catch (RuntimeException e) {
             // Log Stacktrace to server log so an error is not just in Health Check response
-            LOG.error("Error processing Health Checks", e);
+            HealthLogging.log.healthCheckError(e);
 
             HealthCheckResponseBuilder response = HealthCheckResponse.named(check.getClass().getName()).down();
 
