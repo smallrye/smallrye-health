@@ -2,9 +2,9 @@ package io.smallrye.health;
 
 import org.jboss.logging.Messages;
 import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.jboss.logging.annotations.MessageBundle;
 
-@MessageLogger(projectCode = "SRHCK", length = 5)
+@MessageBundle(projectCode = "SRHCK", length = 5)
 interface HealthMessages {
     HealthMessages msg = Messages.getBundle(HealthMessages.class);
 
