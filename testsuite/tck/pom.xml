@@ -21,13 +21,13 @@
 
   <parent>
     <groupId>io.smallrye</groupId>
-    <artifactId>smallrye-health-parent</artifactId>
+    <artifactId>smallrye-health-testsuite-parent</artifactId>
     <version>2.2.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>smallrye-health-tck</artifactId>
 
-  <name>SmallRye: MicroProfile Health TCK</name>
+  <name>SmallRye Health: TCK</name>
 
   <build>
     <plugins>

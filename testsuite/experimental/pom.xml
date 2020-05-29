@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>smallrye-health-parent</artifactId>
     <groupId>io.smallrye</groupId>
+    <artifactId>smallrye-health-testsuite-parent</artifactId>
     <version>2.2.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>smallrye-health-extension-test</artifactId>
+  <artifactId>smallrye-health-experimental-test</artifactId>
 
-  <name>SmallRye: MicroProfile Health Extension Test</name>
+  <name>SmallRye Health: Experimental Test Suite</name>
   <description>The test module for features to be included in the specification.</description>
 
   <dependencies>

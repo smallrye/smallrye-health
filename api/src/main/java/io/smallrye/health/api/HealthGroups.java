@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  */
-package io.smallrye.health;
+package io.smallrye.health.api;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -31,6 +31,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import io.smallrye.common.annotation.Experimental;
+
 /**
  *
  * This annotation allow to repeat {@link HealthGroup} qualifier
@@ -41,6 +43,8 @@ import java.lang.annotation.Target;
 @Target({ PARAMETER, FIELD, METHOD, TYPE })
 @Documented
 @Retention(RUNTIME)
+@Experimental("Custom health group definitions exposed at /health/{group-name}. Not covered by the specification. " +
+        "Subject to change.")
 public @interface HealthGroups {
     /**
      * @return list of {@link HealthGroup}

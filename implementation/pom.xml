@@ -27,7 +27,7 @@
 
   <artifactId>smallrye-health</artifactId>
 
-  <name>SmallRye: MicroProfile Health Implementation</name>
+  <name>SmallRye Health: Implementation</name>
 
   <dependencies>
     <dependency>

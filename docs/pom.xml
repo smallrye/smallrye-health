@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>smallrye-health-docs</artifactId>
-  <name>SmallRye: MicroProfile Health - Documentation</name>
+  <name>SmallRye Health: Documentation</name>
 
   <build>
     <plugins>

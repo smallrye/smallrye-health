@@ -26,7 +26,7 @@ import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import io.smallrye.health.HealthGroup;
+import io.smallrye.health.api.HealthGroup;
 
 /**
  * @author Antone Sabot-Durand

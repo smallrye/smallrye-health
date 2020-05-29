@@ -32,6 +32,8 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
 
+import io.smallrye.health.api.HealthGroup;
+
 @ApplicationScoped
 public class SmallRyeHealthReporter {
     private static final String ROOT_CAUSE = "rootCause";
