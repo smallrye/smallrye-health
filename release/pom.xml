@@ -10,7 +10,7 @@
 
     <artifactId>smallrye-health-release</artifactId>
 
-    <name>Empty Release Project to Avoid Maven Bug</name>
+    <name>SmallRye Health: Empty Release Project to Avoid Maven Bug</name>
     <description>Empty Release Project to Avoid Maven Bug</description>
 
     <packaging>pom</packaging>

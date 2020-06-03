@@ -37,6 +37,7 @@
     <version.eclipse.microprofile.health>2.2</version.eclipse.microprofile.health>
     <version.jakarta.servlet>4.0.3</version.jakarta.servlet>
     <version.smallrye-config>1.8.0</version.smallrye-config>
+    <version.smallrye-common>1.0.2</version.smallrye-common>
 
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
@@ -61,11 +62,10 @@
   </scm>
 
   <modules>
+    <module>api</module>
     <module>docs</module>
     <module>implementation</module>
-    <module>tck</module>
-    <module>extension-api</module>
-    <module>extension-test</module>
+    <module>testsuite</module>
   </modules>
 
   <dependencyManagement>
@@ -138,6 +138,11 @@
         <groupId>io.smallrye.config</groupId>
         <artifactId>smallrye-config</artifactId>
         <version>${version.smallrye-config}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye.common</groupId>
+        <artifactId>smallrye-common-annotation</artifactId>
+        <version>${version.smallrye-common}</version>
       </dependency>
 
       <!-- Dependencies provided by the project -->

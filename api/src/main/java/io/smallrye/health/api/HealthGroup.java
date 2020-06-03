@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  */
-package io.smallrye.health;
+package io.smallrye.health.api;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -35,6 +35,8 @@ import java.lang.annotation.Target;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 
+import io.smallrye.common.annotation.Experimental;
+
 /**
  *
  * This qualifier is used to define a custom Health Check procedure by applying a group name to it
@@ -47,6 +49,8 @@ import javax.inject.Qualifier;
 @Documented
 @Qualifier
 @Repeatable(HealthGroups.class)
+@Experimental("Custom health group definitions exposed at /health/{group-name}. Not covered by the specification. " +
+        "Subject to change.")
 public @interface HealthGroup {
 
     /**
@@ -60,7 +64,7 @@ public @interface HealthGroup {
      * @author Antoine Sabot-Durand
      * @since 2.2
      */
-    public static final class Literal extends AnnotationLiteral<HealthGroup> implements HealthGroup {
+    final class Literal extends AnnotationLiteral<HealthGroup> implements HealthGroup {
 
         private static final long serialVersionUID = 1L;
 

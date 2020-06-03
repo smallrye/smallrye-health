@@ -9,10 +9,18 @@
 
   <artifactId>smallrye-health-extension-api</artifactId>
 
-  <name>SmallRye: MicroProfile Health Extension API</name>
+  <name>SmallRye Health: API</name>
   <description>The feature API for the testing of features to be included in the specification.</description>
 
   <dependencies>
+    <dependency>
+      <groupId>org.eclipse.microprofile.health</groupId>
+      <artifactId>microprofile-health-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.smallrye.common</groupId>
+      <artifactId>smallrye-common-annotation</artifactId>
+    </dependency>
     <dependency>
       <groupId>jakarta.enterprise</groupId>
       <artifactId>jakarta.enterprise.cdi-api</artifactId>
