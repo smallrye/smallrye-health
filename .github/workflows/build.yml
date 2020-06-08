@@ -43,7 +43,7 @@ jobs:
           java-version: ${{matrix.java}}
           
       - name: build microprofile health
-          run: |
+          run: | 
             cd microprofile-health
             mvn install
             cd ..
