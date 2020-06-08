@@ -12,7 +12,11 @@ import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.function.Supplier;
-import java.util.logging.*;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -26,12 +30,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.registry.LivenessHealthRegistry;
+import io.smallrye.health.registry.ReadinessHealthRegistry;
 import io.smallrye.mutiny.Uni;
 
 public class SmallRyeHealthReporterTest {
 
     private static final Duration maxDuration = Duration.ofSeconds(5);
     private SmallRyeHealthReporter reporter;
+    private LivenessHealthRegistry healthRegistry;
+    private AsyncHealthCheckFactory asyncHealthCheckFactory;
     private Comparator<JsonValue> checkComparator = Comparator.comparing(o -> ((JsonObject) o).getString("name"));
 
     public static class FailingHealthCheck implements HealthCheck {
@@ -101,8 +109,15 @@ public class SmallRyeHealthReporterTest {
     public void createReporter() {
         reporter = new SmallRyeHealthReporter();
         reporter.emptyChecksOutcome = "UP";
-        reporter.uncheckedExceptionDataStyle = "rootCause";
         reporter.timeoutSeconds = 300;
+
+        healthRegistry = new LivenessHealthRegistry();
+        reporter.livenessHealthRegistry = healthRegistry;
+        reporter.readinessHealthRegistry = new ReadinessHealthRegistry();
+
+        asyncHealthCheckFactory = new AsyncHealthCheckFactory();
+        asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
+        reporter.asyncHealthCheckFactory = asyncHealthCheckFactory;
     }
 
     @Test
@@ -462,7 +477,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithFailingCheckAndStyleNone(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        reporter.setUncheckedExceptionDataStyle("NONE");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("NONE");
 
         SmallRyeHealth health = supplier.get();
 
@@ -475,7 +490,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithFailingCheckAndStyleStackTrace(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        reporter.setUncheckedExceptionDataStyle("stackTrace");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("stackTrace");
 
         SmallRyeHealth health = supplier.get();
 
@@ -513,7 +528,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithMixedChecksAndStyleNone(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        reporter.setUncheckedExceptionDataStyle("NONE");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("NONE");
 
         SmallRyeHealth health = supplier.get();
 
@@ -538,7 +553,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithMixedChecksAndStyleStackTrace(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        reporter.setUncheckedExceptionDataStyle("stackTrace");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("stackTrace");
 
         SmallRyeHealth health = supplier.get();
 

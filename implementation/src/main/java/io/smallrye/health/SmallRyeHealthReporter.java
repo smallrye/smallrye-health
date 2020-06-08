@@ -6,8 +6,6 @@ import static io.smallrye.health.SmallRyeHealthReporter.HealthType.READINESS;
 import static io.smallrye.health.SmallRyeHealthReporter.HealthType.WELLNESS;
 
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +35,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
 
@@ -45,13 +42,13 @@ import io.smallrye.common.annotation.Experimental;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.Wellness;
+import io.smallrye.health.registry.AbstractHealthRegistry;
+import io.smallrye.health.registry.LivenessHealthRegistry;
+import io.smallrye.health.registry.ReadinessHealthRegistry;
 import io.smallrye.mutiny.Uni;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
-    private static final String ROOT_CAUSE = "rootCause";
-
-    private static final String STACK_TRACE = "stackTrace";
 
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
 
@@ -102,8 +99,12 @@ public class SmallRyeHealthReporter {
     BeanManager beanManager;
 
     @Inject
-    @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = ROOT_CAUSE)
-    String uncheckedExceptionDataStyle;
+    @Liveness
+    LivenessHealthRegistry livenessHealthRegistry;
+
+    @Inject
+    @Readiness
+    ReadinessHealthRegistry readinessHealthRegistry;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
@@ -112,6 +113,9 @@ public class SmallRyeHealthReporter {
     @Inject
     @ConfigProperty(name = "io.smallrye.health.timeout.seconds", defaultValue = "60")
     int timeoutSeconds;
+
+    @Inject
+    AsyncHealthCheckFactory asyncHealthCheckFactory;
 
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
@@ -131,25 +135,28 @@ public class SmallRyeHealthReporter {
     @PostConstruct
     public void initChecks() {
         initUnis(healthUnis, healthChecks, asyncHealthChecks);
-        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks);
-        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks);
+        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks, livenessHealthRegistry);
+        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks, readinessHealthRegistry);
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
     }
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
+        initUnis(list, checks, asyncChecks, null);
+    }
+
+    private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
+            Iterable<AsyncHealthCheck> asyncChecks, AbstractHealthRegistry registry) {
         for (HealthCheck check : checks) {
-            list.add(callSync(check));
+            list.add(asyncHealthCheckFactory.callSync(check));
         }
 
         for (AsyncHealthCheck asyncCheck : asyncChecks) {
-            list.add(callAsync(asyncCheck));
+            list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
         }
-    }
 
-    void setUncheckedExceptionDataStyle(String uncheckedExceptionDataStyle) {
-        if (uncheckedExceptionDataStyle != null) {
-            this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle;
+        if (registry != null) {
+            list.addAll(registry.getChecks());
         }
     }
 
@@ -256,12 +263,32 @@ public class SmallRyeHealthReporter {
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
-        if (cachedHealth == null || additionalListsChanged) {
+        if (cachedHealth == null || additionalListsChanged(types)) {
             additionalListsChanged = false;
             cachedHealth = computeHealth(types);
         }
 
         return cachedHealth;
+    }
+
+    private boolean additionalListsChanged(HealthType... types) {
+        boolean needRecompute = false;
+        for (HealthType type : types) {
+            switch (type) {
+                case LIVENESS:
+                    if (livenessHealthRegistry.checksChanged()) {
+                        needRecompute = true;
+                    }
+                    break;
+                case READINESS:
+                    if (readinessHealthRegistry.checksChanged()) {
+                        needRecompute = true;
+                    }
+                    break;
+            }
+        }
+
+        return needRecompute;
     }
 
     private Uni<SmallRyeHealth> computeHealth(HealthType[] types) {
@@ -274,9 +301,11 @@ public class SmallRyeHealthReporter {
                     break;
                 case LIVENESS:
                     checks.addAll(livenessUnis);
+                    checks.addAll(livenessHealthRegistry.getChecks());
                     break;
                 case READINESS:
                     checks.addAll(readinessUnis);
+                    checks.addAll(readinessHealthRegistry.getChecks());
                     break;
                 case WELLNESS:
                     checks.addAll(wellnessUnis);
@@ -316,12 +345,6 @@ public class SmallRyeHealthReporter {
                 });
     }
 
-    private Uni<HealthCheckResponse> withRecovery(String name, Uni<HealthCheckResponse> uni) {
-        return uni.onFailure().recoverWithItem(e -> handleFailure(name, e))
-                .onItem().ifNull()
-                .continueWith(() -> handleFailure(name, HealthMessages.msg.healthCheckNull()));
-    }
-
     private SmallRyeHealth createEmptySmallRyeHealth() {
         return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null);
     }
@@ -351,36 +374,6 @@ public class SmallRyeHealthReporter {
         return globalOutcome;
     }
 
-    private Uni<HealthCheckResponse> callAsync(AsyncHealthCheck asyncHealthCheck) {
-        return withRecovery(asyncHealthCheck.getClass().getName(), Uni.createFrom().deferred(asyncHealthCheck::call));
-    }
-
-    private Uni<HealthCheckResponse> callSync(HealthCheck healthCheck) {
-        return withRecovery(healthCheck.getClass().getName(), Uni.createFrom().item(healthCheck::call));
-    }
-
-    private HealthCheckResponse handleFailure(String name, Throwable e) {
-        // Log Stacktrace to server log so an error is not just in Health Check response
-        HealthLogging.log.healthCheckError(e);
-
-        HealthCheckResponseBuilder response = HealthCheckResponse.named(name).down();
-
-        if (null != uncheckedExceptionDataStyle) {
-            switch (uncheckedExceptionDataStyle) {
-                case ROOT_CAUSE:
-                    response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
-                    break;
-                case STACK_TRACE:
-                    response.withData(STACK_TRACE, getStackTrace(e));
-                    break;
-                default:
-                    // don't add anything
-            }
-        }
-
-        return response.build();
-    }
-
     private JsonObject jsonObject(HealthCheckResponse response) {
         JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
         builder.add("name", response.getName());
@@ -405,14 +398,14 @@ public class SmallRyeHealthReporter {
 
     public void addHealthCheck(HealthCheck check) {
         if (check != null) {
-            additionalChecks.put(check.getClass().getName(), callSync(check));
+            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callSync(check));
             additionalListsChanged = true;
         }
     }
 
     public void addHealthCheck(AsyncHealthCheck check) {
         if (check != null) {
-            additionalChecks.put(check.getClass().getName(), callAsync(check));
+            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callAsync(check));
             additionalListsChanged = true;
         }
     }
@@ -427,31 +420,10 @@ public class SmallRyeHealthReporter {
         additionalListsChanged = true;
     }
 
-    private static String getStackTrace(Throwable t) {
-        StringWriter string = new StringWriter();
-
-        try (PrintWriter pw = new PrintWriter(string)) {
-            t.printStackTrace(pw);
-        }
-
-        return string.toString();
-    }
-
-    private static Throwable getRootCause(Throwable t) {
-        Throwable cause = t.getCause();
-
-        if (cause == null || cause == t) {
-            return t;
-        }
-
-        return getRootCause(cause);
-    }
-
     enum HealthType {
         HEALTH,
         LIVENESS,
         READINESS,
         WELLNESS
     }
-
 }
