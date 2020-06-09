@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>smallrye-health-extension-api</artifactId>
+  <artifactId>smallrye-health-api</artifactId>
 
   <name>SmallRye Health: API</name>
   <description>The feature API for the testing of features to be included in the specification.</description>
