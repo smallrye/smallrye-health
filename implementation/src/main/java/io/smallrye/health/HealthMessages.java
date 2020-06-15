@@ -10,4 +10,7 @@ interface HealthMessages {
 
     @Message(id = 0, value = "Health Check contains an invalid name. Can not be null or empty.")
     IllegalArgumentException invalidHealthCheckName();
+
+    @Message(id = 1, value = "Health Check returned null.")
+    NullPointerException healthCheckNull();
 }
