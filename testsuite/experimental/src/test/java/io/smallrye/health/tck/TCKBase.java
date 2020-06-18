@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2017-2020 Contributors to the Eclipse Foundation
  *
  * See the NOTICES file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -75,6 +75,10 @@ public abstract class TCKBase extends Arquillian {
 
     Response getUrlReadyContents() {
         return getUrlContents(this.uri + "/health/ready", false);
+    }
+
+    Response getUrlWellContents() {
+        return getUrlContents(this.uri + "/health/well", false);
     }
 
     public Response getUrlAllCustomHealthContents() {

@@ -33,6 +33,7 @@ import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
 
 import io.smallrye.health.api.HealthGroup;
+import io.smallrye.health.api.Wellness;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
@@ -56,6 +57,10 @@ public class SmallRyeHealthReporter {
     @Inject
     @Readiness
     Instance<HealthCheck> readinessChecks;
+
+    @Inject
+    @Wellness
+    Instance<HealthCheck> wellnessChecks;
 
     @Inject
     @Any
@@ -99,7 +104,7 @@ public class SmallRyeHealthReporter {
     }
 
     public SmallRyeHealth getHealth() {
-        return getHealth(healthChecks, livenessChecks, readinessChecks);
+        return getHealth(healthChecks, livenessChecks, readinessChecks, wellnessChecks);
     }
 
     public SmallRyeHealth getLiveness() {
@@ -108,6 +113,10 @@ public class SmallRyeHealthReporter {
 
     public SmallRyeHealth getReadiness() {
         return getHealth(readinessChecks);
+    }
+
+    public SmallRyeHealth getWellness() {
+        return getHealth(wellnessChecks);
     }
 
     public SmallRyeHealth getHealthGroup(String groupName) {
