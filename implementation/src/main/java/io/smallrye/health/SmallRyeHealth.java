@@ -1,5 +1,7 @@
 package io.smallrye.health;
 
+import java.util.Objects;
+
 import javax.json.JsonObject;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -18,5 +20,22 @@ public class SmallRyeHealth {
 
     public boolean isDown() {
         return HealthCheckResponse.State.DOWN.toString().equals(payload.getString("status"));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getPayload());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof SmallRyeHealth)) {
+            return false;
+        }
+        SmallRyeHealth other = (SmallRyeHealth) obj;
+        return Objects.equals(this.getPayload(), other.getPayload());
     }
 }

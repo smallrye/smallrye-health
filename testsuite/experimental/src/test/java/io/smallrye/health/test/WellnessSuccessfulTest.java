@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2020 Contributors to the Eclipse Foundation
  *
  * See the NOTICES file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,7 +20,7 @@
  *
  */
 
-package io.smallrye.health.tck;
+package io.smallrye.health.test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -31,26 +31,26 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.SuccessfulCustom;
+import io.smallrye.health.deployment.SuccessfulWellness;
 
 /**
  * @author Antoine Sabot-Durand
  */
-public class SingleCustomSuccessfulTest extends TCKBase {
+public class WellnessSuccessfulTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(SingleCustomSuccessfulTest.class.getSimpleName(),
-                SuccessfulCustom.class);
+        return DeploymentUtils.createWarFileWithClasses(WellnessSuccessfulTest.class.getSimpleName(),
+                SuccessfulWellness.class, TCKBase.class);
     }
 
     /**
-     * Verifies the custom health integration with CDI at the scope of a server runtime
+     * Verifies the wellness integration with CDI at the scope of a server runtime
      */
     @Test
     @RunAsClient
     public void testSuccessResponsePayload() {
-        Response response = getUrlCustomHealthContents("group1");
+        Response response = getUrlWellContents();
 
         // status code
         Assert.assertEquals(response.getStatus(), 200);

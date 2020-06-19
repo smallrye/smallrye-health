@@ -20,7 +20,7 @@
  *
  */
 
-package io.smallrye.health.tck;
+package io.smallrye.health.test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -31,27 +31,26 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.FailedCustom;
-import io.smallrye.health.deployment.SuccessfulCustom;
+import io.smallrye.health.deployment.FailedWellness;
 
 /**
- * @author Prashanth Gunapalasingam
+ * @author Antoine Sabot-Durand
  */
-public class AllCustomFailedTest extends TCKBase {
+public class WellnessFailedTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(AllCustomFailedTest.class.getSimpleName(),
-                FailedCustom.class, SuccessfulCustom.class);
+        return DeploymentUtils.createWarFileWithClasses(WellnessFailedTest.class.getSimpleName(),
+                FailedWellness.class, TCKBase.class);
     }
 
     /**
-     * Verifies the custom health integration with CDI at the scope of a server runtime, by retrieving all the custom checks.
+     * Verifies the wellness integration with CDI at the scope of a server runtime
      */
     @Test
     @RunAsClient
-    public void testFailureResponsePayload() {
-        Response response = getUrlAllCustomHealthContents();
+    public void testFailedResponsePayload() {
+        Response response = getUrlWellContents();
 
         // status code
         Assert.assertEquals(response.getStatus(), 503);
@@ -60,23 +59,11 @@ public class AllCustomFailedTest extends TCKBase {
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 2, "Expected two check responses");
+        Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
-        for (JsonObject check : checks.getValuesAs(JsonObject.class)) {
-            String id = check.getString("name");
-            switch (id) {
-                case "successful-check":
-                    verifySuccessStatus(check);
-                    break;
-                case "failed-check":
-                    verifyFailureStatus(check);
-                    break;
-                default:
-                    Assert.fail("Unexpected response payload structure");
-            }
-        }
+        // single procedure response
+        assertFailureCheck(checks.getJsonObject(0), "failed-check");
 
         assertOverallFailure(json);
     }
-
 }

@@ -20,7 +20,7 @@
  *
  */
 
-package io.smallrye.health.tck;
+package io.smallrye.health.test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

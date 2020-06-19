@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2020 Contributors to the Eclipse Foundation
  *
  * See the NOTICES file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,7 +20,7 @@
  *
  */
 
-package io.smallrye.health.tck;
+package io.smallrye.health.test;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -35,23 +35,23 @@ import io.smallrye.health.deployment.FailedCustom;
 import io.smallrye.health.deployment.SuccessfulCustom;
 
 /**
- * @author Antoine Sabot-Durand
+ * @author Prashanth Gunapalasingam
  */
-public class MultipleCustomFailedTest extends TCKBase {
+public class AllCustomFailedTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(MultipleCustomFailedTest.class.getSimpleName(),
-                FailedCustom.class, SuccessfulCustom.class);
+        return DeploymentUtils.createWarFileWithClasses(AllCustomFailedTest.class.getSimpleName(),
+                FailedCustom.class, SuccessfulCustom.class, TCKBase.class);
     }
 
     /**
-     * Verifies the custom health integration with CDI at the scope of a server runtime
+     * Verifies the custom health integration with CDI at the scope of a server runtime, by retrieving all the custom checks.
      */
     @Test
     @RunAsClient
     public void testFailureResponsePayload() {
-        Response response = getUrlCustomHealthContents("group2");
+        Response response = getUrlAllCustomHealthContents();
 
         // status code
         Assert.assertEquals(response.getStatus(), 503);

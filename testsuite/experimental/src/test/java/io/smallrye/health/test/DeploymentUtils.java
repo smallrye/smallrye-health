@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  */
-package io.smallrye.health.tck;
+package io.smallrye.health.test;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
