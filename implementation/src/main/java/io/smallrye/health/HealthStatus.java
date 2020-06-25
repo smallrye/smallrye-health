@@ -9,65 +9,65 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 public class HealthStatus {
 
     /**
-     * Creates a health check with state up.
+     * Creates a health check with status up.
      * 
      * @param name of the health check
-     * @return Health check with state up and given name.
+     * @return Health check with status up and given name.
      */
     public static HealthCheck up(String name) {
-        return state(name, true);
+        return status(name, true);
     }
 
     /**
-     * Creates a health check with state down.
+     * Creates a health check with status down.
      * 
      * @param name of the health check
-     * @return Health check with state down and given name.
+     * @return Health check with status down and given name.
      */
     public static HealthCheck down(String name) {
-        return state(name, false);
+        return status(name, false);
     }
 
     /**
-     * Creates a health check with state set from supplier and default health check name (health-check).
+     * Creates a health check with status set from supplier and default health check name (health-check).
      * 
-     * @param supplier to get state.
-     * @return Health check with given state and default name.
+     * @param supplier to get status.
+     * @return Health check with given status and default name.
      */
-    public static HealthCheck state(BooleanSupplier supplier) {
-        return state(supplier.getAsBoolean());
+    public static HealthCheck status(BooleanSupplier supplier) {
+        return status(supplier.getAsBoolean());
     }
 
     /**
-     * Creates a health check with given state and default health check name (health-check).
+     * Creates a health check with given status and default health check name (health-check).
      * 
-     * @param state
-     * @return Health check with given state and default name.
+     * @param status
+     * @return Health check with given status and default name.
      */
-    public static HealthCheck state(boolean state) {
-        return state(generateRandomHealthCheckName(), state);
+    public static HealthCheck status(boolean status) {
+        return status(generateRandomHealthCheckName(), status);
     }
 
     /**
-     * Creates a health check with given state and health check name.
+     * Creates a health check with given status and health check name.
      * 
-     * @param name of the state.
-     * @param supplier to get state.
-     * @return Health check with given state and name.
+     * @param name of the status.
+     * @param supplier to get status.
+     * @return Health check with given status and name.
      */
-    public static HealthCheck state(String name, BooleanSupplier supplier) {
-        return state(name, supplier.getAsBoolean());
+    public static HealthCheck status(String name, BooleanSupplier supplier) {
+        return status(name, supplier.getAsBoolean());
     }
 
     /**
-     * Creates a health check with given state and health check name.
+     * Creates a health check with given status and health check name.
      * 
-     * @param name of the state.
-     * @param state
-     * @return Health check with given state and name.
+     * @param name of the status.
+     * @param status
+     * @return Health check with given status and name.
      */
-    public static HealthCheck state(String name, boolean state) {
-        return () -> HealthCheckResponse.named(name).state(state).build();
+    public static HealthCheck status(String name, boolean status) {
+        return () -> HealthCheckResponse.named(name).status(status).build();
     }
 
     private static final String generateRandomHealthCheckName() {

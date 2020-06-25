@@ -66,7 +66,7 @@ public class UrlHealthCheck implements HealthCheck {
                         statusCode, httpUrlConn.getResponseCode()));
             }
 
-            healthCheckResponseBuilder.state(isUp);
+            healthCheckResponseBuilder.status(isUp);
 
         } catch (Exception e) {
             HealthChecksLogging.log.urlHealthCheckError(e);

@@ -19,7 +19,7 @@ public class SocketHealthCheckTest {
 
         assertEquals(SocketHealthCheck.DEFAULT_NAME, healthCheckResponse.getName());
         assertEquals(hostAddress + ":80", healthCheckResponse.getData().get().get("host"));
-        assertEquals(HealthCheckResponse.State.UP, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.UP, healthCheckResponse.getStatus());
 
     }
 
@@ -28,7 +28,7 @@ public class SocketHealthCheckTest {
         SocketHealthCheck socketHealthCheck = new SocketHealthCheck("198.51.100.0", 8985);
 
         final HealthCheckResponse healthCheckResponse = socketHealthCheck.call();
-        assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.DOWN, healthCheckResponse.getStatus());
         assertEquals("connect timed out", healthCheckResponse.getData().get().get("error"));
     }
 

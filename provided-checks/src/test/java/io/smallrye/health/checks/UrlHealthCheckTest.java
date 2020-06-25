@@ -17,7 +17,7 @@ public class UrlHealthCheckTest {
 
         assertEquals(UrlHealthCheck.DEFAULT_NAME, healthCheckResponse.getName());
         assertEquals("GET http://www.google.com", healthCheckResponse.getData().get().get("host"));
-        assertEquals(HealthCheckResponse.State.UP, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.UP, healthCheckResponse.getStatus());
 
     }
 
@@ -27,7 +27,7 @@ public class UrlHealthCheckTest {
                 .statusCode(HttpURLConnection.HTTP_CREATED);
         final HealthCheckResponse healthCheckResponse = urlHealthCheck.call();
 
-        assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.DOWN, healthCheckResponse.getStatus());
         assertEquals("Expected response code 201 but actual is 200", healthCheckResponse.getData().get().get("error"));
     }
 
@@ -36,7 +36,7 @@ public class UrlHealthCheckTest {
         final UrlHealthCheck urlHealthCheck = new UrlHealthCheck("http://www.fdghreer.invalid");
         final HealthCheckResponse healthCheckResponse = urlHealthCheck.call();
 
-        assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.DOWN, healthCheckResponse.getStatus());
         assertEquals("java.net.UnknownHostException: www.fdghreer.invalid", healthCheckResponse.getData().get().get("error"));
 
     }

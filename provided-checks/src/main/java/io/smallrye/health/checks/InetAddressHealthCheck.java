@@ -49,7 +49,7 @@ public class InetAddressHealthCheck implements HealthCheck {
                 healthCheckResponseBuilder.withData("error", String.format("Host %s not reachable.", this.host));
             }
 
-            healthCheckResponseBuilder.state(reachable);
+            healthCheckResponseBuilder.status(reachable);
         } catch (IOException e) {
             HealthChecksLogging.log.inetAddressHealthCheckError(e);
 

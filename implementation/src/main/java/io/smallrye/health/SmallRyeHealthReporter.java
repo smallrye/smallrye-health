@@ -319,7 +319,7 @@ public class SmallRyeHealthReporter {
         return Uni.combine().all().unis(healthCheckUnis)
                 .combinedWith(responses -> {
                     JsonArrayBuilder results = jsonProvider.createArrayBuilder();
-                    HealthCheckResponse.State status = HealthCheckResponse.State.UP;
+                    HealthCheckResponse.Status status = HealthCheckResponse.Status.UP;
 
                     for (Object o : responses) {
                         HealthCheckResponse response = (HealthCheckResponse) o;
@@ -334,7 +334,7 @@ public class SmallRyeHealthReporter {
         return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null);
     }
 
-    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.State status) {
+    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status) {
         JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
         JsonArray checkResults = results.build();
 
@@ -344,15 +344,15 @@ public class SmallRyeHealthReporter {
         return new SmallRyeHealth(builder.build());
     }
 
-    private HealthCheckResponse.State handleResponse(HealthCheckResponse response, JsonArrayBuilder results,
-            HealthCheckResponse.State globalOutcome) {
+    private HealthCheckResponse.Status handleResponse(HealthCheckResponse response, JsonArrayBuilder results,
+            HealthCheckResponse.Status globalOutcome) {
         JsonObject responseJson = jsonObject(response);
         results.add(responseJson);
 
-        if (globalOutcome == HealthCheckResponse.State.UP) {
+        if (globalOutcome == HealthCheckResponse.Status.UP) {
             String status = responseJson.getString("status");
             if (status.equals("DOWN")) {
-                return HealthCheckResponse.State.DOWN;
+                return HealthCheckResponse.Status.DOWN;
             }
         }
 
@@ -362,7 +362,7 @@ public class SmallRyeHealthReporter {
     private JsonObject jsonObject(HealthCheckResponse response) {
         JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
         builder.add("name", response.getName());
-        builder.add("status", response.getState().toString());
+        builder.add("status", response.getStatus().toString());
         response.getData().ifPresent(d -> {
             JsonObjectBuilder data = jsonProvider.createObjectBuilder();
             for (Map.Entry<String, Object> entry : d.entrySet()) {

@@ -36,7 +36,7 @@ public class HealthRegistryTest {
         asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
         livenessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
         readinessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
-        reporter.setEmptyChecksOutcome(HealthCheckResponse.State.UP.toString());
+        reporter.setEmptyChecksOutcome(HealthCheckResponse.Status.UP.toString());
         reporter.livenessHealthRegistry = livenessHealthRegistry;
         reporter.readinessHealthRegistry = readinessHealthRegistry;
         reporter.timeoutSeconds = 60;

@@ -14,7 +14,7 @@ public class InetAddressHealthCheckTest {
 
         assertEquals(InetAddressHealthCheck.DEFAULT_NAME, healthCheckResponse.getName());
         assertEquals("127.0.0.1", healthCheckResponse.getData().get().get("host"));
-        assertEquals(HealthCheckResponse.State.UP, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.UP, healthCheckResponse.getStatus());
     }
 
     @Test
@@ -22,7 +22,7 @@ public class InetAddressHealthCheckTest {
         final InetAddressHealthCheck inetAddressHealthCheck = new InetAddressHealthCheck("www.fdghreer.invalid");
         final HealthCheckResponse healthCheckResponse = inetAddressHealthCheck.call();
 
-        assertEquals(HealthCheckResponse.State.DOWN, healthCheckResponse.getState());
+        assertEquals(HealthCheckResponse.Status.DOWN, healthCheckResponse.getStatus());
     }
 
 }
