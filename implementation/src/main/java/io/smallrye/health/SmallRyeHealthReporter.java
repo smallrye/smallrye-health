@@ -120,7 +120,7 @@ public class SmallRyeHealthReporter {
     private Uni<SmallRyeHealth> smallRyeHealthUni = null;
     private Uni<SmallRyeHealth> smallRyeLivenessUni = null;
     private Uni<SmallRyeHealth> smallRyeReadinessUni = null;
-    private Uni<SmallRyeHealth> smallryeWelnessUni = null;
+    private Uni<SmallRyeHealth> smallryeWellnessUni = null;
     private boolean additionalListsChanged = false;
 
     private List<Uni<HealthCheckResponse>> healthUnis = new ArrayList<>();
@@ -184,8 +184,9 @@ public class SmallRyeHealthReporter {
         return getHealth(smallRyeReadinessUni, READINESS);
     }
 
+    @Experimental("Wellness experimental checks")
     public SmallRyeHealth getWellness() {
-        return getHealth(smallryeWelnessUni, WELLNESS);
+        return getHealth(smallryeWellnessUni, WELLNESS);
     }
 
     public SmallRyeHealth getHealthGroup(String groupName) {
@@ -198,7 +199,7 @@ public class SmallRyeHealthReporter {
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getHealthAsync() {
-        return getHealthAsync(smallRyeHealthUni, HEALTH, LIVENESS, READINESS);
+        return getHealthAsync(smallRyeHealthUni, HEALTH, LIVENESS, READINESS, WELLNESS);
     }
 
     @Experimental("Asynchronous Health Check procedures")
@@ -209,6 +210,11 @@ public class SmallRyeHealthReporter {
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getReadinessAsync() {
         return getHealthAsync(smallRyeReadinessUni, READINESS);
+    }
+
+    @Experimental("Asynchronous Health Check procedures & wellness experimental checks")
+    public Uni<SmallRyeHealth> getWellnessAsync() {
+        return getHealthAsync(smallryeWellnessUni, WELLNESS);
     }
 
     @Experimental("Asynchronous Health Check procedures and Health Groups")
