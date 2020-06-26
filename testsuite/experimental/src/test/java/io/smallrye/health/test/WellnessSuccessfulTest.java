@@ -32,6 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.smallrye.health.deployment.SuccessfulWellness;
+import io.smallrye.health.deployment.SuccessfulWellnessAsync;
 
 /**
  * @author Antoine Sabot-Durand
@@ -41,7 +42,7 @@ public class WellnessSuccessfulTest extends TCKBase {
     @Deployment
     public static Archive getDeployment() {
         return DeploymentUtils.createWarFileWithClasses(WellnessSuccessfulTest.class.getSimpleName(),
-                SuccessfulWellness.class, TCKBase.class);
+                SuccessfulWellness.class, SuccessfulWellnessAsync.class, TCKBase.class);
     }
 
     /**
@@ -59,10 +60,11 @@ public class WellnessSuccessfulTest extends TCKBase {
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 1, "Expected a single check response");
+        Assert.assertEquals(checks.size(), 2, "Expected two check responses");
 
         // single procedure response
         assertSuccessfulCheck(checks.getJsonObject(0), "successful-check");
+        assertSuccessfulCheck(checks.getJsonObject(1), "successful-check");
 
         assertOverallSuccess(json);
     }
