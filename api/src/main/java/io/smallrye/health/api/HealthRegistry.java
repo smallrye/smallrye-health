@@ -35,7 +35,8 @@ import io.smallrye.common.annotation.Experimental;
  * </p>
  * 
  * <ul>
- * <li><b>Liveness</b> (also default when no qualifier is defined):</li>
+ * <li><b>Liveness</b></li>
+ * </ul>
  * 
  * <pre>
  * &#64;Inject
@@ -43,14 +44,15 @@ import io.smallrye.common.annotation.Experimental;
  * HealthRegistry livenessHealthRegistry;
  * </pre>
  * 
+ * <ul>
  * <li><b>Readiness</b>:</li>
+ * </ul>
  * 
  * <pre>
  * &#64;Inject
  * &#64;Readiness
  * HealthRegistry readinessHealthRegistry;
  * </pre>
- * </ul>
  */
 @Experimental("Programmatic Health API")
 public interface HealthRegistry {
