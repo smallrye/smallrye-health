@@ -22,7 +22,7 @@ public interface AsyncHealthCheck {
      * check failed. In addition, returning a {@code Uni} propagating a {@code null} value as the item
      * is considered also as a failure.
      *
-     * @return {@link Uni<HealthCheckResponse>} object containing information about the health check result
+     * @return {@link Uni} object containing information about the health check result
      */
     Uni<HealthCheckResponse> call();
 }
