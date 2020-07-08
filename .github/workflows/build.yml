@@ -49,7 +49,7 @@ jobs:
           cd ..
 
       - name: build with maven
-        run: mvn -B formatter:validate verify --file pom.xml
+        run: mvn -B javadoc:javadoc formatter:validate verify --file pom.xml
 
   quality:
     needs: [build]
