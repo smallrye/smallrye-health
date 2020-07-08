@@ -1,12 +1,14 @@
 package io.smallrye.health;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
 import java.util.function.BooleanSupplier;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 public class HealthStatus {
+
+    private static final SecureRandom random = new SecureRandom();
 
     /**
      * Creates a health check with status up.
@@ -71,7 +73,7 @@ public class HealthStatus {
     }
 
     private static final String generateRandomHealthCheckName() {
-        int suffix = ThreadLocalRandom.current().nextInt(99999);
+        int suffix = random.nextInt(99999);
         return String.format("unnamed-health-check-%05d", suffix);
     }
 
