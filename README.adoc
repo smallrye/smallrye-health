@@ -25,6 +25,7 @@ mvn clean install
 * link:implementation[] - Implementation of the Eclipse MicroProfile Health API.
 * link:tck[] - Test suite to run the implementation against the Eclipse MicroProfile Health TCK.
 * link:docs[] - Project documentation.
+* link:ui[] - A small UI for /health
 
 === Links
 
