@@ -19,7 +19,7 @@
     
     <build>
                 
-        <!-- Copy all web content files META-INF folder, and push it though a filter to replace maven properties -->
+        <!-- Copy all web content files META-INF folder, and push it through a filter to replace maven properties -->
         <resources>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>

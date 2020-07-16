@@ -48,13 +48,8 @@ function loadHealthData() {
 }
 
 function processOk(healthprobes) {
-    var updown = healthprobes.outcome;
-        
-    if(updown == null){
-        updown = healthprobes.status; // Changed in later MP versions
-    }
-
-
+    var updown = healthprobes.status;
+    
     if (updown === "DOWN") {
         $('#state').html("<h3><span class='badge badge-danger'><img src='refresh.png'/> Down</span></h3>");
     } else {
@@ -74,11 +69,8 @@ function processData(healthprobes) {
     for (i = 0; i < checks.length; i++) {
         var check = checks[i];
         var name = check.name;
-        var updown = check.state;
+        var updown = check.status;
         
-        if(updown == null){
-            updown = check.status; // Changed in later MP versions
-        }
         var headingclass = "text-success";
         var borderclass = "border-success";
         if (updown === "DOWN"){
