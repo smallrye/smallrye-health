@@ -40,5 +40,4 @@ public class UrlHealthCheckTest {
         assertEquals("java.net.UnknownHostException: www.fdghreer.invalid", healthCheckResponse.getData().get().get("error"));
 
     }
-
 }

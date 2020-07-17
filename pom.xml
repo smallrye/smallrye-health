@@ -67,6 +67,7 @@
     <module>implementation</module>
     <module>testsuite</module>
     <module>ui</module>
+    <module>provided-checks</module>
   </modules>
 
   <dependencyManagement>
