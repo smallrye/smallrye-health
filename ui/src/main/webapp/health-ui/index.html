@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <title>SmallRye Health (v${project.version})</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="bootstrap.min.css"/>
+        
+        <style>
+            .grid-item { width: 30%; }
+            .gutter-sizer { width: 1%; }
+        </style>
+        
+    </head>
+    
+    <body>
+        <nav class="navbar sticky-top navbar-dark bg-dark">
+        
+            <a class="navbar-brand">
+                <img src="logo.png" height="45" class="d-inline-block align-middle" alt="SmallRye Health"/>
+                <span id="navbar_title" class="align-middle">Health UI</span>
+            </a>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item" style="cursor: pointer;">
+                    <a class="nav-link" data-toggle="modal" data-target="#settingsModal"><img src="settings.png"></a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a id="state" class="nav-link" href="javascript: loadHealthData()"></a>
+                </li>
+            </ul>
+        </nav>
+        
+        <br/>
+       
+        <div class="container-fluid">
+            
+            <!-- Settings Modal -->
+            <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form>
+                            <div class="modal-body">
+                            
+                                <div class="form-group">
+                                    <label for="settings_form_title">Title</label>
+                                    <input type="text" class="form-control" id="settings_form_title" placeholder="Enter new title">
+                                </div>    
+                            
+                                <div class="form-group">
+                                    <label for="settings_form_url">Health URL</label>
+                                    <input type="text" class="form-control" id="settings_form_url" placeholder="/health">
+                                </div>    
+                                
+                                <div class="form-group">
+                                    <label for="settings_form_poll">Poll</label>
+                                    <select class="form-control" id="settings_form_poll">
+                                        <option>off</option>
+                                        <option>every 5 seconds</option>
+                                        <option>every 10 seconds</option>
+                                        <option>every 30 seconds</option>
+                                        <option>every minute</option>
+                                        <option>every 5 minutes</option>
+                                        <option>every 10 minutes</option>
+                                    </select>
+                                </div>
+                                
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-primary" href="javascript: changeSettings()">Save</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <div id="grid" class="card-columns">
+                Loading health probes...    
+            </div>
+            
+        </div>
+        
+        <script src="jquery.min.js"></script>
+        <script src="bootstrap.min.js"></script>
+        <script src="healthui.js"></script>
+    </body>
+</html>
