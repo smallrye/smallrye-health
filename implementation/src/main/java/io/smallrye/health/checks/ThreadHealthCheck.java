@@ -33,34 +33,86 @@ public class ThreadHealthCheck implements HealthCheck {
     public HealthCheckResponse call() {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 
-        int threadCount = threadMXBean.getThreadCount();
-        int peakThreadCount = threadMXBean.getPeakThreadCount();
-        int daemonThreadCount = threadMXBean.getDaemonThreadCount();
-        long totalStartedThreadCount = threadMXBean.getTotalStartedThreadCount();
+        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named("threads").withData("max thread count",
+                maxThreadCount);
+        addThreadCount(responseBuilder, threadMXBean);
+        addPeakThreadCount(responseBuilder, threadMXBean);
+        addDaemonThreadCount(responseBuilder, threadMXBean);
+        addTotalStartedThreadCount(responseBuilder, threadMXBean);
+        addDeadlockedThreads(responseBuilder, threadMXBean);
+        addMonitorDeadlockedThreads(responseBuilder, threadMXBean);
 
-        long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
-        long[] monitorDeadlockedThreads = threadMXBean.findMonitorDeadlockedThreads();
+        addStatus(responseBuilder, threadMXBean);
 
-        int deadlockedThreadCount = getNumberOfThreads(deadlockedThreads);
-        int monitorDeadlockedThreadCount = getNumberOfThreads(monitorDeadlockedThreads);
+        return responseBuilder.build();
+    }
 
-        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named("threads")
-                .withData("thread count", threadCount)
-                .withData("peak thread count", peakThreadCount)
-                .withData("daemon thread count", daemonThreadCount)
-                .withData("started thread count", totalStartedThreadCount)
-                .withData("deadlocked thread count", deadlockedThreadCount)
-                .withData("monitor deadlocked thread count", monitorDeadlockedThreadCount)
-                .withData("max thread count", maxThreadCount);
+    private void addStatus(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        int threadCount = -1;
 
+        try {
+            threadCount = threadMXBean.getThreadCount();
+        } catch (Throwable t) {
+            // Can not get thread count
+        }
         if (threadCount > 0 && maxThreadCount > 0) {
             boolean status = threadCount < maxThreadCount;
-            return responseBuilder.state(status).build();
+            responseBuilder.state(status);
         } else {
             // Thread count not available
-            return responseBuilder.up().build();
+            responseBuilder.up();
         }
 
+    }
+
+    private void addThreadCount(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            responseBuilder.withData(THREAD_COUNT, threadMXBean.getThreadCount());
+        } catch (Throwable t) {
+            responseBuilder.withData(THREAD_COUNT, UNAVAILABLE);
+        }
+    }
+
+    private void addPeakThreadCount(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            responseBuilder.withData(PEAK_THREAD_COUNT, threadMXBean.getPeakThreadCount());
+        } catch (Throwable t) {
+            responseBuilder.withData(PEAK_THREAD_COUNT, UNAVAILABLE);
+        }
+    }
+
+    private void addDaemonThreadCount(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            responseBuilder.withData(DAEMON_THREAD_COUNT, threadMXBean.getDaemonThreadCount());
+        } catch (Throwable t) {
+            responseBuilder.withData(DAEMON_THREAD_COUNT, UNAVAILABLE);
+        }
+    }
+
+    private void addTotalStartedThreadCount(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            responseBuilder.withData(STARTED_THREAD_COUNT, threadMXBean.getTotalStartedThreadCount());
+        } catch (Throwable t) {
+            responseBuilder.withData(STARTED_THREAD_COUNT, UNAVAILABLE);
+        }
+    }
+
+    private void addDeadlockedThreads(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
+            responseBuilder.withData(DEADLOCKED_THREAD_COUNT, getNumberOfThreads(deadlockedThreads));
+        } catch (Throwable t) {
+            responseBuilder.withData(DEADLOCKED_THREAD_COUNT, UNAVAILABLE);
+        }
+    }
+
+    private void addMonitorDeadlockedThreads(HealthCheckResponseBuilder responseBuilder, ThreadMXBean threadMXBean) {
+        try {
+            long[] monitorDeadlockedThreads = threadMXBean.findMonitorDeadlockedThreads();
+            responseBuilder.withData(MONITOR_DEADLOCKED_THREAD_COUNT, getNumberOfThreads(monitorDeadlockedThreads));
+        } catch (Throwable t) {
+            responseBuilder.withData(MONITOR_DEADLOCKED_THREAD_COUNT, UNAVAILABLE);
+        }
     }
 
     private int getNumberOfThreads(long[] ids) {
@@ -68,4 +120,12 @@ public class ThreadHealthCheck implements HealthCheck {
             return 0;
         return ids.length;
     }
+
+    private static final String THREAD_COUNT = "thread count";
+    private static final String PEAK_THREAD_COUNT = "peak thread count";
+    private static final String DAEMON_THREAD_COUNT = "daemon thread count";
+    private static final String STARTED_THREAD_COUNT = "started thread count";
+    private static final String DEADLOCKED_THREAD_COUNT = "deadlocked thread count";
+    private static final String MONITOR_DEADLOCKED_THREAD_COUNT = "monitor deadlocked thread count";
+    private static final String UNAVAILABLE = "Unavailable";
 }
