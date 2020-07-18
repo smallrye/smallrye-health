@@ -2,7 +2,6 @@ package io.smallrye.health.checks;
 
 import java.lang.management.MemoryMXBean;
 
-import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 /**
