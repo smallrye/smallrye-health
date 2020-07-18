@@ -1,11 +1,9 @@
 package io.smallrye.health.checks;
 
-import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 
 /**
  * Health check implementation that is checking memory usage against available memory
@@ -21,34 +19,18 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
  * }
  * </pre>
  */
-public class NonHeapMemoryHealthCheck implements HealthCheck {
-
-    double maxPercentage = 0.9;
+public class NonHeapMemoryHealthCheck extends AbstractHeapMemoryHealthCheck {
 
     public NonHeapMemoryHealthCheck() {
+        super();
     }
 
     public NonHeapMemoryHealthCheck(double maxPercentage) {
-        this.maxPercentage = maxPercentage;
+        super(maxPercentage);
     }
 
     @Override
     public HealthCheckResponse call() {
-        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-        long memUsed = memoryBean.getNonHeapMemoryUsage().getUsed();
-        long memMax = memoryBean.getNonHeapMemoryUsage().getMax();
-
-        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named("non-heap-memory")
-                .withData("used", memUsed)
-                .withData("max", memMax)
-                .withData("max %", String.valueOf(maxPercentage));
-
-        if (memMax > 0) {
-            boolean status = (memUsed < memMax * maxPercentage);
-            return responseBuilder.state(status).build();
-        } else {
-            // Max not available
-            return responseBuilder.up().build();
-        }
+        return getHealthCheckResponse(MemoryMXBean::getNonHeapMemoryUsage);
     }
 }
