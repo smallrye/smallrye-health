@@ -7,9 +7,9 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 
 class Response extends HealthCheckResponse {
 
-    Response(String name, State state, Map<String, Object> data) {
+    Response(String name, Status status, Map<String, Object> data) {
         this.name = name;
-        this.state = state;
+        this.status = status;
         this.data = data;
     }
 
@@ -19,8 +19,8 @@ class Response extends HealthCheckResponse {
     }
 
     @Override
-    public State getState() {
-        return this.state;
+    public Status getStatus() {
+        return this.status;
     }
 
     @Override
@@ -30,7 +30,7 @@ class Response extends HealthCheckResponse {
 
     private final String name;
 
-    private final State state;
+    private final Status status;
 
     private final Map<String, Object> data;
 }

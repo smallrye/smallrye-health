@@ -33,7 +33,7 @@ public abstract class AbstractHeapMemoryHealthCheck implements HealthCheck {
 
         if (memMax > 0) {
             boolean status = (memUsed < memMax * maxPercentage);
-            return responseBuilder.state(status).build();
+            return responseBuilder.status(status).build();
         } else {
             // Max not available
             return responseBuilder.up().build();

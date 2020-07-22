@@ -24,7 +24,7 @@ import javax.json.JsonValue;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponse.State;
+import org.eclipse.microprofile.health.HealthCheckResponse.Status;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -455,7 +455,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithEmptyChecksOutcomeDown(Supplier<SmallRyeHealth> supplier) {
-        reporter.setEmptyChecksOutcome(State.DOWN.toString());
+        reporter.setEmptyChecksOutcome(Status.DOWN.toString());
 
         SmallRyeHealth health = supplier.get();
 

@@ -57,7 +57,7 @@ public class ThreadHealthCheck implements HealthCheck {
         }
         if (threadCount > 0 && maxThreadCount > 0) {
             boolean status = threadCount < maxThreadCount;
-            responseBuilder.state(status);
+            responseBuilder.status(status);
         } else {
             // Thread count not available
             responseBuilder.up();

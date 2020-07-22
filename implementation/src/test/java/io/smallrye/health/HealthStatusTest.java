@@ -18,7 +18,7 @@ public class HealthStatusTest {
         final HealthCheckResponse healthCheckResponse = myHealth.call();
 
         assertThat(healthCheckResponse.getName(), is("myHealth"));
-        assertThat(healthCheckResponse.getState(), is(HealthCheckResponse.State.UP));
+        assertThat(healthCheckResponse.getStatus(), is(HealthCheckResponse.Status.UP));
     }
 
     @Test
@@ -29,13 +29,13 @@ public class HealthStatusTest {
         final HealthCheckResponse healthCheckResponse = myHealth.call();
 
         assertThat(healthCheckResponse.getName(), is("myHealth"));
-        assertThat(healthCheckResponse.getState(), is(HealthCheckResponse.State.DOWN));
+        assertThat(healthCheckResponse.getStatus(), is(HealthCheckResponse.Status.DOWN));
     }
 
     @Test
     public void testRandomNameHealthStatus() {
 
-        final HealthCheck healthCheck = HealthStatus.state(true);
+        final HealthCheck healthCheck = HealthStatus.status(true);
 
         final HealthCheckResponse healthCheckResponse = healthCheck.call();
 
@@ -45,24 +45,24 @@ public class HealthStatusTest {
     @Test
     public void testBooleanSupplierHealthStatus() {
 
-        final HealthCheck myHealth = HealthStatus.state("myHealth", () -> true);
+        final HealthCheck myHealth = HealthStatus.status("myHealth", () -> true);
 
         final HealthCheckResponse healthCheckResponse = myHealth.call();
 
         assertThat(healthCheckResponse.getName(), is("myHealth"));
-        assertThat(healthCheckResponse.getState(), is(HealthCheckResponse.State.UP));
+        assertThat(healthCheckResponse.getStatus(), is(HealthCheckResponse.Status.UP));
 
     }
 
     @Test
     public void testBooleanHealthStatus() {
 
-        final HealthCheck myHealth = HealthStatus.state("myHealth", true);
+        final HealthCheck myHealth = HealthStatus.status("myHealth", true);
 
         final HealthCheckResponse healthCheckResponse = myHealth.call();
 
         assertThat(healthCheckResponse.getName(), is("myHealth"));
-        assertThat(healthCheckResponse.getState(), is(HealthCheckResponse.State.UP));
+        assertThat(healthCheckResponse.getStatus(), is(HealthCheckResponse.Status.UP));
 
     }
 

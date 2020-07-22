@@ -55,7 +55,7 @@ public class SystemLoadHealthCheck implements HealthCheck {
 
         if (systemLoadAverage > 0) {
             boolean status = systemLoadAveragePerProcessors < max;
-            return responseBuilder.state(status).build();
+            return responseBuilder.status(status).build();
         } else {
             // Load average not available
             return responseBuilder.up().build();

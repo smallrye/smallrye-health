@@ -34,18 +34,18 @@ class ResponseBuilder extends HealthCheckResponseBuilder {
 
     @Override
     public HealthCheckResponseBuilder up() {
-        this.state = HealthCheckResponse.State.UP;
+        this.status = HealthCheckResponse.Status.UP;
         return this;
     }
 
     @Override
     public HealthCheckResponseBuilder down() {
-        this.state = HealthCheckResponse.State.DOWN;
+        this.status = HealthCheckResponse.Status.DOWN;
         return this;
     }
 
     @Override
-    public HealthCheckResponseBuilder state(boolean up) {
+    public HealthCheckResponseBuilder status(boolean up) {
         if (up) {
             return up();
         }
@@ -59,12 +59,12 @@ class ResponseBuilder extends HealthCheckResponseBuilder {
             throw HealthMessages.msg.invalidHealthCheckName();
         }
 
-        return new Response(this.name, this.state, this.data.isEmpty() ? null : this.data);
+        return new Response(this.name, this.status, this.data.isEmpty() ? null : this.data);
     }
 
     private String name;
 
-    private HealthCheckResponse.State state = HealthCheckResponse.State.DOWN;
+    private HealthCheckResponse.Status status = HealthCheckResponse.Status.DOWN;
 
     private Map<String, Object> data = new HashMap<>();
 }
