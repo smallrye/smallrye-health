@@ -13,13 +13,18 @@ import javax.servlet.http.HttpServletResponse;
 public class SmallRyeHealthServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 
         SmallRyeHealth health = reporter.getHealth();
         if (health.isDown()) {
             resp.setStatus(503);
         }
-        reporter.reportHealth(resp.getOutputStream(), health);
+        try {
+            reporter.reportHealth(resp.getOutputStream(), health);
+        } catch (IOException ioe) {
+            HealthLogging.log.error(ioe);
+            throw new RuntimeException(ioe);
+        }
     }
 
     @Inject
