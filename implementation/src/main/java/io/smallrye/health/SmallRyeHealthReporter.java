@@ -104,6 +104,12 @@ public class SmallRyeHealthReporter {
     @ConfigProperty(name = "io.smallrye.health.timeout.seconds", defaultValue = "60")
     int timeoutSeconds;
 
+    /* specification defined configuration values */
+
+    @Inject
+    @ConfigProperty(name = "mp.health.default.readiness.empty.response", defaultValue = "DOWN")
+    String mpHealthDefaultReadinessEmptyResponse;
+
     @Inject
     AsyncHealthCheckFactory asyncHealthCheckFactory;
 
@@ -168,20 +174,20 @@ public class SmallRyeHealthReporter {
     }
 
     public SmallRyeHealth getHealth() {
-        return getHealth(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS);
+        return getHealthAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
     public SmallRyeHealth getLiveness() {
-        return getHealth(smallRyeLivenessUni, LIVENESS);
+        return getLivenessAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
     public SmallRyeHealth getReadiness() {
-        return getHealth(smallRyeReadinessUni, READINESS);
+        return getReadinessAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
     @Experimental("Wellness experimental checks")
     public SmallRyeHealth getWellness() {
-        return getHealth(smallryeWellnessUni, WELLNESS);
+        return getWellnessAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
     public SmallRyeHealth getHealthGroup(String groupName) {
@@ -204,6 +210,11 @@ public class SmallRyeHealthReporter {
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getReadinessAsync() {
+        if (readinessUnis != null && readinessUnis.isEmpty() &&
+                readinessHealthRegistry.getChecks() != null && readinessHealthRegistry.getChecks().isEmpty()) {
+            return Uni.createFrom().item(createEmptySmallRyeHealth(mpHealthDefaultReadinessEmptyResponse));
+        }
+
         return getHealthAsync(smallRyeReadinessUni, READINESS);
     }
 
@@ -244,10 +255,6 @@ public class SmallRyeHealthReporter {
         }
 
         return groupHealthChecks;
-    }
-
-    private SmallRyeHealth getHealth(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
-        return getHealthAsync(cachedHealth, types).await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
@@ -313,7 +320,7 @@ public class SmallRyeHealthReporter {
         }
 
         if (healthCheckUnis.isEmpty()) {
-            return Uni.createFrom().item(createEmptySmallRyeHealth());
+            return Uni.createFrom().item(createEmptySmallRyeHealth(emptyChecksOutcome));
         }
 
         return Uni.combine().all().unis(healthCheckUnis)
@@ -326,19 +333,20 @@ public class SmallRyeHealthReporter {
                         status = handleResponse(response, results, status);
                     }
 
-                    return createSmallRyeHealth(results, status);
+                    return createSmallRyeHealth(results, status, emptyChecksOutcome);
                 });
     }
 
-    private SmallRyeHealth createEmptySmallRyeHealth() {
-        return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null);
+    private SmallRyeHealth createEmptySmallRyeHealth(String emptyOutcome) {
+        return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null, emptyOutcome);
     }
 
-    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status) {
+    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status,
+            String emptyOutcome) {
         JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
         JsonArray checkResults = results.build();
 
-        builder.add("status", checkResults.isEmpty() ? emptyChecksOutcome : status.toString());
+        builder.add("status", checkResults.isEmpty() ? emptyOutcome : status.toString());
         builder.add("checks", checkResults);
 
         return new SmallRyeHealth(builder.build());
