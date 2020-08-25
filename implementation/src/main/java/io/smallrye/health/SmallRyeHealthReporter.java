@@ -21,7 +21,6 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -103,6 +102,10 @@ public class SmallRyeHealthReporter {
     @Inject
     @ConfigProperty(name = "io.smallrye.health.timeout.seconds", defaultValue = "60")
     int timeoutSeconds;
+
+    @Inject
+    @ConfigProperty(name = "io.smallrye.health.response.checks.object", defaultValue = "false")
+    boolean checksAsObject;
 
     /* specification defined configuration values */
 
@@ -325,7 +328,7 @@ public class SmallRyeHealthReporter {
 
         return Uni.combine().all().unis(healthCheckUnis)
                 .combinedWith(responses -> {
-                    JsonArrayBuilder results = jsonProvider.createArrayBuilder();
+                    List<HealthCheckResponse> results = new ArrayList<>();
                     HealthCheckResponse.Status status = HealthCheckResponse.Status.UP;
 
                     for (Object o : responses) {
@@ -338,28 +341,35 @@ public class SmallRyeHealthReporter {
     }
 
     private SmallRyeHealth createEmptySmallRyeHealth(String emptyOutcome) {
-        return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null, emptyOutcome);
+        return createSmallRyeHealth(new ArrayList<>(), null, emptyOutcome);
     }
 
-    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status,
+    private SmallRyeHealth createSmallRyeHealth(List<HealthCheckResponse> results, HealthCheckResponse.Status status,
             String emptyOutcome) {
         JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
-        JsonArray checkResults = results.build();
+        builder.add("status", results.isEmpty() ? emptyOutcome : status.toString());
 
-        builder.add("status", checkResults.isEmpty() ? emptyOutcome : status.toString());
-        builder.add("checks", checkResults);
+        if (!checksAsObject) {
+            JsonArrayBuilder checksArrayBuilder = jsonProvider.createArrayBuilder();
+            results.forEach(r -> checksArrayBuilder.add(jsonObject(r)));
+
+            builder.add("checks", checksArrayBuilder.build());
+        } else {
+            JsonObjectBuilder checksObjectBuilder = jsonProvider.createObjectBuilder();
+            results.forEach(r -> checksObjectBuilder.add(r.getName(), jsonObject(r)));
+
+            builder.add("checks", checksObjectBuilder.build());
+        }
 
         return new SmallRyeHealth(builder.build());
     }
 
-    private HealthCheckResponse.Status handleResponse(HealthCheckResponse response, JsonArrayBuilder results,
+    private HealthCheckResponse.Status handleResponse(HealthCheckResponse response, List<HealthCheckResponse> results,
             HealthCheckResponse.Status globalOutcome) {
-        JsonObject responseJson = jsonObject(response);
-        results.add(responseJson);
+        results.add(response);
 
         if (globalOutcome == HealthCheckResponse.Status.UP) {
-            String status = responseJson.getString("status");
-            if (status.equals("DOWN")) {
+            if (response.getStatus().equals(HealthCheckResponse.Status.DOWN)) {
                 return HealthCheckResponse.Status.DOWN;
             }
         }
