@@ -1,0 +1,66 @@
+[[health-groups]]
+= Health Groups
+
+A health group is simply a user defined group of health checks. Namely, liveness and readiness
+(and experimental wellness) are predefined health groups. With this feature users are allowed to
+define any number of custom health groups and the individual checks that will belong to them.
+
+== Including a check in a health group
+
+To include a health check in a custom health group you can use the `HealthGroup` annotations:
+
+[source,java]
+----
+@HealthGroup("group1") <1>
+@HealthGroup("group2") <2>
+@ApplicationScoped
+public class SuccessfulCustom implements HealthCheck {
+    @Override
+    public HealthCheckResponse call() {
+        return HealthCheckResponse.up("successful-check");
+    }
+}
+----
+<1> The check will belong to the health group _"group1"_
+<2> The check will also belong to the health group _"group2"_
+
+A health check can be included in any number of health groups including the liveness and readiness:
+
+[source,java]
+----
+@HealthGroup("custom1")
+@HealthGroup("different-group")
+@Liveness
+@ApplicationScoped
+public class GroupsCheck implements HealthCheck { ...
+----
+
+== Accessing the health groups
+
+The custom health groups are exposed under the `/health/group` resource tree:
+
+|===
+| Path | Description
+| `/health/group` | All health checks in all groups
+| `/health/group/\{group-name}` | All health checks in the group called \{group-name}
+|===
+
+Please note that is totally valid to define custom health group as a liveness and/or readiness
+probe if required. Both liveness and readiness are shorcuts for predefined health groups.
+
+In the previous example, the `GroupsCheck` will be invoked when accessing:
+
+* `/health/group`
+* `/health/group/custom1`
+* `/health/group/different-group`
+* `/health/live`
+
+However, it won't be invoked for instance when accessing:
+
+* `/health/group/foobar`
+* `/health/ready`
+
+== References
+
+* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/HealthGroup.java[`HealthGroup`]
+

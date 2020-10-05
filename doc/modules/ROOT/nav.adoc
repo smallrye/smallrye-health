@@ -1,0 +1,7 @@
+* xref:index.adoc[Index]
+* Features on top of the specification
+** xref:async-checks.adoc[Asynchronous health checks]
+** xref:health-groups.adoc[Health Groups]
+** xref:health-registry.adoc[Health Registry]
+** xref:wellness.adoc[Wellness]
+
