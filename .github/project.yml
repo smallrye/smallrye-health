@@ -1,4 +1,4 @@
 name: SmallRye Health
 release:
-  current-version: 2.2.3
-  next-version: 2.2.4-SNAPSHOT
+  current-version: 2.2.4
+  next-version: 2.2.5-SNAPSHOT
