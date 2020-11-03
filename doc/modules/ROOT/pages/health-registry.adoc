@@ -1,0 +1,57 @@
+[[health-registry]]
+= Health Registry
+
+A health registry provides a way to register the health checks programatically. It also allows
+to remove the programatically registered health checks when they are no longer needed. This presents
+an option to dynamically register and unregister health checks based on the user defined criteria.
+
+== Health Registry usage
+
+The `HealthRegistry` can be injected as a CDI bean with `@Liveness` or `@Readiness` qualifiers:
+
+[source,java]
+----
+@Inject
+@Liveness
+HealthRegistry livenessHealthRegistry;
+
+@Inject
+@Readiness
+HealthRegistry readinessHealthRegistry;
+----
+
+NOTE: Health group registry have not been requested as of yet but if some applications would find
+it useful please raise a new issue in the https://github.com/smallrye/smallrye-health/issues[SmallRye Health issue tracker].
+
+You can then register your health check by simple calling the `register` methods:
+
+[source,java]
+----
+public void register() {
+    livenessHealthRegistry.register(new TestLiveness()); <1>
+}
+
+public void registerReady() {
+    readinessHealthRegistry.register("dynamic-readiness", new TestReadiness()); <2>
+}
+----
+<1> If no user defined name is provided during registration the health check is registered as
+`TestLiveness.class.getName()`
+<2> The user provided name `dynamic-readiness` will be used as the check identificator
+
+To unregister the registered health check you can call the `remove` methods:
+
+[source,java]
+----
+public void remove() {
+    livenessHealthRegistry.remove(TestLiveness.class.getName());
+}
+
+public void removeReady() {
+    readinessHealthRegistry.remove("dynamic-readiness");
+}
+----
+
+== Resources
+
+* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/HealthRegistry.java[`HealthRegistry`]
