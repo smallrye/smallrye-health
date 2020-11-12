@@ -42,7 +42,6 @@ import io.smallrye.common.annotation.Experimental;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.Wellness;
-import io.smallrye.health.registry.AbstractHealthRegistry;
 import io.smallrye.health.registry.LivenessHealthRegistry;
 import io.smallrye.health.registry.ReadinessHealthRegistry;
 import io.smallrye.mutiny.Uni;
@@ -135,28 +134,19 @@ public class SmallRyeHealthReporter {
     @PostConstruct
     public void initChecks() {
         initUnis(healthUnis, healthChecks, asyncHealthChecks);
-        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks, livenessHealthRegistry);
-        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks, readinessHealthRegistry);
+        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks);
+        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks);
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
     }
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
-        initUnis(list, checks, asyncChecks, null);
-    }
-
-    private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
-            Iterable<AsyncHealthCheck> asyncChecks, AbstractHealthRegistry registry) {
         for (HealthCheck check : checks) {
             list.add(asyncHealthCheckFactory.callSync(check));
         }
 
         for (AsyncHealthCheck asyncCheck : asyncChecks) {
             list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
-        }
-
-        if (registry != null) {
-            list.addAll(registry.getChecks());
         }
     }
 
