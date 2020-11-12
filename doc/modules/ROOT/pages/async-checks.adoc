@@ -1,0 +1,44 @@
+[[async-checks]]
+= Asynchronous health checks
+
+== Defining asynchronous checks
+
+SmallRye Health provides a way to define asynchronous checks that can be consumed
+in the reactive applications in a non-blocking manner. These checks are defined in
+a very similar way to the usual health checks only they implement a different interface:
+
+[source,java]
+----
+@Liveness <1>
+@ApplicationScoped <2>
+public class LivenessAsync implements AsyncHealthCheck { <3>
+
+    @Override
+    public Uni<HealthCheckResponse> call() { <4>
+        return Uni.createFrom().item(HealthCheckResponse.up("liveness-async"))
+                .onItem().delayIt().by(Duration.ofMillis(10));
+    }
+}
+----
+<1> The MicroProfile Health CDI qualifier is still required
+<2> The check still needs to be a CDI bean
+<3> The asynchronous checks must implement the `AsyncHealthCheck` interface
+<4> The return type of the health check `call()` method is `Uni<HealthCheckResponse>`
+
+The `Uni` is one of the main types included in the https://smallrye.io/smallrye-mutiny/[Mutiny project]
+on top of which asynchronous checks are built. Mutiny provides several ways to transform the
+most common reactive types to `Uni`, so if you are used to work with different reacitve
+library it should be an issue.
+
+== Consuming health checks asynchronously
+
+The `SmallRyeHealthReporter` class was extended to provide variants of get health methods
+that end with `*Async()` (e.g. `getLivenessAsync()`) that return an `Uni<SmallRyeHealth>` so it can
+also be included in any reactive pipeline. Example uses of this API is demonstrated for instance in
+the `AsyncHealthTest`.
+
+== References
+
+* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/AsyncHealthCheck.java[`AsyncHealthCheck`]
+* https://github.com/smallrye/smallrye-health/blob/master/implementation/src/main/java/io/smallrye/health/SmallRyeHealthReporter.java[`SmallRyeHealthReporter`]
+* https://github.com/smallrye/smallrye-health/blob/master/testsuite/experimental/src/test/java/io/smallrye/health/test/AsyncHealthTest.java[`AsyncHealthTest`]

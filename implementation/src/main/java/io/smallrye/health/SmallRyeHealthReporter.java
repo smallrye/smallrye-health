@@ -2,6 +2,7 @@ package io.smallrye.health;
 
 import static io.smallrye.health.SmallRyeHealthReporter.HealthType.LIVENESS;
 import static io.smallrye.health.SmallRyeHealthReporter.HealthType.READINESS;
+import static io.smallrye.health.SmallRyeHealthReporter.HealthType.STARTUP;
 import static io.smallrye.health.SmallRyeHealthReporter.HealthType.WELLNESS;
 
 import java.io.OutputStream;
@@ -38,8 +39,8 @@ import org.eclipse.microprofile.health.Readiness;
 import io.smallrye.common.annotation.Experimental;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
+import io.smallrye.health.api.Startup;
 import io.smallrye.health.api.Wellness;
-import io.smallrye.health.registry.AbstractHealthRegistry;
 import io.smallrye.health.registry.LivenessHealthRegistry;
 import io.smallrye.health.registry.ReadinessHealthRegistry;
 import io.smallrye.mutiny.Uni;
@@ -65,6 +66,10 @@ public class SmallRyeHealthReporter {
     Instance<HealthCheck> wellnessChecks;
 
     @Inject
+    @Startup
+    Instance<HealthCheck> startupChecks;
+
+    @Inject
     @Any
     Instance<HealthCheck> allHealthChecks;
 
@@ -79,6 +84,10 @@ public class SmallRyeHealthReporter {
     @Inject
     @Wellness
     Instance<AsyncHealthCheck> asyncWellnessChecks;
+
+    @Inject
+    @Startup
+    Instance<AsyncHealthCheck> asyncStartupChecks;
 
     @Inject
     @Any
@@ -124,36 +133,30 @@ public class SmallRyeHealthReporter {
     private Uni<SmallRyeHealth> smallRyeLivenessUni = null;
     private Uni<SmallRyeHealth> smallRyeReadinessUni = null;
     private Uni<SmallRyeHealth> smallryeWellnessUni = null;
+    private Uni<SmallRyeHealth> smallryeStartupUni = null;
     private boolean additionalListsChanged = false;
 
     private List<Uni<HealthCheckResponse>> livenessUnis = new ArrayList<>();
     private List<Uni<HealthCheckResponse>> readinessUnis = new ArrayList<>();
     private List<Uni<HealthCheckResponse>> wellnessUnis = new ArrayList<>();
+    private List<Uni<HealthCheckResponse>> startupUnis = new ArrayList<>();
 
     @PostConstruct
     public void initChecks() {
-        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks, livenessHealthRegistry);
-        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks, readinessHealthRegistry);
+        initUnis(livenessUnis, livenessChecks, asyncLivenessChecks);
+        initUnis(readinessUnis, readinessChecks, asyncReadinessChecks);
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
+        initUnis(startupUnis, startupChecks, asyncStartupChecks);
     }
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
-        initUnis(list, checks, asyncChecks, null);
-    }
-
-    private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
-            Iterable<AsyncHealthCheck> asyncChecks, AbstractHealthRegistry registry) {
         for (HealthCheck check : checks) {
             list.add(asyncHealthCheckFactory.callSync(check));
         }
 
         for (AsyncHealthCheck asyncCheck : asyncChecks) {
             list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
-        }
-
-        if (registry != null) {
-            list.addAll(registry.getChecks());
         }
     }
 
@@ -193,6 +196,11 @@ public class SmallRyeHealthReporter {
         return getWellnessAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
+    @Experimental("Startup experimental checks")
+    public SmallRyeHealth getStartup() {
+        return getStartupAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
+    }
+
     public SmallRyeHealth getHealthGroup(String groupName) {
         return getHealthGroupAsync(groupName).await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
@@ -203,7 +211,7 @@ public class SmallRyeHealthReporter {
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getHealthAsync() {
-        return getHealthAsync(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS);
+        return getHealthAsync(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS, STARTUP);
     }
 
     @Experimental("Asynchronous Health Check procedures")
@@ -224,6 +232,11 @@ public class SmallRyeHealthReporter {
     @Experimental("Asynchronous Health Check procedures & wellness experimental checks")
     public Uni<SmallRyeHealth> getWellnessAsync() {
         return getHealthAsync(smallryeWellnessUni, WELLNESS);
+    }
+
+    @Experimental("Asynchronous Health Check procedures & startup experimental checks")
+    public Uni<SmallRyeHealth> getStartupAsync() {
+        return getHealthAsync(smallryeStartupUni, STARTUP);
     }
 
     @Experimental("Asynchronous Health Check procedures and Health Groups")
@@ -304,6 +317,9 @@ public class SmallRyeHealthReporter {
                     break;
                 case WELLNESS:
                     checks.addAll(wellnessUnis);
+                    break;
+                case STARTUP:
+                    checks.addAll(startupUnis);
                     break;
             }
         }
@@ -426,6 +442,7 @@ public class SmallRyeHealthReporter {
     enum HealthType {
         LIVENESS,
         READINESS,
-        WELLNESS
+        WELLNESS,
+        STARTUP
     }
 }
