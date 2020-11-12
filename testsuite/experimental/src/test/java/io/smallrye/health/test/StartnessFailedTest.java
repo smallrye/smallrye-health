@@ -31,30 +31,30 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.SuccessfulStartup;
-import io.smallrye.health.deployment.SuccessfulStartupAsync;
+import io.smallrye.health.deployment.FailedStartness;
+import io.smallrye.health.deployment.FailedStartnessAsync;
 
 /**
  * @author Martin Stefanko
  */
-public class StartupSuccessfulTest extends TCKBase {
+public class StartnessFailedTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(StartupSuccessfulTest.class.getSimpleName(),
-                SuccessfulStartup.class, SuccessfulStartupAsync.class, TCKBase.class);
+        return DeploymentUtils.createWarFileWithClasses(StartnessFailedTest.class.getSimpleName(),
+                FailedStartness.class, FailedStartnessAsync.class, TCKBase.class);
     }
 
     /**
-     * Verifies the startup integration with CDI at the scope of a server runtime
+     * Verifies the startness integration with CDI at the scope of a server runtime
      */
     @Test
     @RunAsClient
-    public void testSuccessResponsePayload() {
-        Response response = getUrlStartupContents();
+    public void testFailedResponsePayload() {
+        Response response = getUrlStartnessContents();
 
         // status code
-        Assert.assertEquals(response.getStatus(), 200);
+        Assert.assertEquals(response.getStatus(), 503);
 
         JsonObject json = readJson(response);
 
@@ -63,9 +63,9 @@ public class StartupSuccessfulTest extends TCKBase {
         Assert.assertEquals(checks.size(), 2, "Expected two check responses");
 
         // single procedure response
-        assertSuccessfulCheck(checks.getJsonObject(0), "successful-check");
-        assertSuccessfulCheck(checks.getJsonObject(1), "successful-check");
+        assertFailureCheck(checks.getJsonObject(0), "failed-check");
+        assertFailureCheck(checks.getJsonObject(1), "failed-check");
 
-        assertOverallSuccess(json);
+        assertOverallFailure(json);
     }
 }
