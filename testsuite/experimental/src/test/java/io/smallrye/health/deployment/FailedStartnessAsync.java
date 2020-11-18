@@ -28,15 +28,16 @@ import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 import io.smallrye.health.api.AsyncHealthCheck;
-import io.smallrye.health.api.Startup;
+import io.smallrye.health.api.Startness;
 import io.smallrye.mutiny.Uni;
 
-@Startup
+@Startness
 @ApplicationScoped
-public class SuccessfulStartupAsync implements AsyncHealthCheck {
+public class FailedStartnessAsync implements AsyncHealthCheck {
+
     @Override
     public Uni<HealthCheckResponse> call() {
-        return Uni.createFrom().item(HealthCheckResponse.up("successful-check"))
+        return Uni.createFrom().item(HealthCheckResponse.down("failed-check"))
                 .onItem().delayIt().by(Duration.ofMillis(10));
     }
 }
