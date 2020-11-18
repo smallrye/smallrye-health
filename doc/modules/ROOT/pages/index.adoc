@@ -1,0 +1,18 @@
+[[index]]
+= SmallRye Health Documentation
+
+SmallRye Health 2.2 is an implementation of the MicroProfile Health 2.2 specification.
+
+Runtimes that currently use it as their health monitoring implementation include:
+
+* https://quarkus.io/[Quarkus]
+* https://wildfly.org/[WildFly]
+* https://thorntail.io/[Thorntail]
+
+
+[[more-resources]]
+== More Resources
+
+* https://github.com/smallrye/smallrye-health/[SmallRye Health GitHub project repository]
+* https://github.com/eclipse/microprofile-health/[Eclipse MicroProfile Health repository]
+* https://download.eclipse.org/microprofile/microprofile-health-2.2/microprofile-health-spec.html[MicroProfile 2.2 specification text]

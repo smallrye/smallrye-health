@@ -1,0 +1,34 @@
+[[wellness]]
+= Wellness
+
+The wellness is another health groups besides the liveness and readiness that can be standardized
+as a group of health checks that don't belong to either liveness (application restart) or
+readiness (traffic discards) but have a value for any post processing automatic or manual
+health monitoring.
+
+== The @Wellness annotation
+
+You can use the `@Wellness` annotation in a similar manner as `@Readiness` or `@Liveness`:
+
+[source,java]
+----
+@Wellness <1>
+@ApplicationScoped
+public class WellnessCheck implements HealthCheck {
+    @Override
+    public HealthCheckResponse call() {
+        return HealthCheckResponse.up("wellness-check");
+    }
+}
+----
+<1> The `@Wellness` qualifier
+
+== Accessing the wellness checks
+
+The wellness checks are exposed under the `/health/well` endpoint. They are also available
+at grouped `/health` endpoint together with all other health checks (liveness, readiness, and
+health groups).
+
+== References
+
+* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/Wellness.java[`Wellness`]
