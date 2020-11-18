@@ -37,7 +37,7 @@ jobs:
           repository: eclipse/microprofile-health
           path: microprofile-health
 
-      - uses: actions/setup-java@v1.4.3
+      - uses: actions/setup-java@v1
         name: set up jdk ${{matrix.java}}
         with:
           java-version: ${{matrix.java}}
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1.4.3
+      - uses: actions/setup-java@v1
         with:
           java-version: 11
 
