@@ -29,6 +29,11 @@ public class NonHeapMemoryHealthCheck extends AbstractHeapMemoryHealthCheck {
     }
 
     @Override
+    String name() {
+        return "non-heap-memory";
+    }
+
+    @Override
     public HealthCheckResponse call() {
         return getHealthCheckResponse(MemoryMXBean::getNonHeapMemoryUsage);
     }

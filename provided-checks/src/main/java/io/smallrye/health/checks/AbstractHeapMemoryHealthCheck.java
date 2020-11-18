@@ -26,7 +26,7 @@ public abstract class AbstractHeapMemoryHealthCheck implements HealthCheck {
         long memUsed = memoryUsage.getUsed();
         long memMax = memoryUsage.getMax();
 
-        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named("heap-memory")
+        HealthCheckResponseBuilder responseBuilder = HealthCheckResponse.named(name())
                 .withData("used", memUsed)
                 .withData("max", memMax)
                 .withData("max %", String.valueOf(maxPercentage));
@@ -39,4 +39,7 @@ public abstract class AbstractHeapMemoryHealthCheck implements HealthCheck {
             return responseBuilder.up().build();
         }
     }
+
+    abstract String name();
+
 }

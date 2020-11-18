@@ -29,6 +29,11 @@ public class HeapMemoryHealthCheck extends AbstractHeapMemoryHealthCheck {
     }
 
     @Override
+    String name() {
+        return "heap-memory";
+    }
+
+    @Override
     public HealthCheckResponse call() {
         return getHealthCheckResponse(MemoryMXBean::getHeapMemoryUsage);
     }
