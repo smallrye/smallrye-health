@@ -21,18 +21,22 @@
  */
 package io.smallrye.health.deployment;
 
+import java.time.Duration;
+
 import javax.enterprise.context.ApplicationScoped;
 
-import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import io.smallrye.health.api.Startup;
+import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.api.Startness;
+import io.smallrye.mutiny.Uni;
 
-@Startup
+@Startness
 @ApplicationScoped
-public class SuccessfulStartup implements HealthCheck {
+public class SuccessfulStartnessAsync implements AsyncHealthCheck {
     @Override
-    public HealthCheckResponse call() {
-        return HealthCheckResponse.up("successful-check");
+    public Uni<HealthCheckResponse> call() {
+        return Uni.createFrom().item(HealthCheckResponse.up("successful-check"))
+                .onItem().delayIt().by(Duration.ofMillis(10));
     }
 }

@@ -26,14 +26,14 @@ import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-import io.smallrye.health.api.Startup;
+import io.smallrye.health.api.Startness;
 
 /**
  * @author Martin Stefanko
  */
-@Startup
+@Startness
 @ApplicationScoped
-public class FailedStartup implements HealthCheck {
+public class FailedStartness implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         return HealthCheckResponse.down("failed-check");

@@ -38,7 +38,7 @@ import io.smallrye.common.annotation.Experimental;
 
 /**
  *
- * This qualifier is used to define a Startup Health Check procedure
+ * This qualifier is used to define a Startness Health Check procedure
  *
  * @author Martin Stefanko
  */
@@ -46,16 +46,16 @@ import io.smallrye.common.annotation.Experimental;
 @Retention(RUNTIME)
 @Documented
 @Qualifier
-@Experimental("Custom health check type definitions exposed at /health/startup. Not covered by the specification. " +
+@Experimental("Custom health check type definitions exposed at /health/start. Not covered by the specification. " +
         "Subject to change.")
-public @interface Startup {
+public @interface Startness {
 
     /**
-     * Support inline instantiation of the {@link Startup} qualifier.
+     * Support inline instantiation of the {@link Startness} qualifier.
      *
      * @author Martin Stefanko
      */
-    public static final class Literal extends AnnotationLiteral<Startup> implements Startup {
+    public static final class Literal extends AnnotationLiteral<Startness> implements Startness {
         public static final Literal INSTANCE = new Literal();
 
         private static final long serialVersionUID = 1L;
