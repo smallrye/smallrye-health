@@ -33,7 +33,7 @@
   <url>http://smallrye.io</url>
 
   <properties>
-    <version.eclipse.microprofile.config>1.4</version.eclipse.microprofile.config>
+    <version.eclipse.microprofile.config>2.0</version.eclipse.microprofile.config>
     <version.eclipse.microprofile.health>3.0</version.eclipse.microprofile.health>
     <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
     <version.smallrye-config>1.9.3</version.smallrye-config>
