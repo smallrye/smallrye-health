@@ -1,6 +1,6 @@
 package io.smallrye.health;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -66,5 +66,5 @@ class ResponseBuilder extends HealthCheckResponseBuilder {
 
     private HealthCheckResponse.Status status = HealthCheckResponse.Status.DOWN;
 
-    private Map<String, Object> data = new HashMap<>();
+    private final Map<String, Object> data = new LinkedHashMap<>();
 }
