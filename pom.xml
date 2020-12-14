@@ -42,13 +42,6 @@
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>microprofile-health30-staging</id>
-      <url>https://oss.sonatype.org/content/repositories/orgeclipsemicroprofile-1383</url>
-    </repository>
-  </repositories>
-
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
