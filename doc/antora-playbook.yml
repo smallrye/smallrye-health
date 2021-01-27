@@ -7,7 +7,7 @@ content:
   sources:
     - url: ..
       start_path: doc
-      branches: HEAD
+      branches: 3.0.x
 ui:
   bundle:
     url: https://github.com/smallrye/smallrye-antora-ui/blob/master/build/ui-bundle.zip?raw=true
