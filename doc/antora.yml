@@ -1,5 +1,5 @@
 name: smallrye-health
 title: SmallRye Health
-version: 2.2.4
+version: 3.0.0
 nav:
   - modules/ROOT/nav.adoc
