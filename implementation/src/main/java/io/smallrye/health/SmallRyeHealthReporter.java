@@ -149,11 +149,15 @@ public class SmallRyeHealthReporter {
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
         for (HealthCheck check : checks) {
-            list.add(asyncHealthCheckFactory.callSync(check));
+            if (check != null) {
+                list.add(asyncHealthCheckFactory.callSync(check));
+            }
         }
 
         for (AsyncHealthCheck asyncCheck : asyncChecks) {
-            list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
+            if (asyncCheck != null) {
+                list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
+            }
         }
     }
 
