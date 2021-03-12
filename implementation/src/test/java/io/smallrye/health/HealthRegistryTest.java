@@ -37,7 +37,6 @@ public class HealthRegistryTest {
         livenessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
         readinessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
         reporter.setEmptyChecksOutcome(HealthCheckResponse.Status.UP.toString());
-        reporter.mpHealthDefaultReadinessEmptyResponse = HealthCheckResponse.Status.UP.toString();
         reporter.livenessHealthRegistry = livenessHealthRegistry;
         reporter.readinessHealthRegistry = readinessHealthRegistry;
         reporter.timeoutSeconds = 60;

@@ -113,12 +113,6 @@ public class SmallRyeHealthReporter {
     @ConfigProperty(name = "io.smallrye.health.timeout.seconds", defaultValue = "60")
     int timeoutSeconds;
 
-    /* specification defined configuration values */
-
-    @Inject
-    @ConfigProperty(name = "mp.health.default.readiness.empty.response", defaultValue = "DOWN")
-    String mpHealthDefaultReadinessEmptyResponse;
-
     @Inject
     AsyncHealthCheckFactory asyncHealthCheckFactory;
 
@@ -222,11 +216,6 @@ public class SmallRyeHealthReporter {
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getReadinessAsync() {
-        if (readinessUnis != null && readinessUnis.isEmpty() &&
-                readinessHealthRegistry.getChecks() != null && readinessHealthRegistry.getChecks().isEmpty()) {
-            return Uni.createFrom().item(createEmptySmallRyeHealth(mpHealthDefaultReadinessEmptyResponse));
-        }
-
         return getHealthAsync(smallRyeReadinessUni, READINESS);
     }
 
