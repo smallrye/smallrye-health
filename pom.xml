@@ -54,6 +54,15 @@
     <url>https://github.com/smallrye/smallrye-health/issues</url>
   </issueManagement>
 
+  <developers>
+    <developer>
+      <id>xstefank</id>
+      <name>Martin Stefanko</name>
+      <email>xstefank[AT]redhat[DOT]com</email>
+      <url>https://github.com/xstefank</url>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:git@github.com:smallrye/smallrye-health.git</connection>
     <developerConnection>scm:git:git@github.com:smallrye/smallrye-health.git</developerConnection>
