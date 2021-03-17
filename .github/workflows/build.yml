@@ -3,8 +3,8 @@ name: SmallRye Build
 on:
   push:
     branches:
-      - master
-      - health30
+      - main
+      - 3.0.x
     paths-ignore:
       - '.gitignore'
       - 'CODEOWNERS'
