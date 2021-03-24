@@ -5,10 +5,10 @@ site:
   start_page: smallrye-health::index.adoc
 content:
   sources:
-    - url: ..
-      start_path: doc
-      branches: 3.0.x
+  - url: ..
+    start_path: doc
+    branches: HEAD
 ui:
   bundle:
-    url: https://github.com/smallrye/smallrye-antora-ui/blob/master/build/ui-bundle.zip?raw=true
+    url: https://github.com/smallrye/smallrye-antora-ui/blob/main/build/ui-bundle.zip?raw=true
     snapshot: true
