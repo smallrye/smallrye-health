@@ -35,7 +35,7 @@
   <properties>
     <version.eclipse.microprofile.config>2.0</version.eclipse.microprofile.config>
     <version.eclipse.microprofile.health>3.0</version.eclipse.microprofile.health>
-    <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
+    <version.jakarta.servlet>5.0.0</version.jakarta.servlet>
     <version.smallrye-config>2.2.0</version.smallrye-config>
     <version.smallrye-common>1.5.0</version.smallrye-common>
 
