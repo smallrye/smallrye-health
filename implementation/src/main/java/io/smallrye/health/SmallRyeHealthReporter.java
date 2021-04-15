@@ -37,11 +37,11 @@ import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
 import org.eclipse.microprofile.health.Readiness;
+import org.eclipse.microprofile.health.Startness;
 
 import io.smallrye.common.annotation.Experimental;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
-import io.smallrye.health.api.Startness;
 import io.smallrye.health.api.Wellness;
 import io.smallrye.health.registry.LivenessHealthRegistry;
 import io.smallrye.health.registry.ReadinessHealthRegistry;
