@@ -206,27 +206,32 @@ public class SmallRyeHealthReporter {
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getHealthAsync() {
-        return getHealthAsync(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS, STARTNESS);
+        smallRyeHealthUni = getHealthAsync(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS, STARTNESS);
+        return smallRyeHealthUni;
     }
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getLivenessAsync() {
-        return getHealthAsync(smallRyeLivenessUni, LIVENESS);
+        smallRyeLivenessUni = getHealthAsync(smallRyeLivenessUni, LIVENESS);
+        return smallRyeLivenessUni;
     }
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getReadinessAsync() {
-        return getHealthAsync(smallRyeReadinessUni, READINESS);
+        smallRyeReadinessUni = getHealthAsync(smallRyeReadinessUni, READINESS);
+        return smallRyeReadinessUni;
     }
 
     @Experimental("Asynchronous Health Check procedures & wellness experimental checks")
     public Uni<SmallRyeHealth> getWellnessAsync() {
-        return getHealthAsync(smallryeWellnessUni, WELLNESS);
+        smallryeWellnessUni = getHealthAsync(smallryeWellnessUni, WELLNESS);
+        return smallryeWellnessUni;
     }
 
     @Experimental("Asynchronous Health Check procedures & startness experimental checks")
     public Uni<SmallRyeHealth> getStartnessAsync() {
-        return getHealthAsync(smallryeStartnessUni, STARTNESS);
+        smallryeStartnessUni = getHealthAsync(smallryeStartnessUni, STARTNESS);
+        return smallryeStartnessUni;
     }
 
     @Experimental("Asynchronous Health Check procedures and Health Groups")
@@ -264,7 +269,7 @@ public class SmallRyeHealthReporter {
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
-        if (cachedHealth == null || additionalListsChanged(types)) {
+        if (additionalListsChanged(types) || additionalListsChanged || cachedHealth == null) {
             additionalListsChanged = false;
             cachedHealth = computeHealth(types);
         }
