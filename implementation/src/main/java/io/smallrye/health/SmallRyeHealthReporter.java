@@ -21,6 +21,7 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -50,6 +51,10 @@ import io.smallrye.mutiny.Uni;
 public class SmallRyeHealthReporter {
 
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
+
+    @Inject
+    @ConfigProperty(name = "io.smallrye.health.context.propagation", defaultValue = "false")
+    boolean contextPropagated;
 
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
@@ -265,12 +270,26 @@ public class SmallRyeHealthReporter {
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
-        if (additionalListsChanged(types) || additionalListsChanged || cachedHealth == null) {
-            additionalListsChanged = false;
-            cachedHealth = computeHealth(types);
-        }
+        if (contextPropagated) {
+            recreateCheckUnis();
+            return computeHealth(types);
+        } else {
+            if (additionalListsChanged(types) || additionalListsChanged || cachedHealth == null) {
+                additionalListsChanged = false;
+                cachedHealth = computeHealth(types);
+            }
 
-        return cachedHealth;
+            return cachedHealth;
+        }
+    }
+
+    private void recreateCheckUnis() {
+        livenessUnis.clear();
+        readinessUnis.clear();
+        wellnessUnis.clear();
+        startnessUnis.clear();
+
+        initChecks();
     }
 
     private boolean additionalListsChanged(HealthType... types) {
