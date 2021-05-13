@@ -26,9 +26,9 @@ import java.time.Duration;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Startness;
 
 import io.smallrye.health.api.AsyncHealthCheck;
-import io.smallrye.health.api.Startness;
 import io.smallrye.mutiny.Uni;
 
 @Startness

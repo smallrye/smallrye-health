@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2020-2021 Contributors to the Eclipse Foundation
  *
  * See the NOTICES file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -31,41 +31,39 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.FailedStartness;
-import io.smallrye.health.deployment.FailedStartnessAsync;
+import io.smallrye.health.deployment.SuccessfulStartnessAsync;
 
 /**
  * @author Martin Stefanko
  */
-public class StartnessFailedTest extends TCKBase {
+public class SingleStartnessAsyncSuccessfulTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(StartnessFailedTest.class.getSimpleName(),
-                FailedStartness.class, FailedStartnessAsync.class, TCKBase.class);
+        return DeploymentUtils.createWarFileWithClasses(SingleStartnessAsyncSuccessfulTest.class.getSimpleName(),
+                SuccessfulStartnessAsync.class, TCKBase.class);
     }
 
     /**
-     * Verifies the startness integration with CDI at the scope of a server runtime
+     * Verifies the startness async integration
      */
     @Test
     @RunAsClient
-    public void testFailedResponsePayload() {
-        Response response = getUrlStartnessContents();
+    public void testSuccessResponsePayload() {
+        Response response = getUrlStartContents();
 
         // status code
-        Assert.assertEquals(response.getStatus(), 503);
+        Assert.assertEquals(response.getStatus(), 200);
 
         JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 2, "Expected two check responses");
+        Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
         // single procedure response
-        assertFailureCheck(checks.getJsonObject(0), "failed-check");
-        assertFailureCheck(checks.getJsonObject(1), "failed-check");
+        assertSuccessfulCheck(checks.getJsonObject(0), "successful-check");
 
-        assertOverallFailure(json);
+        assertOverallSuccess(json);
     }
 }
