@@ -26,14 +26,14 @@ import java.time.Duration;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.Startness;
+import org.eclipse.microprofile.health.Startup;
 
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.mutiny.Uni;
 
-@Startness
+@Startup
 @ApplicationScoped
-public class FailedStartnessAsync implements AsyncHealthCheck {
+public class FailedStartupAsync implements AsyncHealthCheck {
 
     @Override
     public Uni<HealthCheckResponse> call() {
