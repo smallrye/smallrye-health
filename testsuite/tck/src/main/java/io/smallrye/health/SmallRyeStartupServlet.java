@@ -9,13 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-@WebServlet(name = "SmallRyeStartnessServlet", urlPatterns = "/health/start")
-public class SmallRyeStartnessServlet extends HttpServlet {
+@WebServlet(name = "SmallRyeStartupServlet", urlPatterns = "/health/start")
+public class SmallRyeStartupServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 
-        SmallRyeHealth health = reporter.getStartness();
+        SmallRyeHealth health = reporter.getStartup();
         if (health.isDown()) {
             resp.setStatus(503);
         }

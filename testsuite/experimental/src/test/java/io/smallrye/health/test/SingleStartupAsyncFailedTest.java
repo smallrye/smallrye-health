@@ -31,29 +31,29 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.SuccessfulStartnessAsync;
+import io.smallrye.health.deployment.FailedStartupAsync;
 
 /**
  * @author Martin Stefanko
  */
-public class SingleStartnessAsyncSuccessfulTest extends TCKBase {
+public class SingleStartupAsyncFailedTest extends TCKBase {
 
     @Deployment
     public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(SingleStartnessAsyncSuccessfulTest.class.getSimpleName(),
-                SuccessfulStartnessAsync.class, TCKBase.class);
+        return DeploymentUtils.createWarFileWithClasses(SingleStartupAsyncFailedTest.class.getSimpleName(),
+                FailedStartupAsync.class, TCKBase.class);
     }
 
     /**
-     * Verifies the startness async integration
+     * Verifies the startup async integration
      */
     @Test
     @RunAsClient
-    public void testSuccessResponsePayload() {
+    public void testFailedResponsePayload() {
         Response response = getUrlStartContents();
 
         // status code
-        Assert.assertEquals(response.getStatus(), 200);
+        Assert.assertEquals(response.getStatus(), 503);
 
         JsonObject json = readJson(response);
 
@@ -62,8 +62,8 @@ public class SingleStartnessAsyncSuccessfulTest extends TCKBase {
         Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
         // single procedure response
-        assertSuccessfulCheck(checks.getJsonObject(0), "successful-check");
+        assertFailureCheck(checks.getJsonObject(0), "failed-check");
 
-        assertOverallSuccess(json);
+        assertOverallFailure(json);
     }
 }
