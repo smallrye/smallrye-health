@@ -23,7 +23,7 @@ public class SmallRyeLivenessServlet extends HttpServlet {
             reporter.reportHealth(resp.getOutputStream(), health);
         } catch (IOException ioe) {
             HealthLogging.log.error(ioe);
-            throw new RuntimeException(ioe);
+            resp.setStatus(500);
         }
     }
 
