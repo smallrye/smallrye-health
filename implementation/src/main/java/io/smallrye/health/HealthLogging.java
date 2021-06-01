@@ -9,7 +9,7 @@ import org.jboss.logging.annotations.MessageLogger;
 
 @MessageLogger(projectCode = "SRHCK", length = 5)
 interface HealthLogging extends BasicLogger {
-    HealthLogging log = Logger.getMessageLogger(HealthLogging.class, HealthLogging.class.getPackage().getName());
+    HealthLogging logger = Logger.getMessageLogger(HealthLogging.class, HealthLogging.class.getPackage().getName());
 
     @LogMessage(level = Logger.Level.ERROR)
     @Message(id = 1000, value = "Error processing Health Checks")
