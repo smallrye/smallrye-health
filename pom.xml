@@ -39,7 +39,7 @@
     <version.smallrye-config>2.3.0</version.smallrye-config>
     <version.smallrye-common>1.6.0</version.smallrye-common>
 
-    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <licenses>
@@ -200,6 +200,35 @@
             </attributes>
           </configuration>
         </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+              <phase>generate-test-resources</phase>
+              <configuration>
+                <destFile>${project.build.directory}/jacoco.exec</destFile>
+                <propertyName>jacocoArgLine</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+            <execution>
+              <id>generate-report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <phase>verify</phase>
+              <configuration>
+                <outputDirectory>${project.build.directory}</outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -244,6 +273,22 @@
       <modules>
         <module>release</module>
       </modules>
+    </profile>
+
+    <profile>
+      <id>coverage</id>
+      <properties>
+        <argLine>@{jacocoArgLine}</argLine>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
