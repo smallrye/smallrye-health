@@ -23,7 +23,7 @@ public class SmallRyeHealthGroupServlet extends HttpServlet {
         try {
             reporter.reportHealth(resp.getOutputStream(), health);
         } catch (IOException ioe) {
-            HealthLogging.log.error(ioe);
+            HealthLogging.logger.error(ioe);
             resp.setStatus(500);
         }
     }

@@ -52,7 +52,7 @@ public class SocketHealthCheck implements HealthCheck {
             s.connect(socketAddress, timeout);
             healthCheckResponseBuilder.up();
         } catch (IOException ex) {
-            HealthChecksLogging.log.socketHealthCheckError(ex);
+            HealthChecksLogging.logger.socketHealthCheckError(ex);
 
             healthCheckResponseBuilder.withData("error", ex.getMessage());
             healthCheckResponseBuilder.down();

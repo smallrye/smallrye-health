@@ -40,7 +40,7 @@ public class AsyncHealthCheckFactory {
 
     private HealthCheckResponse handleFailure(String name, Throwable e) {
         // Log Stacktrace to server log so an error is not just in Health Check response
-        HealthLogging.log.healthCheckError(e);
+        HealthLogging.logger.healthCheckError(e);
 
         HealthCheckResponseBuilder response = HealthCheckResponse.named(name).down();
 

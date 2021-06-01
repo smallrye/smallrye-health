@@ -69,7 +69,7 @@ public class UrlHealthCheck implements HealthCheck {
             healthCheckResponseBuilder.status(isUp);
 
         } catch (Exception e) {
-            HealthChecksLogging.log.urlHealthCheckError(e);
+            HealthChecksLogging.logger.urlHealthCheckError(e);
 
             healthCheckResponseBuilder.withData("error",
                     String.format("%s: %s", e.getClass().getCanonicalName(), e.getMessage()));
