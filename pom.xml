@@ -40,6 +40,7 @@
     <version.smallrye-common>1.6.0</version.smallrye-common>
 
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.coverage.exclusions>testsuite/tck/src/main/java/**/*Servlet.java</sonar.coverage.exclusions>
   </properties>
 
   <licenses>
