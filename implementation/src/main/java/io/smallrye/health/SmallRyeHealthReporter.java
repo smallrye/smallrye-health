@@ -44,6 +44,8 @@ import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.Wellness;
 import io.smallrye.health.registry.LivenessHealthRegistry;
 import io.smallrye.health.registry.ReadinessHealthRegistry;
+import io.smallrye.health.registry.StartupHealthRegistry;
+import io.smallrye.health.registry.WellnessHealthRegistry;
 import io.smallrye.mutiny.Uni;
 
 @ApplicationScoped
@@ -108,6 +110,14 @@ public class SmallRyeHealthReporter {
     @Inject
     @Readiness
     ReadinessHealthRegistry readinessHealthRegistry;
+
+    @Inject
+    @Wellness
+    WellnessHealthRegistry wellnessHealthRegistry;
+
+    @Inject
+    @Startup
+    StartupHealthRegistry startupHealthRegistry;
 
     @Inject
     @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
@@ -308,6 +318,15 @@ public class SmallRyeHealthReporter {
                         needRecompute = true;
                     }
                     break;
+                case WELLNESS:
+                    if (wellnessHealthRegistry.checksChanged()) {
+                        needRecompute = true;
+                    }
+                    break;
+                case STARTUP:
+                    if (startupHealthRegistry.checksChanged()) {
+                        needRecompute = true;
+                    }
             }
         }
 
@@ -329,9 +348,11 @@ public class SmallRyeHealthReporter {
                     break;
                 case WELLNESS:
                     checks.addAll(wellnessUnis);
+                    checks.addAll(wellnessHealthRegistry.getChecks());
                     break;
                 case STARTUP:
                     checks.addAll(startupUnis);
+                    checks.addAll(startupHealthRegistry.getChecks());
                     break;
             }
         }

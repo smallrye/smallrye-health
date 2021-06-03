@@ -22,6 +22,8 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import io.smallrye.health.registry.StartupHealthRegistry;
+import io.smallrye.health.registry.WellnessHealthRegistry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponse.Status;
@@ -38,9 +40,7 @@ public class SmallRyeHealthReporterTest {
 
     private static final Duration maxDuration = Duration.ofSeconds(5);
     private SmallRyeHealthReporter reporter;
-    private LivenessHealthRegistry healthRegistry;
     private AsyncHealthCheckFactory asyncHealthCheckFactory;
-    private Comparator<JsonValue> checkComparator = Comparator.comparing(o -> ((JsonObject) o).getString("name"));
 
     public static class FailingHealthCheck implements HealthCheck {
         @Override
@@ -111,9 +111,10 @@ public class SmallRyeHealthReporterTest {
         reporter.emptyChecksOutcome = "UP";
         reporter.timeoutSeconds = 300;
 
-        healthRegistry = new LivenessHealthRegistry();
-        reporter.livenessHealthRegistry = healthRegistry;
+        reporter.livenessHealthRegistry = new LivenessHealthRegistry();
         reporter.readinessHealthRegistry = new ReadinessHealthRegistry();
+        reporter.wellnessHealthRegistry = new WellnessHealthRegistry();
+        reporter.startupHealthRegistry = new StartupHealthRegistry();
 
         asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
