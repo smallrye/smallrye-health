@@ -50,7 +50,7 @@ public class SingleStartupAsyncFailedTest extends TCKBase {
     @Test
     @RunAsClient
     public void testFailedResponsePayload() {
-        Response response = getUrlStartContents();
+        Response response = getUrlStartedContents();
 
         // status code
         Assert.assertEquals(response.getStatus(), 503);

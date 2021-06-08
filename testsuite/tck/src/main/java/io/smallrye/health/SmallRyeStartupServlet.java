@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-@WebServlet(name = "SmallRyeStartupServlet", urlPatterns = "/health/start")
+@WebServlet(name = "SmallRyeStartupServlet", urlPatterns = "/health/started")
 public class SmallRyeStartupServlet extends HttpServlet {
 
     @Override

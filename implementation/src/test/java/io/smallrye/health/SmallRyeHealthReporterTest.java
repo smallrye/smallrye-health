@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
-import java.util.Comparator;
 import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -20,10 +19,7 @@ import java.util.logging.StreamHandler;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 
-import io.smallrye.health.registry.StartupHealthRegistry;
-import io.smallrye.health.registry.WellnessHealthRegistry;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponse.Status;
@@ -34,6 +30,8 @@ import org.junit.Test;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.registry.LivenessHealthRegistry;
 import io.smallrye.health.registry.ReadinessHealthRegistry;
+import io.smallrye.health.registry.StartupHealthRegistry;
+import io.smallrye.health.registry.WellnessHealthRegistry;
 import io.smallrye.mutiny.Uni;
 
 public class SmallRyeHealthReporterTest {
