@@ -43,7 +43,7 @@ import io.smallrye.common.annotation.Experimental;
 @Target({ PARAMETER, FIELD, METHOD, TYPE })
 @Documented
 @Retention(RUNTIME)
-@Experimental("Custom health group definitions exposed at /health/{group-name}. Not covered by the specification. " +
+@Experimental("Custom health group definitions exposed at /health/group/{group-name}. Not covered by the specification. " +
         "Subject to change.")
 public @interface HealthGroups {
     /**

@@ -49,7 +49,7 @@ import io.smallrye.common.annotation.Experimental;
 @Documented
 @Qualifier
 @Repeatable(HealthGroups.class)
-@Experimental("Custom health group definitions exposed at /health/{group-name}. Not covered by the specification. " +
+@Experimental("Custom health group definitions exposed at /health/group/{group-name}. Not covered by the specification. " +
         "Subject to change.")
 public @interface HealthGroup {
 
