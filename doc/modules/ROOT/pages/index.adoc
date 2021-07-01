@@ -1,13 +1,12 @@
 [[index]]
 = SmallRye Health Documentation
 
-SmallRye Health 3.0 is an implementation of the MicroProfile Health 3.0 specification.
+SmallRye Health 3.1 is an implementation of the MicroProfile Health 3.1 specification.
 
 Runtimes that currently use it as their health monitoring implementation include:
 
 * https://quarkus.io/[Quarkus]
 * https://wildfly.org/[WildFly]
-* https://thorntail.io/[Thorntail]
 
 
 [[more-resources]]
