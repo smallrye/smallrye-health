@@ -36,7 +36,7 @@
     <version.eclipse.microprofile.config>2.0</version.eclipse.microprofile.config>
     <version.eclipse.microprofile.health>3.1</version.eclipse.microprofile.health>
     <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
-    <version.smallrye-config>2.4.1</version.smallrye-config>
+    <version.smallrye-config>2.4.2</version.smallrye-config>
     <version.smallrye-common>1.6.0</version.smallrye-common>
 
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
