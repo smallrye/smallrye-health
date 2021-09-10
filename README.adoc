@@ -2,7 +2,7 @@
 :ci: https://github.com/smallrye/smallrye-health/actions?query=workflow%3A%22SmallRye+Build%22
 :sonar: https://sonarcloud.io/dashboard?id=smallrye_smallrye-health
 
-image:https://github.com/smallrye/smallrye-health/workflows/SmallRye%20Build/badge.svg?branch=master[link={ci}]
+image:https://github.com/smallrye/smallrye-health/workflows/SmallRye%20Build/badge.svg?branch=main[link={ci}]
 image:https://sonarcloud.io/api/project_badges/measure?project=smallrye_smallrye-health&metric=alert_status["Quality Gate Status", link={sonar}]
 image:https://img.shields.io/github/license/thorntail/thorntail.svg["License", link="http://www.apache.org/licenses/LICENSE-2.0"]
 image:https://img.shields.io/maven-central/v/io.smallrye/smallrye-health?color=green[]

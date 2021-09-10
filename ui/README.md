@@ -24,8 +24,8 @@ Then go to /<context_root>/health-ui, eg: http://localhost:8080/health-example/h
 
 ### Dashboard
 
-![](https://raw.githubusercontent.com/smallrye/smallrye-health/master/ui/screenshot.png)
+![](https://raw.githubusercontent.com/smallrye/smallrye-health/main/ui/screenshot.png)
 
 ### Settings (to refresh automatically etc.)
 
-![](https://raw.githubusercontent.com/smallrye/smallrye-health/master/ui/screenshot_settings.png)
+![](https://raw.githubusercontent.com/smallrye/smallrye-health/main/ui/screenshot_settings.png)

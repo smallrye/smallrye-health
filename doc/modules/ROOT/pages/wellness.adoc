@@ -31,4 +31,4 @@ health groups).
 
 == References
 
-* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/Wellness.java[`Wellness`]
+* https://github.com/smallrye/smallrye-health/blob/main/api/src/main/java/io/smallrye/health/api/Wellness.java[`Wellness`]

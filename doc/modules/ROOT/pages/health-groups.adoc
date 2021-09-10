@@ -62,5 +62,5 @@ However, it won't be invoked for instance when accessing:
 
 == References
 
-* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/HealthGroup.java[`HealthGroup`]
+* https://github.com/smallrye/smallrye-health/blob/main/api/src/main/java/io/smallrye/health/api/HealthGroup.java[`HealthGroup`]
 

@@ -54,4 +54,4 @@ public void removeReady() {
 
 == Resources
 
-* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/HealthRegistry.java[`HealthRegistry`]
+* https://github.com/smallrye/smallrye-health/blob/main/api/src/main/java/io/smallrye/health/api/HealthRegistry.java[`HealthRegistry`]

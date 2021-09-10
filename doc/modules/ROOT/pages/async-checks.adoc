@@ -39,6 +39,6 @@ the `AsyncHealthTest`.
 
 == References
 
-* https://github.com/smallrye/smallrye-health/blob/master/api/src/main/java/io/smallrye/health/api/AsyncHealthCheck.java[`AsyncHealthCheck`]
-* https://github.com/smallrye/smallrye-health/blob/master/implementation/src/main/java/io/smallrye/health/SmallRyeHealthReporter.java[`SmallRyeHealthReporter`]
-* https://github.com/smallrye/smallrye-health/blob/master/testsuite/experimental/src/test/java/io/smallrye/health/test/AsyncHealthTest.java[`AsyncHealthTest`]
+* https://github.com/smallrye/smallrye-health/blob/main/api/src/main/java/io/smallrye/health/api/AsyncHealthCheck.java[`AsyncHealthCheck`]
+* https://github.com/smallrye/smallrye-health/blob/main/implementation/src/main/java/io/smallrye/health/SmallRyeHealthReporter.java[`SmallRyeHealthReporter`]
+* https://github.com/smallrye/smallrye-health/blob/main/testsuite/experimental/src/test/java/io/smallrye/health/test/AsyncHealthTest.java[`AsyncHealthTest`]
