@@ -1,6 +1,7 @@
 package io.smallrye.health.checks;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -29,7 +30,7 @@ public class SocketHealthCheckTest {
 
         final HealthCheckResponse healthCheckResponse = socketHealthCheck.call();
         assertEquals(HealthCheckResponse.Status.DOWN, healthCheckResponse.getStatus());
-        assertEquals("connect timed out", healthCheckResponse.getData().get().get("error"));
+        assertTrue(((String) healthCheckResponse.getData().get().get("error")).matches("[cC]onnect timed out"));
     }
 
 }
