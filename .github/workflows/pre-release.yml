@@ -29,3 +29,61 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           milestone-title: ${{steps.metadata.outputs.current-version}}
+
+  integration-verification:
+    runs-on: ubuntu-latest
+    name: Integration verfication
+    if: contains(github.event.pull_request.body, 'Breaking change') == false
+
+    steps:
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: temurin
+
+      - name: Build with Maven
+        run: mvn -B javadoc:javadoc formatter:validate install
+
+      - id: version-step
+        name: Save version for integration builds
+        run: |
+          VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+          echo "::set-output name=SNAPSHOT_VERSION::$VERSION"
+
+      - uses: actions/checkout@v2
+        name: Checkout Quarkus
+        with:
+          repository: quarkusio/quarkus
+
+      - name: Quarkus integration
+        run: |
+          mvn -Dquickly -Dsmallrye-health.version=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+          mvn clean verify -pl extensions/smallrye-health/deployment -Dsmallrye-health.version=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+          mvn clean verify -pl tcks/microprofile-health -Dtcks -Dsmallrye-health.version=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+
+      - uses: actions/checkout@v2
+        name: Checkout WildFly
+        with:
+          repository: wildfly/wildfly
+
+      - name: WildFly integration
+        run: |
+          mvn clean install -DskipTests -DskipITs -Denforcer.skip
+          mvn clean verify -pl microprofile/health-smallrye -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+          mvn clean verify -pl testsuite/integration/microprofile -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+          mvn clean verify -pl testsuite/integration/microprofile-tck/health -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+          mvn clean verify -pl testsuite/integration/manualmode -Dts.manualmode -Dtest="MicroProfile*" -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
+
+
+
+          
+          
