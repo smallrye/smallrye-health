@@ -34,9 +34,6 @@ import org.testng.annotations.Test;
 import io.smallrye.health.deployment.FailedCustom;
 import io.smallrye.health.deployment.SuccessfulCustom;
 
-/**
- * @author Prashanth Gunapalasingam
- */
 public class AllCustomFailedTest extends TCKBase {
 
     @Deployment
