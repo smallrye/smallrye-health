@@ -8,10 +8,11 @@ function processSettings() {
     // Title
     var title = localStorage.getItem("title");
     if (title === null || title === '')
-        title = "Health UI";
-    $("#navbar_title").html(title);
+        title = "Health UI";    
+    encodedtitle = htmlEncode(title);
+    $("#navbar_title").html(encodedtitle);
     $("#settings_form_title").val(title);
-    document.title = title;
+    document.title = encodedtitle;
 
     // Poll
     var poll = localStorage.getItem("poll");
@@ -122,7 +123,7 @@ function compare(a, b) {
 function processError(xmlhttp) {
     $('#state').html("<h3><span class='badge badge-warning'><img src='refresh.png'/> Error fetching data</span></h3>");
     $('#grid').html("<blockquote class='blockquote text-center'>" +
-            "<p class='mb-0'> Error while fetching data from [" + getUrl() + "]</p>" +
+            "<p class='mb-0'> Error while fetching data from [" + htmlEncode(getUrl()) + "]</p>" +
             "<p class='mb-0'>" + xmlhttp.responseText + "</p>" +
             "</blockquote>");
 
@@ -179,6 +180,11 @@ function getInterval(text) {
 
 }
 
+function htmlEncode(str){
+  return String(str).replace(/[^\w. ]/gi, function(c){
+     return '&#'+c.charCodeAt(0)+';';
+  });
+}
 
 (function () {
     processSettings();
