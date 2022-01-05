@@ -2,7 +2,7 @@ package io.smallrye.health;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 
@@ -11,9 +11,9 @@ import javax.json.JsonObject;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.registry.LivenessHealthRegistry;
@@ -31,7 +31,7 @@ public class HealthRegistryTest {
     private AsyncHealthCheckFactory asyncHealthCheckFactory;
     private SmallRyeHealthReporter reporter;
 
-    @Before
+    @BeforeEach
     public void before() {
         livenessHealthRegistry = new LivenessHealthRegistry();
         readinessHealthRegistry = new ReadinessHealthRegistry();
@@ -228,7 +228,7 @@ public class HealthRegistryTest {
     private void assertChecks(JsonArray checksArray, String... checkNames) {
         for (JsonObject check : checksArray.getValuesAs(JsonObject.class)) {
             if (Arrays.stream(checkNames).noneMatch(name -> name.equals(check.getString("name")))) {
-                Assert.fail("Received unexpected health check " + check.getString("name"));
+                Assertions.fail("Received unexpected health check " + check.getString("name"));
             }
             assertThat(check.getString("status"), is("UP"));
         }

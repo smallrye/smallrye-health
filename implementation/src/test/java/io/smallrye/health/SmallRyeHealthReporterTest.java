@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
@@ -23,9 +23,9 @@ import javax.json.JsonObject;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponse.Status;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.registry.LivenessHealthRegistry;
@@ -103,7 +103,7 @@ public class SmallRyeHealthReporterTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void createReporter() {
         reporter = new SmallRyeHealthReporter();
         reporter.emptyChecksOutcome = "UP";
@@ -363,7 +363,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check.toString());
             }
         }
 
@@ -385,7 +385,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check.toString());
             }
         }
 
@@ -406,7 +406,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check.toString());
             }
         }
 
@@ -427,7 +427,7 @@ public class SmallRyeHealthReporterTest {
             if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check.toString());
             }
         }
 
@@ -521,7 +521,7 @@ public class SmallRyeHealthReporterTest {
                 assertThat(check.getJsonObject("data").getString("rootCause"),
                         is("this health check has failed"));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check.toString());
             }
         }
     }
@@ -546,7 +546,7 @@ public class SmallRyeHealthReporterTest {
                 assertThat(check.getString("status"), is("DOWN"));
                 assertThat(check.getJsonObject("data"), is(nullValue()));
             } else {
-                Assert.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
     }
