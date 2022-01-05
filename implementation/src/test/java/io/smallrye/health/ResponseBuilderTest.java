@@ -1,19 +1,20 @@
 package io.smallrye.health;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ResponseBuilderTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWhenNameIsNullThrowsIllegalArgumentException() {
         final ResponseBuilder responseBuilder = new ResponseBuilder();
-        responseBuilder.build();
+        Assertions.assertThrows(IllegalArgumentException.class, responseBuilder::build);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWhenNameIsEmptyStringThrowsIllegalArgumentException() {
         final ResponseBuilder responseBuilder = new ResponseBuilder();
         responseBuilder.name("");
-        responseBuilder.build();
+        Assertions.assertThrows(IllegalArgumentException.class, responseBuilder::build);
     }
 }

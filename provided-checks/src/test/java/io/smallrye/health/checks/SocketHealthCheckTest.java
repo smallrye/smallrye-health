@@ -1,13 +1,13 @@
 package io.smallrye.health.checks;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SocketHealthCheckTest {
 
