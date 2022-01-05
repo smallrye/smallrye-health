@@ -40,6 +40,8 @@
     <version.smallrye-config>2.8.1</version.smallrye-config>
     <version.smallrye-common>1.8.0</version.smallrye-common>
 
+    <version.smallrye.testing.utilities>1.0.0</version.smallrye.testing.utilities>
+
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.coverage.exclusions>testsuite/tck/src/main/java/**/*Servlet.java</sonar.coverage.exclusions>
   </properties>
@@ -155,6 +157,14 @@
         <groupId>io.smallrye.common</groupId>
         <artifactId>smallrye-common-annotation</artifactId>
         <version>${version.smallrye-common}</version>
+      </dependency>
+
+      <!-- Test Dependencies -->
+      <dependency>
+        <groupId>io.smallrye.testing</groupId>
+        <artifactId>smallrye-testing-utilities</artifactId>
+        <version>${version.smallrye.testing.utilities}</version>
+        <scope>test</scope>
       </dependency>
 
       <!-- Dependencies provided by the project -->

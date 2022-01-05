@@ -76,6 +76,10 @@
       <artifactId>junit-jupiter</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.smallrye.testing</groupId>
+      <artifactId>smallrye-testing-utilities</artifactId>
+    </dependency>
+    <dependency>
     	<groupId>org.hamcrest</groupId>
     	<artifactId>hamcrest</artifactId>
     	<scope>test</scope>

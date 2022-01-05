@@ -1,21 +1,18 @@
 package io.smallrye.health;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.function.Supplier;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -26,6 +23,7 @@ import org.eclipse.microprofile.health.HealthCheckResponse.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.registry.LivenessHealthRegistry;
@@ -33,8 +31,12 @@ import io.smallrye.health.registry.ReadinessHealthRegistry;
 import io.smallrye.health.registry.StartupHealthRegistry;
 import io.smallrye.health.registry.WellnessHealthRegistry;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.testing.logging.LogCapture;
 
 public class SmallRyeHealthReporterTest {
+
+    @RegisterExtension
+    static LogCapture logCapture = LogCapture.with(logRecord -> logRecord.getMessage().startsWith("SRHCK"), Level.ALL);
 
     private static final Duration maxDuration = Duration.ofSeconds(5);
     private SmallRyeHealthReporter reporter;
@@ -117,6 +119,8 @@ public class SmallRyeHealthReporterTest {
         asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
         reporter.asyncHealthCheckFactory = asyncHealthCheckFactory;
+
+        logCapture.records().clear();
     }
 
     @Test
@@ -261,48 +265,68 @@ public class SmallRyeHealthReporterTest {
 
     @Test
     public void testReportWhenDown() {
-        testReport(() -> reporter.addHealthCheck(new DownHealthCheck()),
-                () -> reporter.getHealth(), () -> reporter.getHealth().getPayload().toString());
+        reporter.addHealthCheck(new DownHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
+        assertLogContainsMessage("SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"down\",\"status\":\"DOWN\"}]}");
     }
 
     @Test
     public void testReportWhenDownAsync() {
-        testReport(() -> reporter.addHealthCheck(new DownAsyncHealthCheck()),
-                () -> reporter.getHealthAsync().await().atMost(maxDuration),
-                () -> reporter.getHealthAsync().await().atMost(maxDuration).getPayload().toString());
+        reporter.addHealthCheck(new DownAsyncHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
+        assertLogContainsMessage("SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"down\",\"status\":\"DOWN\"}]}");
     }
 
     @Test
     public void testReportWhenException() {
-        testReport(() -> reporter.addHealthCheck(new FailingHealthCheck()),
-                () -> reporter.getHealth(), () -> "this health check has failed");
+        reporter.addHealthCheck(new FailingHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
+        assertLogContainsMessage("SRHCK01000: Error processing Health Checks");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$FailingHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"this health check has failed\"}}]}");
     }
 
     @Test
     public void testReportWhenExceptionAsync() {
-        testReport(() -> reporter.addHealthCheck(new FailingAsyncHealthCheck()),
-                () -> reporter.getHealthAsync().await().atMost(maxDuration),
-                () -> "this health check has failed");
+        reporter.addHealthCheck(new FailingAsyncHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
+        assertLogContainsMessage("SRHCK01000: Error processing Health Checks");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$FailingAsyncHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"this health check has failed\"}}]}");
     }
 
     @Test
     public void testReportWhenNull() {
-        testReport(() -> reporter.addHealthCheck(new NullHealthCheck()),
-                () -> reporter.getHealth(), () -> HealthMessages.msg.healthCheckNull().getMessage());
+        reporter.addHealthCheck(new NullHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
+        assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"SRHCK00001: Health Check returned null.\"}}]}");
     }
 
     @Test
     public void testReportWhenNullAsync() {
-        testReport(() -> reporter.addHealthCheck(new NullAsyncHealthCheck()),
-                () -> reporter.getHealthAsync().await().atMost(maxDuration),
-                () -> "The supplier returned `null`");
+        reporter.addHealthCheck(new NullAsyncHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
+        assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullAsyncHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"The supplier returned `null`\"}}]}");
     }
 
     @Test
     public void testReportWhenNullUniAsync() {
-        testReport(() -> reporter.addHealthCheck(new NullUniAsyncHealthCheck()),
-                () -> reporter.getHealthAsync().await().atMost(maxDuration),
-                () -> "`supplier` must not be `null`");
+        reporter.addHealthCheck(new NullUniAsyncHealthCheck());
+        reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
+        assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
+                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullUniAsyncHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"`supplier` must not be `null`\"}}]}");
     }
 
     @Test
@@ -574,19 +598,13 @@ public class SmallRyeHealthReporterTest {
         }
     }
 
-    public void testReport(Runnable prepare, Supplier<SmallRyeHealth> supplier, Supplier<String> expectedContent) {
-        ByteArrayOutputStream logStream = new ByteArrayOutputStream();
-        Handler handler = new StreamHandler(logStream, new SimpleFormatter());
+    private void assertLogContainsMessage(String expected) {
+        assertLogContainsMessage(0, expected);
+    }
 
-        Logger logger = Logger.getLogger("io.smallrye.health");
-        logger.addHandler(handler);
-        logger.setLevel(Level.ALL);
-        logger.setUseParentHandlers(false);
-
-        prepare.run();
-        reporter.reportHealth(new ByteArrayOutputStream(), supplier.get());
-
-        handler.flush();
-        assertThat(logStream.toString(), containsString(expectedContent.get()));
+    private void assertLogContainsMessage(int index, String expected) {
+        assertFalse(logCapture.records().isEmpty(), "Expected that the log is not empty");
+        assertTrue(expected.contains(logCapture.records().get(index).getMessage()),
+                "Log doesn't contain requested message: " + expected);
     }
 }
