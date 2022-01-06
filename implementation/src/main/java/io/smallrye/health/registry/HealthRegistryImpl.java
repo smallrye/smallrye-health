@@ -5,23 +5,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
 import io.smallrye.health.AsyncHealthCheckFactory;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthRegistry;
+import io.smallrye.health.api.HealthType;
 import io.smallrye.mutiny.Uni;
 
-public class AbstractHealthRegistry implements HealthRegistry {
+public class HealthRegistryImpl implements HealthRegistry {
 
+    private final HealthType registryType;
     Map<String, Uni<HealthCheckResponse>> checks = new HashMap<>();
     private boolean checksChanged = false;
 
-    @Inject
-    AsyncHealthCheckFactory asyncHealthCheckFactory;
+    public HealthRegistryImpl(HealthType registryType) {
+        this.registryType = registryType;
+    }
+
+    AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
     @Override
     public HealthRegistry register(String id, HealthCheck healthCheck) {
