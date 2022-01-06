@@ -1,9 +1,9 @@
 package io.smallrye.health;
 
-import static io.smallrye.health.SmallRyeHealthReporter.HealthType.LIVENESS;
-import static io.smallrye.health.SmallRyeHealthReporter.HealthType.READINESS;
-import static io.smallrye.health.SmallRyeHealthReporter.HealthType.STARTUP;
-import static io.smallrye.health.SmallRyeHealthReporter.HealthType.WELLNESS;
+import static io.smallrye.health.api.HealthType.LIVENESS;
+import static io.smallrye.health.api.HealthType.READINESS;
+import static io.smallrye.health.api.HealthType.STARTUP;
+import static io.smallrye.health.api.HealthType.WELLNESS;
 
 import java.io.OutputStream;
 import java.time.Duration;
@@ -31,7 +31,7 @@ import javax.json.JsonWriterFactory;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGenerator;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Liveness;
@@ -41,21 +41,16 @@ import org.eclipse.microprofile.health.Startup;
 import io.smallrye.common.annotation.Experimental;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
+import io.smallrye.health.api.HealthType;
 import io.smallrye.health.api.Wellness;
-import io.smallrye.health.registry.LivenessHealthRegistry;
-import io.smallrye.health.registry.ReadinessHealthRegistry;
-import io.smallrye.health.registry.StartupHealthRegistry;
-import io.smallrye.health.registry.WellnessHealthRegistry;
+import io.smallrye.health.registry.HealthRegistries;
+import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
 
     private static final Map<String, ?> JSON_CONFIG = Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true);
-
-    @Inject
-    @ConfigProperty(name = "io.smallrye.health.context.propagation", defaultValue = "false")
-    boolean contextPropagated;
 
     /**
      * can be {@code null} if SmallRyeHealthReporter is used in a non-CDI environment
@@ -103,32 +98,20 @@ public class SmallRyeHealthReporter {
     @Inject
     BeanManager beanManager;
 
-    @Inject
-    @Liveness
-    LivenessHealthRegistry livenessHealthRegistry;
+    HealthRegistryImpl livenessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(LIVENESS);
 
-    @Inject
-    @Readiness
-    ReadinessHealthRegistry readinessHealthRegistry;
+    HealthRegistryImpl readinessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(READINESS);
 
-    @Inject
-    @Wellness
-    WellnessHealthRegistry wellnessHealthRegistry;
+    HealthRegistryImpl wellnessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(WELLNESS);
 
-    @Inject
-    @Startup
-    StartupHealthRegistry startupHealthRegistry;
+    HealthRegistryImpl startupHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(STARTUP);
 
-    @Inject
-    @ConfigProperty(name = "io.smallrye.health.emptyChecksOutcome", defaultValue = "UP")
-    String emptyChecksOutcome;
+    // Config properties
+    boolean contextPropagated = false;
+    String emptyChecksOutcome = "UP";
+    int timeoutSeconds = 60;
 
-    @Inject
-    @ConfigProperty(name = "io.smallrye.health.timeout.seconds", defaultValue = "60")
-    int timeoutSeconds;
-
-    @Inject
-    AsyncHealthCheckFactory asyncHealthCheckFactory;
+    AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
@@ -145,6 +128,24 @@ public class SmallRyeHealthReporter {
     private List<Uni<HealthCheckResponse>> readinessUnis = new ArrayList<>();
     private List<Uni<HealthCheckResponse>> wellnessUnis = new ArrayList<>();
     private List<Uni<HealthCheckResponse>> startupUnis = new ArrayList<>();
+
+    public SmallRyeHealthReporter() {
+        try {
+            contextPropagated = ConfigProvider.getConfig()
+                    .getOptionalValue("io.smallrye.health.context.propagation", Boolean.class)
+                    .orElse(false);
+
+            emptyChecksOutcome = ConfigProvider.getConfig()
+                    .getOptionalValue("io.smallrye.health.emptyChecksOutcome", String.class)
+                    .orElse("UP");
+
+            timeoutSeconds = ConfigProvider.getConfig()
+                    .getOptionalValue("io.smallrye.health.timeout.seconds", Integer.class)
+                    .orElse(60);
+        } catch (IllegalStateException illegalStateException) {
+            // OK, no config provider was found, use default values
+        }
+    }
 
     @PostConstruct
     public void initChecks() {
@@ -463,12 +464,5 @@ public class SmallRyeHealthReporter {
     public void removeHealthCheck(AsyncHealthCheck check) {
         additionalChecks.remove(check.getClass().getName());
         additionalListsChanged = true;
-    }
-
-    enum HealthType {
-        LIVENESS,
-        READINESS,
-        WELLNESS,
-        STARTUP
     }
 }

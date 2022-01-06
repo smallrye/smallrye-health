@@ -16,40 +16,26 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.smallrye.health.api.AsyncHealthCheck;
-import io.smallrye.health.registry.LivenessHealthRegistry;
-import io.smallrye.health.registry.ReadinessHealthRegistry;
-import io.smallrye.health.registry.StartupHealthRegistry;
-import io.smallrye.health.registry.WellnessHealthRegistry;
+import io.smallrye.health.api.HealthRegistry;
+import io.smallrye.health.api.HealthType;
+import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.mutiny.Uni;
 
 public class HealthRegistryTest {
 
-    private LivenessHealthRegistry livenessHealthRegistry;
-    private ReadinessHealthRegistry readinessHealthRegistry;
-    private WellnessHealthRegistry wellnessHealthRegistry;
-    private StartupHealthRegistry startupHealthRegistry;
-    private AsyncHealthCheckFactory asyncHealthCheckFactory;
+    private HealthRegistry livenessHealthRegistry;
+    private HealthRegistry readinessHealthRegistry;
+    private HealthRegistry wellnessHealthRegistry;
+    private HealthRegistry startupHealthRegistry;
     private SmallRyeHealthReporter reporter;
 
     @BeforeEach
     public void before() {
-        livenessHealthRegistry = new LivenessHealthRegistry();
-        readinessHealthRegistry = new ReadinessHealthRegistry();
-        wellnessHealthRegistry = new WellnessHealthRegistry();
-        startupHealthRegistry = new StartupHealthRegistry();
-        asyncHealthCheckFactory = new AsyncHealthCheckFactory();
+        livenessHealthRegistry = HealthRegistries.getRegistry(HealthType.LIVENESS);
+        readinessHealthRegistry = HealthRegistries.getRegistry(HealthType.READINESS);
+        wellnessHealthRegistry = HealthRegistries.getRegistry(HealthType.WELLNESS);
+        startupHealthRegistry = HealthRegistries.getRegistry(HealthType.STARTUP);
         reporter = new SmallRyeHealthReporter();
-        asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
-        livenessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
-        readinessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
-        wellnessHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
-        startupHealthRegistry.setAsyncHealthCheckFactory(asyncHealthCheckFactory);
-        reporter.setEmptyChecksOutcome(HealthCheckResponse.Status.UP.toString());
-        reporter.livenessHealthRegistry = livenessHealthRegistry;
-        reporter.readinessHealthRegistry = readinessHealthRegistry;
-        reporter.wellnessHealthRegistry = wellnessHealthRegistry;
-        reporter.startupHealthRegistry = startupHealthRegistry;
-        reporter.timeoutSeconds = 60;
     }
 
     @Test

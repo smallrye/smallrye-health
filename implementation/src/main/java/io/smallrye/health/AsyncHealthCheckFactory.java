@@ -4,9 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
@@ -20,9 +19,17 @@ public class AsyncHealthCheckFactory {
     private static final String ROOT_CAUSE = "rootCause";
     private static final String STACK_TRACE = "stackTrace";
 
-    @Inject
-    @ConfigProperty(name = "io.smallrye.health.uncheckedExceptionDataStyle", defaultValue = ROOT_CAUSE)
-    String uncheckedExceptionDataStyle;
+    String uncheckedExceptionDataStyle = ROOT_CAUSE;
+
+    public AsyncHealthCheckFactory() {
+        try {
+            uncheckedExceptionDataStyle = ConfigProvider.getConfig()
+                    .getOptionalValue("io.smallrye.health.uncheckedExceptionDataStyle", String.class)
+                    .orElse(ROOT_CAUSE);
+        } catch (IllegalStateException illegalStateException) {
+            // OK, no config provider was found, use default values
+        }
+    }
 
     public Uni<HealthCheckResponse> callAsync(AsyncHealthCheck asyncHealthCheck) {
         return withRecovery(asyncHealthCheck.getClass().getName(), Uni.createFrom().deferred(asyncHealthCheck::call));
