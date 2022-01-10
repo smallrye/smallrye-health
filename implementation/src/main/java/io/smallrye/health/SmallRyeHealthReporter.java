@@ -39,6 +39,7 @@ import org.eclipse.microprofile.health.Readiness;
 import org.eclipse.microprofile.health.Startup;
 
 import io.smallrye.common.annotation.Experimental;
+import io.smallrye.config.SmallRyeConfig;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.HealthType;
@@ -110,6 +111,7 @@ public class SmallRyeHealthReporter {
     boolean contextPropagated = false;
     String emptyChecksOutcome = "UP";
     int timeoutSeconds = 60;
+    Map<String, String> additionalProperties = new HashMap<>();
 
     AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
@@ -142,6 +144,10 @@ public class SmallRyeHealthReporter {
             timeoutSeconds = ConfigProvider.getConfig()
                     .getOptionalValue("io.smallrye.health.timeout.seconds", Integer.class)
                     .orElse(60);
+
+            additionalProperties = ((SmallRyeConfig) ConfigProvider.getConfig())
+                    .getOptionalValues("io.smallrye.health.additional.property", String.class, String.class)
+                    .orElse(new HashMap<>());
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
         }
@@ -401,6 +407,10 @@ public class SmallRyeHealthReporter {
 
         builder.add("status", checkResults.isEmpty() ? emptyOutcome : status.toString());
         builder.add("checks", checkResults);
+
+        if (!additionalProperties.isEmpty()) {
+            additionalProperties.forEach(builder::add);
+        }
 
         return new SmallRyeHealth(builder.build());
     }
