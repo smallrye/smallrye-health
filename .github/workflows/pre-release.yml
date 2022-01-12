@@ -36,19 +36,13 @@ jobs:
     if: contains(github.event.pull_request.body, 'Breaking change') == false
 
     steps:
-      - uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-
-
       - uses: actions/checkout@v2
 
       - uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: temurin
+          cache: maven
 
       - name: Build with Maven
         run: mvn -B javadoc:javadoc formatter:validate install
