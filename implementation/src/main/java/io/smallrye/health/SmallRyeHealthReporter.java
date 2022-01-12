@@ -164,13 +164,13 @@ public class SmallRyeHealthReporter {
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
         for (HealthCheck check : checks) {
-            if (check != null) {
+            if (check != null && isHealthCheckEnabled(check)) {
                 list.add(asyncHealthCheckFactory.callSync(check));
             }
         }
 
         for (AsyncHealthCheck asyncCheck : asyncChecks) {
-            if (asyncCheck != null) {
+            if (asyncCheck != null && isHealthCheckEnabled(asyncCheck)) {
                 list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
             }
         }
@@ -474,5 +474,27 @@ public class SmallRyeHealthReporter {
     public void removeHealthCheck(AsyncHealthCheck check) {
         additionalChecks.remove(check.getClass().getName());
         additionalListsChanged = true;
+    }
+
+    private boolean isHealthCheckEnabled(HealthCheck healthCheck) {
+        return isEnabled(healthCheck.getClass().getName()) &&
+                isEnabled(healthCheck.getClass().getSuperclass().getName());
+    }
+
+    private boolean isHealthCheckEnabled(AsyncHealthCheck asyncHealthCheck) {
+        return isEnabled(asyncHealthCheck.getClass().getName()) &&
+                isEnabled(asyncHealthCheck.getClass().getSuperclass().getName());
+    }
+
+    private boolean isEnabled(String checkClassName) {
+        try {
+            return ConfigProvider.getConfig()
+                    .getOptionalValue("io.smallrye.health.check." + checkClassName + ".enabled", Boolean.class)
+                    .orElse(true);
+        } catch (IllegalStateException illegalStateException) {
+            // OK, no config provider was found, use default values
+        }
+
+        return true;
     }
 }
