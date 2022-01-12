@@ -25,29 +25,44 @@ package io.smallrye.health.test;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.smallrye.health.deployment.SuccessLiveness;
+import io.smallrye.health.deployment.SuccessLivenessAsync;
 import io.smallrye.health.deployment.SuccessReadiness;
+import io.smallrye.health.deployment.SuccessReadinessAsync;
 
 public class DisableHealthCheckTest extends TCKBase {
 
-    @Deployment
-    public static Archive getDeployment() {
-        return DeploymentUtils.createWarFileWithClasses(DisableHealthCheckTest.class.getSimpleName(),
+    private static final String SYNC_DEPLOYMENT = "syncDeployment";
+    private static final String ASYNC_DEPLOYMENT = "asyncDeployment";
+
+    @Deployment(name = SYNC_DEPLOYMENT)
+    public static Archive getSyncDeployment() {
+        return DeploymentUtils.createWarFileWithClasses(DisableHealthCheckTest.class.getSimpleName() + "-sync",
                 SuccessLiveness.class, SuccessReadiness.class, TCKBase.class)
                 .addAsManifestResource(
                         new StringAsset("io.smallrye.health.check." + SuccessLiveness.class.getName() + ".enabled=false"),
                         "microprofile-config.properties");
     }
 
+    @Deployment(name = ASYNC_DEPLOYMENT)
+    public static Archive getAsyncDeployment() {
+        return DeploymentUtils.createWarFileWithClasses(DisableHealthCheckTest.class.getSimpleName() + "-async",
+                SuccessLivenessAsync.class, SuccessReadinessAsync.class, TCKBase.class)
+                .addAsManifestResource(
+                        new StringAsset("io.smallrye.health.check." + SuccessLivenessAsync.class.getName() + ".enabled=false"),
+                        "microprofile-config.properties");
+    }
+
     @Test
-    public void testAdditionalProperties() throws LifecycleException {
+    @OperateOnDeployment(SYNC_DEPLOYMENT)
+    public void testAdditionalProperties() {
         Response response = getUrlHealthContents();
 
         Assert.assertEquals(response.getStatus(), 200);
@@ -60,6 +75,26 @@ public class DisableHealthCheckTest extends TCKBase {
 
         JsonObject checkJson = checks.getJsonObject(0);
         Assert.assertEquals(SuccessReadiness.class.getName(), checkJson.getString("name"));
+        verifySuccessStatus(checkJson);
+
+        assertOverallSuccess(json);
+    }
+
+    @Test
+    @OperateOnDeployment(ASYNC_DEPLOYMENT)
+    public void testAdditionalPropertiesAsync() {
+        Response response = getUrlHealthContents();
+
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
+
+        // response size, SuccessLivenessAsync is in the deployment but it should not be included in the response
+        JsonArray checks = json.getJsonArray("checks");
+        Assert.assertEquals(checks.size(), 1, "Expected one check response");
+
+        JsonObject checkJson = checks.getJsonObject(0);
+        Assert.assertEquals(SuccessReadinessAsync.class.getName(), checkJson.getString("name"));
         verifySuccessStatus(checkJson);
 
         assertOverallSuccess(json);
