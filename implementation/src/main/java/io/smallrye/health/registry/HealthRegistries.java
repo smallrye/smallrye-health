@@ -48,6 +48,6 @@ public class HealthRegistries {
     }
 
     public static HealthRegistry getRegistry(HealthType type) {
-        return registries.computeIfAbsent(type, t -> new HealthRegistryImpl(type));
+        return registries.computeIfAbsent(type, t -> new HealthRegistryImpl());
     }
 }
