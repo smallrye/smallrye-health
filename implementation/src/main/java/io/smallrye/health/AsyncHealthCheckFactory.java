@@ -51,17 +51,15 @@ public class AsyncHealthCheckFactory {
 
         HealthCheckResponseBuilder response = HealthCheckResponse.named(name).down();
 
-        if (null != uncheckedExceptionDataStyle) {
-            switch (uncheckedExceptionDataStyle) {
-                case ROOT_CAUSE:
-                    response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
-                    break;
-                case STACK_TRACE:
-                    response.withData(STACK_TRACE, getStackTrace(e));
-                    break;
-                default:
-                    // don't add anything
-            }
+        switch (uncheckedExceptionDataStyle) {
+            case ROOT_CAUSE:
+                response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
+                break;
+            case STACK_TRACE:
+                response.withData(STACK_TRACE, getStackTrace(e));
+                break;
+            default:
+                // don't add anything
         }
 
         return response.build();
