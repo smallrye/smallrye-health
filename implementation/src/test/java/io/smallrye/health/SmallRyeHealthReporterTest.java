@@ -46,6 +46,13 @@ public class SmallRyeHealthReporterTest {
         }
     }
 
+    public static class FailingHealthCheckInnerException implements HealthCheck {
+        @Override
+        public HealthCheckResponse call() {
+            throw new RuntimeException(new RuntimeException("this health check has failed"));
+        }
+    }
+
     public static class DownHealthCheck implements HealthCheck {
         @Override
         public HealthCheckResponse call() {
@@ -144,6 +151,15 @@ public class SmallRyeHealthReporterTest {
     public void testGetHealthWithFailingCheckAndStyleDefault() {
         testGetHealthWithFailingCheckAndStyleDefault(FailingHealthCheck.class.getName(), () -> {
             reporter.addHealthCheck(new FailingHealthCheck());
+
+            return reporter.getHealth();
+        });
+    }
+
+    @Test
+    public void testGetHealthWithFailingCheckWithInnerExceptionAndStyleDefault() {
+        testGetHealthWithFailingCheckAndStyleDefault(FailingHealthCheckInnerException.class.getName(), () -> {
+            reporter.addHealthCheck(new FailingHealthCheckInnerException());
 
             return reporter.getHealth();
         });
