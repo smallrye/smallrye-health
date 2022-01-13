@@ -183,6 +183,27 @@ public class HealthRegistryTest {
     }
 
     @Test
+    public void testHealthGroupProgrammaticRegisterRemovalWithIdsTest() {
+        HealthCheck testCheck = () -> HealthCheckResponse.up("test");
+        AsyncHealthCheck asyncTestCheck = () -> Uni.createFrom().item(HealthCheckResponse.up("asyncTest"));
+
+        String groupName = "test-group";
+        HealthRegistry testGroupRegistry = HealthRegistries.getHealthGroupRegistry(groupName);
+
+        testGroupRegistry.register("t1", testCheck);
+        testGroupRegistry.register("at1", asyncTestCheck);
+
+        assertExpectedHealth(reporter.getHealthGroup(groupName), "test", "asyncTest");
+        assertExpectedHealth(reporter.getHealthGroups(), "test", "asyncTest");
+
+        testGroupRegistry.remove("t1");
+        testGroupRegistry.remove("at1");
+
+        assertExpectedHealth(reporter.getHealthGroup(groupName));
+        assertExpectedHealth(reporter.getHealthGroups());
+    }
+
+    @Test
     public void removeNonExistentTest() {
         assertThrows(IllegalStateException.class, () -> livenessHealthRegistry.remove("does-not-exist"));
         assertThrows(IllegalStateException.class, () -> readinessHealthRegistry.remove("does-not-exist"));
@@ -197,6 +218,11 @@ public class HealthRegistryTest {
                 () -> wellnessHealthRegistry.remove(() -> Uni.createFrom().item(HealthCheckResponse.up("does-not-exist"))));
         assertThrows(IllegalStateException.class,
                 () -> startupHealthRegistry.remove(() -> Uni.createFrom().item(HealthCheckResponse.up("does-not-exist"))));
+    }
+
+    @Test
+    public void healthGroupNullTest() {
+        assertThrows(IllegalArgumentException.class, () -> HealthRegistries.getHealthGroupRegistry(null));
     }
 
     private void assertExpectedHealth(SmallRyeHealth health, String... healthCheckNames) {
