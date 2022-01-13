@@ -257,8 +257,12 @@ public class SmallRyeHealthReporter {
     @Experimental("Asynchronous Health Check procedures and Health Groups")
     public Uni<SmallRyeHealth> getHealthGroupAsync(String groupName) {
         List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
-        initUnis(checks, allHealthChecks.select(HealthGroup.Literal.of(groupName)),
-                allAsyncHealthChecks.select(HealthGroup.Literal.of(groupName)));
+        if (allHealthChecks != null && allAsyncHealthChecks != null) {
+            initUnis(checks, allHealthChecks.select(HealthGroup.Literal.of(groupName)),
+                    allAsyncHealthChecks.select(HealthGroup.Literal.of(groupName)));
+        }
+
+        checks.addAll(((HealthRegistryImpl) HealthRegistries.getHealthGroupRegistry(groupName)).getChecks());
 
         return getHealthAsync(checks);
     }
@@ -266,7 +270,12 @@ public class SmallRyeHealthReporter {
     @Experimental("Asynchronous Health Check procedures and Health Groups")
     public Uni<SmallRyeHealth> getHealthGroupsAsync() {
         List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
-        initUnis(checks, getHealthGroupsChecks(HealthCheck.class), getHealthGroupsChecks(AsyncHealthCheck.class));
+        if (beanManager != null) {
+            initUnis(checks, getHealthGroupsChecks(HealthCheck.class), getHealthGroupsChecks(AsyncHealthCheck.class));
+        }
+
+        HealthRegistries.getHealthGroupRegistries()
+                .forEach(healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks()));
 
         return getHealthAsync(checks);
     }
