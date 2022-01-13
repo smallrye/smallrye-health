@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.testing.logging.LogCapture;
@@ -115,10 +116,11 @@ public class SmallRyeHealthReporterTest {
         reporter.emptyChecksOutcome = "UP";
         reporter.timeoutSeconds = 300;
 
-        reporter.livenessHealthRegistry = new HealthRegistryImpl();
-        reporter.readinessHealthRegistry = new HealthRegistryImpl();
-        reporter.wellnessHealthRegistry = new HealthRegistryImpl();
-        reporter.startupHealthRegistry = new HealthRegistryImpl();
+        HealthRegistries healthRegistries = new HealthRegistries();
+        reporter.livenessHealthRegistry = (HealthRegistryImpl) healthRegistries.getLivenessRegistry();
+        reporter.readinessHealthRegistry = (HealthRegistryImpl) healthRegistries.getReadinessRegistry();
+        reporter.wellnessHealthRegistry = (HealthRegistryImpl) healthRegistries.getWellnessRegistry();
+        reporter.startupHealthRegistry = (HealthRegistryImpl) healthRegistries.getStartupRegistry();
 
         asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         asyncHealthCheckFactory.uncheckedExceptionDataStyle = "rootCause";
