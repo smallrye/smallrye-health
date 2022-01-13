@@ -11,18 +11,12 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import io.smallrye.health.AsyncHealthCheckFactory;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.health.api.HealthRegistry;
-import io.smallrye.health.api.HealthType;
 import io.smallrye.mutiny.Uni;
 
 public class HealthRegistryImpl implements HealthRegistry {
 
-    private final HealthType registryType;
     Map<String, Uni<HealthCheckResponse>> checks = new HashMap<>();
     private boolean checksChanged = false;
-
-    public HealthRegistryImpl(HealthType registryType) {
-        this.registryType = registryType;
-    }
 
     AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
@@ -37,13 +31,9 @@ public class HealthRegistryImpl implements HealthRegistry {
     }
 
     private HealthRegistry register(String id, Uni<HealthCheckResponse> healthCheckResponseUni) {
-        try {
-            checks.put(id, healthCheckResponseUni);
-            checksChanged = true;
-            return this;
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
+        checks.put(id, healthCheckResponseUni);
+        checksChanged = true;
+        return this;
     }
 
     @Override
@@ -65,9 +55,5 @@ public class HealthRegistryImpl implements HealthRegistry {
 
     public boolean checksChanged() {
         return checksChanged;
-    }
-
-    public void setAsyncHealthCheckFactory(AsyncHealthCheckFactory asyncHealthCheckFactory) {
-        this.asyncHealthCheckFactory = asyncHealthCheckFactory;
     }
 }
