@@ -2,6 +2,7 @@ package io.smallrye.health;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -85,7 +86,10 @@ public class AsyncHealthCheckFactory {
         return getRootCause(cause);
     }
 
+    // Manual config overrides
+
     public void setUncheckedExceptionDataStyle(String uncheckedExceptionDataStyle) {
+        Objects.requireNonNull(uncheckedExceptionDataStyle);
         this.uncheckedExceptionDataStyle = uncheckedExceptionDataStyle;
     }
 }
