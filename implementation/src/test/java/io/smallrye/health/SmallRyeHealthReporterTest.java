@@ -7,10 +7,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -482,6 +486,51 @@ public class SmallRyeHealthReporterTest {
 
         checks = health.getPayload().getJsonArray("checks");
         assertThat(checks.size(), is(0));
+    }
+
+    @Test
+    public void contextPropagationConfigTest() {
+        reporter.setContextPropagated(true);
+        testDefaultGetHealth(() -> reporter.getHealth());
+        reporter.setContextPropagated(false);
+        testDefaultGetHealth(() -> reporter.getHealth());
+    }
+
+    @Test
+    public void nullEmptyCheckOutcomeTest() {
+        assertThrows(NullPointerException.class, () -> reporter.setEmptyChecksOutcome(null));
+    }
+
+    @Test
+    public void timeoutDurationTest() {
+        reporter.setTimeoutSeconds(1);
+        testDefaultGetHealth(() -> reporter.getHealth());
+    }
+
+    @Test
+    public void negativeTimeoutSecondsTest() {
+        assertThrows(IllegalArgumentException.class, () -> reporter.setTimeoutSeconds(-1));
+    }
+
+    @Test
+    public void additionalPropertyConfigTest() {
+        HashMap<String, String> additionalProperties = new HashMap<>();
+        additionalProperties.put("foo", "bar");
+        reporter.setAdditionalProperties(additionalProperties);
+
+        SmallRyeHealth health = reporter.getHealth();
+        assertNotNull(health.getPayload().getString("foo"));
+        assertEquals("bar", health.getPayload().getString("foo"));
+
+        additionalProperties.put("new", "test");
+        health = reporter.getHealth();
+        assertNull(health.getPayload().getJsonString("new"));
+        assertEquals("bar", health.getPayload().getString("foo"));
+    }
+
+    @Test
+    public void nullAdditionalPropertiesTest() {
+        assertThrows(NullPointerException.class, () -> reporter.setAdditionalProperties(null));
     }
 
     public void testDefaultGetHealth(Supplier<SmallRyeHealth> supplier) {

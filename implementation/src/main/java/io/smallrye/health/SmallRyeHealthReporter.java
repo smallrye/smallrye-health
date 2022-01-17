@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -100,11 +101,8 @@ public class SmallRyeHealthReporter {
     BeanManager beanManager;
 
     HealthRegistryImpl livenessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(LIVENESS);
-
     HealthRegistryImpl readinessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(READINESS);
-
     HealthRegistryImpl wellnessHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(WELLNESS);
-
     HealthRegistryImpl startupHealthRegistry = (HealthRegistryImpl) HealthRegistries.getRegistry(STARTUP);
 
     // Config properties
@@ -163,22 +161,20 @@ public class SmallRyeHealthReporter {
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
             Iterable<AsyncHealthCheck> asyncChecks) {
-        for (HealthCheck check : checks) {
-            if (check != null && isHealthCheckEnabled(check)) {
-                list.add(asyncHealthCheckFactory.callSync(check));
+        if (checks != null) {
+            for (HealthCheck check : checks) {
+                if (check != null && isHealthCheckEnabled(check)) {
+                    list.add(asyncHealthCheckFactory.callSync(check));
+                }
             }
         }
 
-        for (AsyncHealthCheck asyncCheck : asyncChecks) {
-            if (asyncCheck != null && isHealthCheckEnabled(asyncCheck)) {
-                list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
+        if (asyncChecks != null) {
+            for (AsyncHealthCheck asyncCheck : asyncChecks) {
+                if (asyncCheck != null && isHealthCheckEnabled(asyncCheck)) {
+                    list.add(asyncHealthCheckFactory.callAsync(asyncCheck));
+                }
             }
-        }
-    }
-
-    void setEmptyChecksOutcome(String emptyChecksOutcome) {
-        if (emptyChecksOutcome != null) {
-            this.emptyChecksOutcome = emptyChecksOutcome;
         }
     }
 
@@ -278,6 +274,53 @@ public class SmallRyeHealthReporter {
                 .forEach(healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks()));
 
         return getHealthAsync(checks);
+    }
+
+    public void addHealthCheck(HealthCheck check) {
+        if (check != null) {
+            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callSync(check));
+            additionalListsChanged = true;
+        }
+    }
+
+    public void addHealthCheck(AsyncHealthCheck check) {
+        if (check != null) {
+            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callAsync(check));
+            additionalListsChanged = true;
+        }
+    }
+
+    public void removeHealthCheck(HealthCheck check) {
+        additionalChecks.remove(check.getClass().getName());
+        additionalListsChanged = true;
+    }
+
+    public void removeHealthCheck(AsyncHealthCheck check) {
+        additionalChecks.remove(check.getClass().getName());
+        additionalListsChanged = true;
+    }
+
+    // Manual config overrides
+
+    public void setContextPropagated(boolean contextPropagated) {
+        this.contextPropagated = contextPropagated;
+    }
+
+    public void setEmptyChecksOutcome(String emptyChecksOutcome) {
+        Objects.requireNonNull(emptyChecksOutcome);
+        this.emptyChecksOutcome = emptyChecksOutcome;
+    }
+
+    public void setTimeoutSeconds(int timeoutSeconds) {
+        if (timeoutSeconds < 0) {
+            throw new IllegalArgumentException("Timeout cannot be negative.");
+        }
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    public void setAdditionalProperties(Map<String, String> additionalProperties) {
+        Objects.requireNonNull(additionalProperties);
+        this.additionalProperties = new HashMap<>(additionalProperties);
     }
 
     @SuppressWarnings("unchecked")
@@ -459,30 +502,6 @@ public class SmallRyeHealthReporter {
         });
 
         return builder.build();
-    }
-
-    public void addHealthCheck(HealthCheck check) {
-        if (check != null) {
-            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callSync(check));
-            additionalListsChanged = true;
-        }
-    }
-
-    public void addHealthCheck(AsyncHealthCheck check) {
-        if (check != null) {
-            additionalChecks.put(check.getClass().getName(), asyncHealthCheckFactory.callAsync(check));
-            additionalListsChanged = true;
-        }
-    }
-
-    public void removeHealthCheck(HealthCheck check) {
-        additionalChecks.remove(check.getClass().getName());
-        additionalListsChanged = true;
-    }
-
-    public void removeHealthCheck(AsyncHealthCheck check) {
-        additionalChecks.remove(check.getClass().getName());
-        additionalListsChanged = true;
     }
 
     private boolean isHealthCheckEnabled(HealthCheck healthCheck) {
