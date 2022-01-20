@@ -1,0 +1,59 @@
+[[static-access]]
+= Static access to the SmallRye Health
+
+In some contexts it might have been necessary to access SmallRye health capabilities in the non-CDI environments where CDI injection access typical for MicroProfile application is not available. For this reason, SmallRye Health provides a programmatic non-CDI static access to the `SmallRyeHealthReporter` and all different type of `HealthRegistry` so users can register (and unregister) health checks dynamically and invoke the reporter to get the same JSON objects as from usual `/health` calls.
+
+== Accessing health registry and reporting health
+
+The class `HealthRegistries` provides several static methods to access different types of health registry that can be used to register different types of health checks (see <<health-registry, Health registry section>>). The simplest way to report health is then:
+
+[source,java]
+----
+public static void main(String[] args) {
+    HealthRegistry livenessRegistry = HealthRegistries.getRegistry(HealthType.LIVENESS);
+
+    livenessRegistry.register("test-hc", () -> HealthCheckResponse.up("test"));
+
+    SmallRyeHealthReporter reporter = new SmallRyeHealthReporter();
+    reporter.reportHealth(System.out, reporter.getHealth());
+}
+----
+
+== Different types of health registries
+
+SmallRye Health provides a different health registry for each of the base health types:
+
+[source,java]
+----
+HealthRegistry livenessRegistry = HealthRegistries.getRegistry(HealthType.LIVENESS);
+HealthRegistry readinessRegistry = HealthRegistries.getRegistry(HealthType.READINESS);
+HealthRegistry startupRegistry = HealthRegistries.getRegistry(HealthType.STARTUP);
+HealthRegistry wellnessRegistry = HealthRegistries.getRegistry(HealthType.WELLNESS);
+----
+
+and also a static access to health groups (experimental, see <<health-groups,health groups section>>):
+
+[source,java]
+----
+HealthRegistry testGroupRegistry = HealthRegistries.getHealthGroupRegistry("test-group");
+Collection<HealthRegistry> healthGroupRegistries = HealthRegistries.getHealthGroupRegistries();
+----
+
+== Overriding configuration values
+
+In CDI environment, SmallRye Health uses MicroProfile Config for its configuration. However, in non-CDI environments, MicroProfile Config doesn't work so all configuration values used in SmallRye Health are overridable by methods in the classes that use particular config values:
+
+`SmallRyeHealthReporter`
+
+* #setContextPropagated(boolean)
+* #setEmptyChecksOutcome(String)
+* #setTimeoutSeconds(int)
+* #setAdditionalProperties(Map<String, String>)
+
+`AsyncHealthCheckFactory`
+
+* #setUncheckedExceptionDataStyle(String)
+
+== Resources
+
+* https://github.com/smallrye/smallrye-health/blob/main/implementation/src/main/java/io/smallrye/health/registry/HealthRegistries.java[`HealthRegistries`]
