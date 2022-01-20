@@ -7,7 +7,7 @@ an option to dynamically register and unregister health checks based on the user
 
 == Health Registry usage
 
-The `HealthRegistry` can be injected as a CDI bean with `@Liveness` or `@Readiness` qualifiers:
+The `HealthRegistry` can be injected as a CDI bean with `@Liveness`, `@Readiness`, `@Startup`, or `@Wellness` qualifiers:
 
 [source,java]
 ----
@@ -18,6 +18,14 @@ HealthRegistry livenessHealthRegistry;
 @Inject
 @Readiness
 HealthRegistry readinessHealthRegistry;
+
+@Inject
+@Startup
+HealthRegistry startupHealthRegistry;
+
+@Inject
+@Wellness
+HealthRegistry wellnessHealthRegistry;
 ----
 
 NOTE: Health group registry have not been requested as of yet but if some applications would find
