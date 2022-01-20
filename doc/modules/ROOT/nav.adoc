@@ -4,4 +4,6 @@
 ** xref:health-groups.adoc[Health Groups]
 ** xref:health-registry.adoc[Health Registry]
 ** xref:wellness.adoc[Wellness]
+** xref:static-access.adoc[Static access]
+** xref:custom-config-properties.adoc[Custom Config properties]
 
