@@ -1,0 +1,39 @@
+[[custom-config-properties]]
+= Custom configuration values
+
+SmallRye Health provides several custom configuration values that are exposing additional features which are currently not a part of the MicroProfile Health specification. The following sections provide an overview of what users can configure to adjust the executions of health check invocations.
+
+== Disabling Health Checks with configuration
+
+In SmallRye Health, you can dynamically choose which `HealthCheck` implementation will be included in the final produces responses with configuration values. To disable any included `HealthCheck` implementation dynamically you can use the following configuration property:
+
+[source,properties]
+----
+io.smallrye.health.check.<health-check-classname>.enabled=false
+----
+
+where `health-check-classname` is a fully-qualified class name of the `HealthCheck` implementation that should not be included in the responses. This value can be specified dynamically on the application startup with MicroProfile Config values (see https://github.com/eclipse/microprofile-config[MicroProfile Config specification]).
+
+For instance, for `HealthCheck` implementation included in class `org.acme.TestHC` the property would look like `-Dio.smallrye.health.check.org.acme.TestHC.enabled=false` or `IO_SMALLRYE_HEALTH_CHECK_ORG_ACME_TESTHC_ENABLED=false`.
+
+== Adding additional JSON properties
+
+SmallRye Health provides a feature that allows users to specify additional properties with fixed values that should be included in the top level properties of the outputed JSON. To specify additonal JSON properties, you can use the following configuration values:
+
+[source,properties]
+----
+io.smallrye.health.additional.property.testProperty1=testValue1
+io.smallrye.health.additional.property.testProperty2=testValue2
+----
+
+which will output a JSON like this:
+
+[source,json]
+----
+{
+    "checks": [],
+    "status": "UP",
+    "testProperty1": "testValue1",
+    "testProperty2": "testValue2"
+}
+----
