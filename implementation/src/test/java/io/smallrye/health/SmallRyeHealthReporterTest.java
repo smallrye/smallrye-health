@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -30,6 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.api.HealthRegistry;
+import io.smallrye.health.api.HealthType;
 import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
@@ -531,6 +534,55 @@ public class SmallRyeHealthReporterTest {
     @Test
     public void nullAdditionalPropertiesTest() {
         assertThrows(NullPointerException.class, () -> reporter.setAdditionalProperties(null));
+    }
+
+    @Test
+    public void disableHealthCheckTest() {
+        HealthRegistry registry = HealthRegistries.getRegistry(HealthType.LIVENESS);
+        registry.register("test", new TestHealthCheck());
+
+        JsonArray checks = reporter.getHealth().getPayload().getJsonArray("checks");
+        assertEquals(1, checks.size());
+        assertEquals("test", checks.getJsonObject(0).getString("name"));
+
+        Map<String, Boolean> healthChecksConfigs = new HashMap<>();
+        healthChecksConfigs.put("test", false);
+        reporter.setHealthChecksConfigs(healthChecksConfigs);
+
+        checks = reporter.getHealth().getPayload().getJsonArray("checks");
+        assertEquals(0, checks.size());
+
+        registry.remove("test");
+        testDefaultGetHealth(() -> reporter.getHealth());
+
+        registry.register(new TestHealthCheck());
+        checks = reporter.getHealth().getPayload().getJsonArray("checks");
+        assertEquals(1, checks.size());
+        assertEquals("test", checks.getJsonObject(0).getString("name"));
+
+        healthChecksConfigs.clear();
+        healthChecksConfigs.put(TestHealthCheck.class.getName(), false);
+        reporter.setHealthChecksConfigs(healthChecksConfigs);
+
+        checks = reporter.getHealth().getPayload().getJsonArray("checks");
+        assertEquals(0, checks.size());
+
+        registry.remove(TestHealthCheck.class.getName());
+        checks = reporter.getHealth().getPayload().getJsonArray("checks");
+        assertEquals(0, checks.size());
+    }
+
+    @Test
+    public void nullHealthCheckConfigsTest() {
+        assertThrows(NullPointerException.class, () -> reporter.setHealthChecksConfigs(null));
+    }
+
+    private static final class TestHealthCheck implements HealthCheck {
+
+        @Override
+        public HealthCheckResponse call() {
+            return HealthCheckResponse.up("test");
+        }
     }
 
     public void testDefaultGetHealth(Supplier<SmallRyeHealth> supplier) {

@@ -110,6 +110,7 @@ public class SmallRyeHealthReporter {
     String emptyChecksOutcome = "UP";
     int timeoutSeconds = 60;
     Map<String, String> additionalProperties = new HashMap<>();
+    Map<String, Boolean> healthChecksConfigs = new HashMap<>();
 
     AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
@@ -258,7 +259,7 @@ public class SmallRyeHealthReporter {
                     allAsyncHealthChecks.select(HealthGroup.Literal.of(groupName)));
         }
 
-        checks.addAll(((HealthRegistryImpl) HealthRegistries.getHealthGroupRegistry(groupName)).getChecks());
+        checks.addAll(((HealthRegistryImpl) HealthRegistries.getHealthGroupRegistry(groupName)).getChecks(healthChecksConfigs));
 
         return getHealthAsync(checks);
     }
@@ -271,7 +272,7 @@ public class SmallRyeHealthReporter {
         }
 
         HealthRegistries.getHealthGroupRegistries()
-                .forEach(healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks()));
+                .forEach(healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks(healthChecksConfigs)));
 
         return getHealthAsync(checks);
     }
@@ -321,6 +322,12 @@ public class SmallRyeHealthReporter {
     public void setAdditionalProperties(Map<String, String> additionalProperties) {
         Objects.requireNonNull(additionalProperties);
         this.additionalProperties = new HashMap<>(additionalProperties);
+    }
+
+    public void setHealthChecksConfigs(Map<String, Boolean> healthChecksConfigs) {
+        Objects.requireNonNull(healthChecksConfigs);
+        this.healthChecksConfigs = new HashMap<>(healthChecksConfigs);
+        recreateCheckUnis();
     }
 
     @SuppressWarnings("unchecked")
@@ -399,19 +406,19 @@ public class SmallRyeHealthReporter {
             switch (type) {
                 case LIVENESS:
                     checks.addAll(livenessUnis);
-                    checks.addAll(livenessHealthRegistry.getChecks());
+                    checks.addAll(livenessHealthRegistry.getChecks(healthChecksConfigs));
                     break;
                 case READINESS:
                     checks.addAll(readinessUnis);
-                    checks.addAll(readinessHealthRegistry.getChecks());
+                    checks.addAll(readinessHealthRegistry.getChecks(healthChecksConfigs));
                     break;
                 case WELLNESS:
                     checks.addAll(wellnessUnis);
-                    checks.addAll(wellnessHealthRegistry.getChecks());
+                    checks.addAll(wellnessHealthRegistry.getChecks(healthChecksConfigs));
                     break;
                 case STARTUP:
                     checks.addAll(startupUnis);
-                    checks.addAll(startupHealthRegistry.getChecks());
+                    checks.addAll(startupHealthRegistry.getChecks(healthChecksConfigs));
                     break;
             }
         }
@@ -515,14 +522,17 @@ public class SmallRyeHealthReporter {
     }
 
     private boolean isEnabled(String checkClassName) {
-        try {
-            return ConfigProvider.getConfig()
-                    .getOptionalValue("io.smallrye.health.check." + checkClassName + ".enabled", Boolean.class)
-                    .orElse(true);
-        } catch (IllegalStateException illegalStateException) {
-            // OK, no config provider was found, use default values
-        }
+        return healthChecksConfigs.computeIfAbsent(checkClassName, s -> {
+            try {
+                return ConfigProvider.getConfig()
+                        .getOptionalValue("io.smallrye.health.check." + checkClassName + ".enabled", Boolean.class)
+                        .orElse(true);
+            } catch (IllegalStateException illegalStateException) {
+                // OK, no config provider was found, use default values
+            }
 
-        return true;
+            return true;
+        });
+
     }
 }
