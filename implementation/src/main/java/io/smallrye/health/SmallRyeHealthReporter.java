@@ -112,7 +112,8 @@ public class SmallRyeHealthReporter {
     Map<String, String> additionalProperties = new HashMap<>();
     Map<String, Boolean> healthChecksConfigs = new HashMap<>();
 
-    AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
+    @Inject
+    AsyncHealthCheckFactory asyncHealthCheckFactory;
 
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
@@ -149,6 +150,10 @@ public class SmallRyeHealthReporter {
                     .orElse(new HashMap<>());
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
+        }
+
+        if (asyncHealthCheckFactory == null) {
+            asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         }
     }
 
