@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -49,8 +50,10 @@ public class HealthRegistryImpl implements HealthRegistry {
         }
     }
 
-    public Collection<Uni<HealthCheckResponse>> getChecks() {
-        return Collections.unmodifiableCollection(checks.values());
+    public Collection<Uni<HealthCheckResponse>> getChecks(Map<String, Boolean> healthChecksConfigs) {
+        return Collections.unmodifiableCollection(checks.entrySet().stream()
+                .filter(e -> healthChecksConfigs.getOrDefault(e.getKey(), true))
+                .map(Map.Entry::getValue).collect(Collectors.toList()));
     }
 
     public boolean checksChanged() {
