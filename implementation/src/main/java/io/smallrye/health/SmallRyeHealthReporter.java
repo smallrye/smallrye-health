@@ -32,6 +32,7 @@ import javax.json.JsonWriterFactory;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGenerator;
 
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -111,6 +112,7 @@ public class SmallRyeHealthReporter {
     int timeoutSeconds = 60;
     Map<String, String> additionalProperties = new HashMap<>();
     Map<String, Boolean> healthChecksConfigs = new HashMap<>();
+    boolean delayHealthCheckInit = false;
 
     @Inject
     AsyncHealthCheckFactory asyncHealthCheckFactory;
@@ -118,6 +120,7 @@ public class SmallRyeHealthReporter {
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
     private final JsonProvider jsonProvider = JsonProvider.provider();
+    private boolean checksInitialized = false;
 
     private Uni<SmallRyeHealth> smallRyeHealthUni = null;
     private Uni<SmallRyeHealth> smallRyeLivenessUni = null;
@@ -133,21 +136,26 @@ public class SmallRyeHealthReporter {
 
     public SmallRyeHealthReporter() {
         try {
-            contextPropagated = ConfigProvider.getConfig()
+            Config config = ConfigProvider.getConfig();
+            contextPropagated = config
                     .getOptionalValue("io.smallrye.health.context.propagation", Boolean.class)
                     .orElse(false);
 
-            emptyChecksOutcome = ConfigProvider.getConfig()
+            emptyChecksOutcome = config
                     .getOptionalValue("io.smallrye.health.emptyChecksOutcome", String.class)
                     .orElse("UP");
 
-            timeoutSeconds = ConfigProvider.getConfig()
+            timeoutSeconds = config
                     .getOptionalValue("io.smallrye.health.timeout.seconds", Integer.class)
                     .orElse(60);
 
-            additionalProperties = ((SmallRyeConfig) ConfigProvider.getConfig())
+            additionalProperties = ((SmallRyeConfig) config)
                     .getOptionalValues("io.smallrye.health.additional.property", String.class, String.class)
                     .orElse(new HashMap<>());
+
+            delayHealthCheckInit = config
+                    .getOptionalValue("io.smallrye.health.delayChecksInitializations", Boolean.class)
+                    .orElse(false);
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
         }
@@ -158,11 +166,18 @@ public class SmallRyeHealthReporter {
     }
 
     @PostConstruct
-    public void initChecks() {
+    public void postConstruct() {
+        if (!delayHealthCheckInit) {
+            initChecks();
+        }
+    }
+
+    private void initChecks() {
         initUnis(livenessUnis, livenessChecks, asyncLivenessChecks);
         initUnis(readinessUnis, readinessChecks, asyncReadinessChecks);
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
         initUnis(startupUnis, startupChecks, asyncStartupChecks);
+        checksInitialized = true;
     }
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
@@ -332,7 +347,7 @@ public class SmallRyeHealthReporter {
     public void setHealthChecksConfigs(Map<String, Boolean> healthChecksConfigs) {
         Objects.requireNonNull(healthChecksConfigs);
         this.healthChecksConfigs = new HashMap<>(healthChecksConfigs);
-        recreateCheckUnis();
+        checksInitialized = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -353,6 +368,10 @@ public class SmallRyeHealthReporter {
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
+        if (!checksInitialized) {
+            initChecks();
+        }
+
         if (contextPropagated) {
             recreateCheckUnis();
             return computeHealth(types);
