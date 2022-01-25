@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -110,8 +111,8 @@ public class SmallRyeHealthReporter {
     boolean contextPropagated = false;
     String emptyChecksOutcome = "UP";
     int timeoutSeconds = 60;
-    Map<String, String> additionalProperties = new HashMap<>();
-    Map<String, Boolean> healthChecksConfigs = new HashMap<>();
+    Map<String, String> additionalProperties = new ConcurrentHashMap<>();
+    Map<String, Boolean> healthChecksConfigs = new ConcurrentHashMap<>();
     boolean delayHealthCheckInit = false;
 
     @Inject
