@@ -34,7 +34,7 @@ jobs:
           - { name: "11" }
           - { name: "17" }
           - { name: "18-ea",
-              download_url: "https://download.java.net/java/early_access/jdk18/30/GPL/openjdk-18-ea+30_linux-x64_bin.tar.gz"}
+              download_url: "https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"}
 
     name: Build with JDK ${{ matrix.java.name }}
 
