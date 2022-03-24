@@ -152,7 +152,7 @@ public class SmallRyeHealthReporter {
 
             additionalProperties = ((SmallRyeConfig) config)
                     .getOptionalValues("io.smallrye.health.additional.property", String.class, String.class)
-                    .orElse(new HashMap<>());
+                    .orElse(new ConcurrentHashMap<>());
 
             delayHealthCheckInit = config
                     .getOptionalValue("io.smallrye.health.delayChecksInitializations", Boolean.class)
@@ -342,12 +342,12 @@ public class SmallRyeHealthReporter {
 
     public void setAdditionalProperties(Map<String, String> additionalProperties) {
         Objects.requireNonNull(additionalProperties);
-        this.additionalProperties = new HashMap<>(additionalProperties);
+        this.additionalProperties = new ConcurrentHashMap<>(additionalProperties);
     }
 
     public void setHealthChecksConfigs(Map<String, Boolean> healthChecksConfigs) {
         Objects.requireNonNull(healthChecksConfigs);
-        this.healthChecksConfigs = new HashMap<>(healthChecksConfigs);
+        this.healthChecksConfigs = new ConcurrentHashMap<>(healthChecksConfigs);
         checksInitialized = false;
     }
 
