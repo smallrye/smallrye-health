@@ -22,7 +22,6 @@ import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 
 public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcessor {
 
@@ -30,16 +29,11 @@ public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcess
     public void process(Archive<?> applicationArchive, TestClass testClass) {
         if (applicationArchive instanceof WebArchive) {
             WebArchive testDeployment = (WebArchive) applicationArchive;
-            // Register SmallRyeBeanArchiveHandler using the ServiceLoader mechanism
-            testDeployment.addClass(SmallRyeBeanArchiveHandler.class);
-            testDeployment.addAsServiceProvider(BeanArchiveHandler.class, SmallRyeBeanArchiveHandler.class);
 
             String[] deps = {
                     "io.smallrye:smallrye-health",
                     "io.smallrye.config:smallrye-config",
-                    "io.smallrye:smallrye-health-tck",
-                    "org.eclipse.microprofile.health:microprofile-health-tck",
-                    "org.jboss.weld.servlet:weld-servlet-core" };
+                    "io.smallrye:smallrye-health-tck" };
 
             File[] dependencies = Maven.resolver().loadPomFromFile(new File("pom.xml")).resolve(deps).withTransitivity()
                     .asFile();

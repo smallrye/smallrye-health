@@ -22,11 +22,12 @@
 
 package io.smallrye.health.test;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.testng.Assert;
@@ -37,6 +38,7 @@ import io.smallrye.health.deployment.SuccessLivenessAsync;
 import io.smallrye.health.deployment.SuccessReadiness;
 import io.smallrye.health.deployment.SuccessReadinessAsync;
 
+@RunAsClient
 public class DisableHealthCheckTest extends TCKBase {
 
     private static final String SYNC_DEPLOYMENT = "syncDeployment";

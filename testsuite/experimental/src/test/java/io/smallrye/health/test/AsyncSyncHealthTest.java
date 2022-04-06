@@ -22,27 +22,22 @@
 
 package io.smallrye.health.test;
 
-import java.time.Duration;
-
-import javax.inject.Inject;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.SmallRyeHealthReporter;
 import io.smallrye.health.deployment.SuccessLiveness;
 import io.smallrye.health.deployment.SuccessLivenessAsync;
 import io.smallrye.health.deployment.SuccessReadiness;
 import io.smallrye.health.deployment.SuccessReadinessAsync;
 
+@RunAsClient
 public class AsyncSyncHealthTest extends TCKBase {
-
-    @Inject
-    SmallRyeHealthReporter smallRyeHealthReporter;
 
     @Deployment
     public static Archive getDeployment() {
@@ -53,38 +48,52 @@ public class AsyncSyncHealthTest extends TCKBase {
 
     @Test
     public void testLiveness() {
-        JsonObject json = smallRyeHealthReporter.getLivenessAsync().await().atMost(Duration.ofSeconds(5)).getPayload();
+        Response response = getUrlLiveContents();
+
+        // status code
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 2, "Expected one check response");
+        Assert.assertEquals(checks.size(), 2, "Expected two checks in the response");
 
-        JsonObject checkJson = checks.getJsonObject(0);
-        Assert.assertEquals(SuccessLiveness.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+        for (JsonObject check : checks.getValuesAs(JsonObject.class)) {
+            String id = check.getString("name");
 
-        checkJson = checks.getJsonObject(1);
-        Assert.assertEquals(SuccessLivenessAsync.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+            if (id.equals(SuccessLiveness.class.getName()) || id.equals(SuccessLivenessAsync.class.getName())) {
+                verifySuccessStatus(check);
+            } else {
+                Assert.fail("Unexpected response payload structure");
+            }
+        }
 
         assertOverallSuccess(json);
     }
 
     @Test
     public void testReadiness() {
-        JsonObject json = smallRyeHealthReporter.getReadinessAsync().await().atMost(Duration.ofSeconds(5)).getPayload();
+        Response response = getUrlReadyContents();
+
+        // status code
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 2, "Expected one check response");
+        Assert.assertEquals(checks.size(), 2, "Expected two checks in the response");
 
-        JsonObject checkJson = checks.getJsonObject(0);
-        Assert.assertEquals(SuccessReadiness.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+        for (JsonObject check : checks.getValuesAs(JsonObject.class)) {
+            String id = check.getString("name");
 
-        checkJson = checks.getJsonObject(1);
-        Assert.assertEquals(SuccessReadinessAsync.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+            if (id.equals(SuccessReadiness.class.getName()) || id.equals(SuccessReadinessAsync.class.getName())) {
+                verifySuccessStatus(check);
+            } else {
+                Assert.fail("Unexpected response payload structure");
+            }
+        }
 
         assertOverallSuccess(json);
     }

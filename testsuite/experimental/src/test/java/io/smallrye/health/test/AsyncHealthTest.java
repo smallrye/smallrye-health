@@ -22,25 +22,20 @@
 
 package io.smallrye.health.test;
 
-import java.time.Duration;
-
-import javax.inject.Inject;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.SmallRyeHealthReporter;
 import io.smallrye.health.deployment.SuccessLivenessAsync;
 import io.smallrye.health.deployment.SuccessReadinessAsync;
 
+@RunAsClient
 public class AsyncHealthTest extends TCKBase {
-
-    @Inject
-    SmallRyeHealthReporter smallRyeHealthReporter;
 
     @Deployment
     public static Archive getDeployment() {
@@ -50,30 +45,38 @@ public class AsyncHealthTest extends TCKBase {
 
     @Test
     public void testAsyncLiveness() {
-        JsonObject json = smallRyeHealthReporter.getLivenessAsync().await().atMost(Duration.ofSeconds(5)).getPayload();
+        Response response = getUrlLiveContents();
+
+        // status code
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 1, "Expected one check response");
+        Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
-        JsonObject checkJson = checks.getJsonObject(0);
-        Assert.assertEquals(SuccessLivenessAsync.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+        // single procedure response
+        assertSuccessfulCheck(checks.getJsonObject(0), SuccessLivenessAsync.class.getName());
 
         assertOverallSuccess(json);
     }
 
     @Test
     public void testAsyncReadiness() {
-        JsonObject json = smallRyeHealthReporter.getReadinessAsync().await().atMost(Duration.ofSeconds(5)).getPayload();
+        Response response = getUrlReadyContents();
+
+        // status code
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
-        Assert.assertEquals(checks.size(), 1, "Expected one check response");
+        Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
-        JsonObject checkJson = checks.getJsonObject(0);
-        Assert.assertEquals(SuccessReadinessAsync.class.getName(), checkJson.getString("name"));
-        verifySuccessStatus(checkJson);
+        // single procedure response
+        assertSuccessfulCheck(checks.getJsonObject(0), SuccessReadinessAsync.class.getName());
 
         assertOverallSuccess(json);
     }
