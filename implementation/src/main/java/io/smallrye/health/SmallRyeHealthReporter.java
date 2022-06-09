@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -130,10 +131,10 @@ public class SmallRyeHealthReporter {
     private Uni<SmallRyeHealth> smallryeStartupUni = null;
     private boolean additionalListsChanged = false;
 
-    private List<Uni<HealthCheckResponse>> livenessUnis = new ArrayList<>();
-    private List<Uni<HealthCheckResponse>> readinessUnis = new ArrayList<>();
-    private List<Uni<HealthCheckResponse>> wellnessUnis = new ArrayList<>();
-    private List<Uni<HealthCheckResponse>> startupUnis = new ArrayList<>();
+    private List<Uni<HealthCheckResponse>> livenessUnis = new CopyOnWriteArrayList<>();
+    private List<Uni<HealthCheckResponse>> readinessUnis = new CopyOnWriteArrayList<>();
+    private List<Uni<HealthCheckResponse>> wellnessUnis = new CopyOnWriteArrayList<>();
+    private List<Uni<HealthCheckResponse>> startupUnis = new CopyOnWriteArrayList<>();
 
     public SmallRyeHealthReporter() {
         try {
