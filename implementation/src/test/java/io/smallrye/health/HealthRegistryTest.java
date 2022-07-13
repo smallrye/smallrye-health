@@ -2,6 +2,7 @@ package io.smallrye.health;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -223,6 +224,21 @@ public class HealthRegistryTest {
     @Test
     public void healthGroupNullTest() {
         assertThrows(IllegalArgumentException.class, () -> HealthRegistries.getHealthGroupRegistry(null));
+    }
+
+    @Test
+    public void testMaxGroupRegistriesCreations() {
+        // default defined at HealthRegistries#MAX_GROUP_REGISTRIES_COUNT_DEFAULT = 100
+        // one group already created by previous test
+
+        for (int i = 0; i < 99; i++) {
+            HealthRegistries.getHealthGroupRegistry("healthGroup" + i);
+        }
+
+        assertEquals(100, HealthRegistries.getHealthGroupRegistries().size());
+
+        assertThrows(IllegalStateException.class,
+                () -> HealthRegistries.getHealthGroupRegistry("HealthGroup101"));
     }
 
     private void assertExpectedHealth(SmallRyeHealth health, String... healthCheckNames) {
