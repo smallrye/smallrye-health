@@ -35,11 +35,12 @@
   <properties>
     <version.eclipse.microprofile.config>2.0</version.eclipse.microprofile.config>
     <version.eclipse.microprofile.health>3.1</version.eclipse.microprofile.health>
+    <version.httpclient>4.5.13</version.httpclient>
     <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
     <version.mutiny>1.7.0</version.mutiny>
     <version.smallrye-config>2.11.1</version.smallrye-config>
     <version.smallrye-common>1.13.0</version.smallrye-common>
-    <version.wildfly>26.0.0.Final</version.wildfly>
+    <version.wildfly>26.1.2.Final</version.wildfly>
 
     <version.smallrye.testing.utilities>1.0.0</version.smallrye.testing.utilities>
 

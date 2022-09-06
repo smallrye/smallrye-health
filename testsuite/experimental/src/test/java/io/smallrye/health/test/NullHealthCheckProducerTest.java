@@ -36,6 +36,7 @@ import io.smallrye.health.deployment.NullHealthCheckProducer;
 /**
  * @author Martin Stefanko
  */
+@RunAsClient
 public class NullHealthCheckProducerTest extends TCKBase {
 
     @Deployment
@@ -49,7 +50,6 @@ public class NullHealthCheckProducerTest extends TCKBase {
      * throw NullPointerException
      */
     @Test
-    @RunAsClient
     public void testSuccessResponsePayload() {
         Response response = getUrlLiveContents();
 

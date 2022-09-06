@@ -37,6 +37,7 @@ import io.smallrye.health.deployment.SuccessfulWellnessAsync;
 /**
  * @author Antoine Sabot-Durand
  */
+@RunAsClient
 public class WellnessSuccessfulTest extends TCKBase {
 
     @Deployment
@@ -49,7 +50,6 @@ public class WellnessSuccessfulTest extends TCKBase {
      * Verifies the wellness integration with CDI at the scope of a server runtime
      */
     @Test
-    @RunAsClient
     public void testSuccessResponsePayload() {
         Response response = getUrlWellContents();
 

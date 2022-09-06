@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import io.smallrye.health.deployment.ChangingLivenessHealthCheck;
 import io.smallrye.health.deployment.ChangingReadinessHealthCheckAsync;
 
+@RunAsClient
 public class ChangingHealthTest extends TCKBase {
 
     @Deployment
@@ -45,13 +46,11 @@ public class ChangingHealthTest extends TCKBase {
     }
 
     @Test
-    @RunAsClient
     public void testChangingHealthCheck() {
         testChangingHealth(this::getUrlLiveContents);
     }
 
     @Test
-    @RunAsClient
     public void testChangingAsyncHealthCheck() {
         testChangingHealth(this::getUrlReadyContents);
     }

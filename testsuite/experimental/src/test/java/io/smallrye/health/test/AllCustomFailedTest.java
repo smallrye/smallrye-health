@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import io.smallrye.health.deployment.FailedCustom;
 import io.smallrye.health.deployment.SuccessfulCustom;
 
+@RunAsClient
 public class AllCustomFailedTest extends TCKBase {
 
     @Deployment
@@ -46,7 +47,6 @@ public class AllCustomFailedTest extends TCKBase {
      * Verifies the custom health integration with CDI at the scope of a server runtime, by retrieving all the custom checks.
      */
     @Test
-    @RunAsClient
     public void testFailureResponsePayload() {
         Response response = getUrlAllCustomHealthContents();
 
