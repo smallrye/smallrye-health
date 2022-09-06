@@ -36,6 +36,7 @@ import io.smallrye.health.deployment.FailedWellness;
 /**
  * @author Antoine Sabot-Durand
  */
+@RunAsClient
 public class WellnessFailedTest extends TCKBase {
 
     @Deployment
@@ -48,7 +49,6 @@ public class WellnessFailedTest extends TCKBase {
      * Verifies the wellness integration with CDI at the scope of a server runtime
      */
     @Test
-    @RunAsClient
     public void testFailedResponsePayload() {
         Response response = getUrlWellContents();
 

@@ -22,24 +22,20 @@
 
 package io.smallrye.health.test;
 
-import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-import org.jboss.arquillian.container.spi.client.container.LifecycleException;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.SmallRyeHealthReporter;
 import io.smallrye.health.deployment.SuccessLiveness;
 
+@RunAsClient
 public class AdditionalHealthPropertiesTest extends TCKBase {
-
-    @Inject
-    SmallRyeHealthReporter smallRyeHealthReporter;
 
     @Deployment
     public static Archive getDeployment() {
@@ -52,8 +48,13 @@ public class AdditionalHealthPropertiesTest extends TCKBase {
     }
 
     @Test
-    public void testAdditionalProperties() throws LifecycleException {
-        JsonObject json = smallRyeHealthReporter.getHealth().getPayload();
+    public void testAdditionalProperties() {
+        Response response = getUrlHealthContents();
+
+        // status code
+        Assert.assertEquals(response.getStatus(), 200);
+
+        JsonObject json = readJson(response);
 
         // response size
         JsonArray checks = json.getJsonArray("checks");
@@ -64,8 +65,6 @@ public class AdditionalHealthPropertiesTest extends TCKBase {
         verifySuccessStatus(checkJson);
 
         assertOverallSuccess(json);
-
-        smallRyeHealthReporter.reportHealth(System.out, smallRyeHealthReporter.getHealth());
 
         Assert.assertEquals(json.getString("testProperty1", "no value provided"), "testValue1");
         Assert.assertEquals(json.getString("testProperty2", "no value provided"), "testValue2");

@@ -17,12 +17,12 @@ package io.smallrye.health;
 
 import java.io.File;
 
+import org.eclipse.microprofile.health.tck.TCKBase;
 import org.jboss.arquillian.container.test.spi.client.deployment.ApplicationArchiveProcessor;
 import org.jboss.arquillian.test.spi.TestClass;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 
 public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcessor {
 
@@ -30,21 +30,18 @@ public class SmallRyeHealthArchiveProcessor implements ApplicationArchiveProcess
     public void process(Archive<?> applicationArchive, TestClass testClass) {
         if (applicationArchive instanceof WebArchive) {
             WebArchive testDeployment = (WebArchive) applicationArchive;
-            // Register SmallRyeBeanArchiveHandler using the ServiceLoader mechanism
-            testDeployment.addClass(SmallRyeBeanArchiveHandler.class);
-            testDeployment.addAsServiceProvider(BeanArchiveHandler.class, SmallRyeBeanArchiveHandler.class);
 
             String[] deps = {
                     "io.smallrye:smallrye-health",
                     "io.smallrye.config:smallrye-config",
-                    "io.smallrye:smallrye-health-tck",
-                    "org.eclipse.microprofile.health:microprofile-health-tck",
-                    "org.jboss.weld.servlet:weld-servlet-core" };
+                    "io.smallrye:smallrye-health-tck" };
 
             File[] dependencies = Maven.resolver().loadPomFromFile(new File("pom.xml")).resolve(deps).withTransitivity()
                     .asFile();
 
             testDeployment.addAsLibraries(dependencies);
+            // needed because of unnecessary NCDF exceptions in the test runs
+            testDeployment.addClass(TCKBase.class);
         }
     }
 

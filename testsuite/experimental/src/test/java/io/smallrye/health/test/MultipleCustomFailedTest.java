@@ -37,6 +37,7 @@ import io.smallrye.health.deployment.SuccessfulCustom;
 /**
  * @author Antoine Sabot-Durand
  */
+@RunAsClient
 public class MultipleCustomFailedTest extends TCKBase {
 
     @Deployment
@@ -49,7 +50,6 @@ public class MultipleCustomFailedTest extends TCKBase {
      * Verifies the custom health integration with CDI at the scope of a server runtime
      */
     @Test
-    @RunAsClient
     public void testFailureResponsePayload() {
         Response response = getUrlCustomHealthContents("group2");
 

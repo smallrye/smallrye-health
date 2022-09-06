@@ -61,7 +61,7 @@
     <dependency>
       <groupId>org.jboss.weld.servlet</groupId>
       <artifactId>weld-servlet-core</artifactId>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -120,11 +120,11 @@
 
   <profiles>
     <profile>
-      <id>wildfly-servlet</id>
+      <id>wildfly</id>
       <activation>
         <property>
           <!-- use property rather than activeByDefault, see https://issues.apache.org/jira/browse/MNG-4917 -->
-          <name>!noWildflyServlet</name>
+          <name>!noWildfly</name>
         </property>
       </activation>
       <dependencies>
@@ -150,7 +150,7 @@
                 <jboss.options>${jboss.extra.opts}</jboss.options>
               </systemProperties>
               <environmentVariables>
-                <JBOSS_HOME>${project.build.directory}/wildfly-servlet-${version.wildfly}</JBOSS_HOME>
+                <JBOSS_HOME>${project.build.directory}/wildfly-${version.wildfly}</JBOSS_HOME>
               </environmentVariables>
             </configuration>
           </plugin>
@@ -168,7 +168,7 @@
                   <artifactItems>
                     <artifactItem>
                       <groupId>org.wildfly</groupId>
-                      <artifactId>wildfly-servlet-dist</artifactId>
+                      <artifactId>wildfly-dist</artifactId>
                       <version>${version.wildfly}</version>
                       <type>zip</type>
                       <overWrite>false</overWrite>
@@ -188,7 +188,7 @@
         <jdk>[11,)</jdk>
       </activation>
       <properties>
-        <jboss.extra.opts>--add-modules java.se</jboss.extra.opts>
+        <jboss.extra.opts>--add-modules java.se --add-opens=java.base/java.util=ALL-UNNAMED</jboss.extra.opts>
       </properties>
     </profile>
   </profiles>

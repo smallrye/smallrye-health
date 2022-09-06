@@ -36,6 +36,7 @@ import io.smallrye.health.deployment.FailedStartupAsync;
 /**
  * @author Martin Stefanko
  */
+@RunAsClient
 public class SingleStartupAsyncFailedTest extends TCKBase {
 
     @Deployment
@@ -48,7 +49,6 @@ public class SingleStartupAsyncFailedTest extends TCKBase {
      * Verifies the startup async integration
      */
     @Test
-    @RunAsClient
     public void testFailedResponsePayload() {
         Response response = getUrlStartedContents();
 
