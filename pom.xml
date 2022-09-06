@@ -34,7 +34,7 @@
 
   <properties>
     <version.eclipse.microprofile.config>2.0</version.eclipse.microprofile.config>
-    <version.eclipse.microprofile.health>3.1</version.eclipse.microprofile.health>
+    <version.eclipse.microprofile.health>4.0</version.eclipse.microprofile.health>
     <version.httpclient>4.5.13</version.httpclient>
     <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
     <version.mutiny>1.7.0</version.mutiny>
