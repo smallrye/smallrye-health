@@ -59,6 +59,8 @@ jobs:
           repository: quarkusio/quarkus
 
       - name: Quarkus integration
+        # try wildfly with jakarta release
+        continue-on-error: true
         run: |
           mvn -Dquickly -Dsmallrye-health.version=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
           mvn clean verify -pl extensions/smallrye-health/deployment -Dsmallrye-health.version=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
