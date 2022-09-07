@@ -23,7 +23,7 @@ package io.smallrye.health.deployment;
 
 import java.time.Duration;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
