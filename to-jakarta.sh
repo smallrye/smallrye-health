@@ -12,9 +12,11 @@ find doc -type f -name '*.adoc' -exec sed -i 's/javax./jakarta./g' {} +
 mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT
 find examples -depth 1 -type d | xargs -I{} mvn -pl {} build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.nextMajorVersion}.0.0-SNAPSHOT
 
-mvn versions:update-property -Dproperty=version.eclipse.microprofile.health -DnewVersion=4.0
+mvn versions:set-property -Dproperty=version.eclipse.microprofile.health -DnewVersion=4.0
 mvn versions:update-property -Dproperty=version.eclipse.microprofile.config -DnewVersion=3.0.1
-mvn versions:update-property -Dproperty=version.jakarta.servlet -DnewVersion=5.0.0
-mvn versions:update-property -Dproperty=version.smallrye-config -DnewVersion=3.0.0-RC2
-mvn versions:update-property -Dproperty=version.smallrye-common -DnewVersion=2.0.0-RC1
-mvn versions:update-property -Dproperty=version.wildfly -DnewVersion=26.0.0.Final
+mvn versions:update-property -Dproperty=version.jakarta.servlet -DnewVersion=6.0.0
+mvn versions:update-property -Dproperty=version.smallrye-config -DnewVersion=3.0.0
+mvn versions:update-property -Dproperty=version.smallrye-common -DnewVersion=2.0.0
+mvn versions:set-property -Dproperty=version.wildfly -DnewVersion=27.0.0.Alpha4
+mvn versions:set-property -Dproperty=version.testng -DnewVersion=7.5
+mvn versions:update-property -Dproperty=version.smallrye.testing.utilities -DnewVersion=2.0.0
