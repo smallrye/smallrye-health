@@ -3,15 +3,7 @@ name: SmallRye Build
 on:
   push:
     branches:
-      - main
-      - 3.1.x
-    paths-ignore:
-      - '.gitignore'
-      - 'CODEOWNERS'
-      - 'LICENSE'
-      - 'NOTICE'
-      - 'README*'
-  pull_request:
+      - jakarta
     paths-ignore:
       - '.gitignore'
       - 'CODEOWNERS'
@@ -29,7 +21,6 @@ jobs:
         # To list the available releases for a given "feature version" (example for 16):
         # https://api.adoptium.net/v3/assets/latest/16/hotspot
         java:
-          - { name: "8" }
           - { name: "11" }
           - { name: "17" }
           - { name: "18" }
