@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - 3.1.x
+      - jakarta
     paths-ignore:
       - '.gitignore'
       - 'CODEOWNERS'
@@ -23,6 +24,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # To list the available "feature versions" (ignore "tip_version", it's not relevant):
         # https://api.adoptium.net/v3/info/available_releases
