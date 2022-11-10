@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Contributors to the Eclipse Foundation
+ * Copyright (c) 2017-2019 Contributors to the Eclipse Foundation
  *
  * See the NOTICES file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -28,12 +28,15 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 
 import io.smallrye.health.api.HealthGroup;
 
-@HealthGroup("group1")
-@HealthGroup("group2")
+/**
+ * @author Antone Sabot-Durand
+ * @since 2.0
+ */
+@HealthGroup("health-group-2")
 @ApplicationScoped
-public class SuccessfulCustom implements HealthCheck {
+public class FailedHealthGroup2 implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
-        return HealthCheckResponse.up("successful-check");
+        return HealthCheckResponse.down("failed-check");
     }
 }

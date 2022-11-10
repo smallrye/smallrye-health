@@ -31,7 +31,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.SuccessfulCustom;
+import io.smallrye.health.deployment.HealthGroup12;
 
 /**
  * @author Antoine Sabot-Durand
@@ -42,7 +42,7 @@ public class SingleCustomSuccessfulTest extends TCKBase {
     @Deployment
     public static Archive getDeployment() {
         return DeploymentUtils.createWarFileWithClasses(SingleCustomSuccessfulTest.class.getSimpleName(),
-                SuccessfulCustom.class, TCKBase.class);
+                HealthGroup12.class, TCKBase.class);
     }
 
     /**
@@ -50,7 +50,7 @@ public class SingleCustomSuccessfulTest extends TCKBase {
      */
     @Test
     public void testSuccessResponsePayload() {
-        Response response = getUrlCustomHealthContents("group1");
+        Response response = getUrlCustomHealthContents("health-group-1");
 
         // status code
         Assert.assertEquals(response.getStatus(), 200);
@@ -62,7 +62,7 @@ public class SingleCustomSuccessfulTest extends TCKBase {
         Assert.assertEquals(checks.size(), 1, "Expected a single check response");
 
         // single procedure response
-        assertSuccessfulCheck(checks.getJsonObject(0), "successful-check");
+        assertSuccessfulCheck(checks.getJsonObject(0), "health-group-12");
 
         assertOverallSuccess(json);
     }

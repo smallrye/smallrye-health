@@ -60,6 +60,12 @@ However, it won't be invoked for instance when accessing:
 * `/health/group/foobar`
 * `/health/ready`
 
+== Default health group
+
+The configuration property `io.smallrye.health.defaultHealthGroup=\{default-group-name}` can be used to specify the health
+group name of a new, default health group that is implicitly added to the all
+health checks that don't already belong into any health group. This might be useful to easily categorize the custom health groups.
+
 == References
 
 * https://github.com/smallrye/smallrye-health/blob/main/api/src/main/java/io/smallrye/health/api/HealthGroup.java[`HealthGroup`]

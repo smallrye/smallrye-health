@@ -31,8 +31,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.FailedCustom;
-import io.smallrye.health.deployment.SuccessfulCustom;
+import io.smallrye.health.deployment.FailedHealthGroup2;
+import io.smallrye.health.deployment.HealthGroup12;
 
 /**
  * @author Antoine Sabot-Durand
@@ -43,7 +43,7 @@ public class MultipleCustomFailedTest extends TCKBase {
     @Deployment
     public static Archive getDeployment() {
         return DeploymentUtils.createWarFileWithClasses(MultipleCustomFailedTest.class.getSimpleName(),
-                FailedCustom.class, SuccessfulCustom.class, TCKBase.class);
+                FailedHealthGroup2.class, HealthGroup12.class, TCKBase.class);
     }
 
     /**
@@ -51,7 +51,7 @@ public class MultipleCustomFailedTest extends TCKBase {
      */
     @Test
     public void testFailureResponsePayload() {
-        Response response = getUrlCustomHealthContents("group2");
+        Response response = getUrlCustomHealthContents("health-group-2");
 
         // status code
         Assert.assertEquals(response.getStatus(), 503);
@@ -65,7 +65,7 @@ public class MultipleCustomFailedTest extends TCKBase {
         for (JsonObject check : checks.getValuesAs(JsonObject.class)) {
             String id = check.getString("name");
             switch (id) {
-                case "successful-check":
+                case "health-group-12":
                     verifySuccessStatus(check);
                     break;
                 case "failed-check":
