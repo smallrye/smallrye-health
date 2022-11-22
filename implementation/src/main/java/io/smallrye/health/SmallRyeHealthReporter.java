@@ -24,6 +24,7 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
@@ -115,6 +116,7 @@ public class SmallRyeHealthReporter {
     Map<String, String> additionalProperties = new ConcurrentHashMap<>();
     Map<String, Boolean> healthChecksConfigs = new ConcurrentHashMap<>();
     boolean delayHealthCheckInit = false;
+    String defaultHealthGroup = null;
 
     @Inject
     AsyncHealthCheckFactory asyncHealthCheckFactory;
@@ -158,6 +160,10 @@ public class SmallRyeHealthReporter {
             delayHealthCheckInit = config
                     .getOptionalValue("io.smallrye.health.delayChecksInitializations", Boolean.class)
                     .orElse(false);
+
+            defaultHealthGroup = config
+                    .getOptionalValue("io.smallrye.health.defaultHealthGroup", String.class)
+                    .orElse(null);
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
         }
@@ -277,6 +283,11 @@ public class SmallRyeHealthReporter {
     public Uni<SmallRyeHealth> getHealthGroupAsync(String groupName) {
         List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
         if (allHealthChecks != null && allAsyncHealthChecks != null) {
+            if (groupName.equals(defaultHealthGroup)) {
+                initUnis(checks, getHealthChecksWithoutHealthGroup(HealthCheck.class),
+                        getHealthChecksWithoutHealthGroup(AsyncHealthCheck.class));
+            }
+
             initUnis(checks, allHealthChecks.select(HealthGroup.Literal.of(groupName)),
                     allAsyncHealthChecks.select(HealthGroup.Literal.of(groupName)));
         }
@@ -289,12 +300,20 @@ public class SmallRyeHealthReporter {
     @Experimental("Asynchronous Health Check procedures and Health Groups")
     public Uni<SmallRyeHealth> getHealthGroupsAsync() {
         List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
-        if (beanManager != null) {
-            initUnis(checks, getHealthGroupsChecks(HealthCheck.class), getHealthGroupsChecks(AsyncHealthCheck.class));
-        }
 
-        HealthRegistries.getHealthGroupRegistries()
-                .forEach(healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks(healthChecksConfigs)));
+        if (defaultHealthGroup != null) {
+            // all checks are either in some HealthGroup or they are in the default HealthGroup
+            // so we can return all checks
+            initUnis(checks, allHealthChecks, allAsyncHealthChecks);
+        } else {
+            if (beanManager != null) {
+                initUnis(checks, getHealthGroupsChecks(HealthCheck.class), getHealthGroupsChecks(AsyncHealthCheck.class));
+            }
+
+            HealthRegistries.getHealthGroupRegistries()
+                    .forEach(healthRegistry -> checks
+                            .addAll(((HealthRegistryImpl) healthRegistry).getChecks(healthChecksConfigs)));
+        }
 
         return getHealthAsync(checks);
     }
@@ -367,6 +386,23 @@ public class SmallRyeHealthReporter {
         }
 
         return groupHealthChecks;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> getHealthChecksWithoutHealthGroup(Class<T> checkClass) {
+        Iterator<Bean<?>> iterator = beanManager.getBeans(checkClass, Any.Literal.INSTANCE).iterator();
+
+        List<T> healthChecks = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            Bean<?> bean = iterator.next();
+            if (bean.getQualifiers().stream().noneMatch(annotation -> annotation.annotationType().equals(HealthGroup.class))) {
+                healthChecks.add((T) beanManager.getReference(bean, bean.getBeanClass(),
+                        beanManager.createCreationalContext(bean)));
+            }
+        }
+
+        return healthChecks;
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {

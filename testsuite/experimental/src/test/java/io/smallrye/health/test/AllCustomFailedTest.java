@@ -31,8 +31,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.smallrye.health.deployment.FailedCustom;
-import io.smallrye.health.deployment.SuccessfulCustom;
+import io.smallrye.health.deployment.FailedHealthGroup2;
+import io.smallrye.health.deployment.HealthGroup12;
 
 @RunAsClient
 public class AllCustomFailedTest extends TCKBase {
@@ -40,7 +40,7 @@ public class AllCustomFailedTest extends TCKBase {
     @Deployment
     public static Archive getDeployment() {
         return DeploymentUtils.createWarFileWithClasses(AllCustomFailedTest.class.getSimpleName(),
-                FailedCustom.class, SuccessfulCustom.class, TCKBase.class);
+                FailedHealthGroup2.class, HealthGroup12.class, TCKBase.class);
     }
 
     /**
@@ -62,7 +62,7 @@ public class AllCustomFailedTest extends TCKBase {
         for (JsonObject check : checks.getValuesAs(JsonObject.class)) {
             String id = check.getString("name");
             switch (id) {
-                case "successful-check":
+                case "health-group-12":
                     verifySuccessStatus(check);
                     break;
                 case "failed-check":
