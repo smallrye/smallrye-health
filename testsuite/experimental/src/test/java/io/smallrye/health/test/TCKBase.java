@@ -30,9 +30,9 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
