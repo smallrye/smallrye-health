@@ -38,7 +38,7 @@
     <version.httpclient>4.5.13</version.httpclient>
     <version.jakarta.servlet>4.0.4</version.jakarta.servlet>
     <version.mutiny>1.8.0</version.mutiny>
-    <version.smallrye-config>2.12.2</version.smallrye-config>
+    <version.smallrye-config>3.1.0</version.smallrye-config>
     <version.smallrye-common>1.13.2</version.smallrye-common>
     <version.smallrye.testing.utilities>1.0.0</version.smallrye.testing.utilities>
     <version.testng>6.14.3</version.testng>
