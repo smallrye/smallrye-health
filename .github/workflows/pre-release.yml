@@ -73,7 +73,7 @@ jobs:
 
       - name: WildFly integration
         run: |
-          mvn clean install -DskipTests -DskipITs -Denforcer.skip
+          mvn clean install -DskipTests -DskipITs -Denforcer.skip -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
           mvn clean verify -pl microprofile/health-smallrye -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
           mvn clean verify -pl testsuite/integration/microprofile -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
           mvn clean verify -pl testsuite/integration/microprofile-tck/health -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health=${{ steps.version-step.outputs.SNAPSHOT_VERSION }}
