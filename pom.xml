@@ -37,7 +37,7 @@
     <version.eclipse.microprofile.health>4.0</version.eclipse.microprofile.health>
     <version.httpclient>4.5.14</version.httpclient>
     <version.jakarta.servlet>6.0.0</version.jakarta.servlet>
-    <version.mutiny>1.8.0</version.mutiny>
+    <version.mutiny>2.1.0</version.mutiny>
     <version.smallrye-config>3.1.2</version.smallrye-config>
     <version.smallrye-common>2.0.0</version.smallrye-common>
     <version.smallrye.testing.utilities>2.2.0</version.smallrye.testing.utilities>
