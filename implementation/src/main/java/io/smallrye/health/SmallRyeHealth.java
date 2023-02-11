@@ -2,7 +2,7 @@ package io.smallrye.health;
 
 import java.util.Objects;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
