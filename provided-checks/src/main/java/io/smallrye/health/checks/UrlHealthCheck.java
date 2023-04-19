@@ -50,8 +50,9 @@ public class UrlHealthCheck implements HealthCheck {
         final HealthCheckResponseBuilder healthCheckResponseBuilder = HealthCheckResponse
                 .named(name);
         healthCheckResponseBuilder.withData("host", String.format("%s %s", this.requestMethod, this.url));
+        HttpURLConnection httpUrlConn = null;
         try {
-            final HttpURLConnection httpUrlConn = (HttpURLConnection) new URL(this.url)
+            httpUrlConn = (HttpURLConnection) new URL(this.url)
                     .openConnection();
 
             httpUrlConn.setRequestMethod(requestMethod);
@@ -74,6 +75,10 @@ public class UrlHealthCheck implements HealthCheck {
             healthCheckResponseBuilder.withData("error",
                     String.format("%s: %s", e.getClass().getCanonicalName(), e.getMessage()));
             healthCheckResponseBuilder.down();
+        } finally {
+            if (httpUrlConn != null) {
+                httpUrlConn.disconnect();
+            }
         }
 
         return healthCheckResponseBuilder.build();
