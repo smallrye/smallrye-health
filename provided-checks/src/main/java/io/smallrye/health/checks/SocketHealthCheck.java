@@ -18,7 +18,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
  * &#64;ApplicationScoped
  * &#64;Liveness
  * HealthCheck check1() {
- *   return new SocketHealthCheck("192.168.0.2", 5432);
+ *     return new SocketHealthCheck("192.168.0.2", 5432);
  * }
  * }
  * </pre>
@@ -62,7 +62,7 @@ public class SocketHealthCheck implements HealthCheck {
 
     /**
      * Sets the name of the health check.
-     * 
+     *
      * @param name of health check.
      * @return SocketHealthCheck instance.
      */

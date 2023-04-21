@@ -12,7 +12,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with status up.
-     * 
+     *
      * @param name of the health check
      * @return Health check with status up and given name.
      */
@@ -22,7 +22,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with status down.
-     * 
+     *
      * @param name of the health check
      * @return Health check with status down and given name.
      */
@@ -32,7 +32,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with status set from supplier and default health check name (health-check).
-     * 
+     *
      * @param supplier to get status.
      * @return Health check with given status and default name.
      */
@@ -42,7 +42,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given status and default health check name (health-check).
-     * 
+     *
      * @param status
      * @return Health check with given status and default name.
      */
@@ -52,7 +52,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given status and health check name.
-     * 
+     *
      * @param name of the status.
      * @param supplier to get status.
      * @return Health check with given status and name.
@@ -63,7 +63,7 @@ public class HealthStatus {
 
     /**
      * Creates a health check with given status and health check name.
-     * 
+     *
      * @param name of the status.
      * @param status
      * @return Health check with given status and name.
