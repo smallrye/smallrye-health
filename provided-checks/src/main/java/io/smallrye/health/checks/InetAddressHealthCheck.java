@@ -16,7 +16,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
  * &#64;ApplicationScoped
  * &#64;Liveness
  * HealthCheck check1() {
- *   return new InetAddressHealthCheck("service.com");
+ *     return new InetAddressHealthCheck("service.com");
  * }
  * }
  * </pre>
@@ -62,7 +62,7 @@ public class InetAddressHealthCheck implements HealthCheck {
 
     /**
      * Sets timeout in millis.
-     * 
+     *
      * @param timeout in millis.
      * @return InetAddressHealthCheck instance.
      */
@@ -73,7 +73,7 @@ public class InetAddressHealthCheck implements HealthCheck {
 
     /**
      * Sets the name of the health check.
-     * 
+     *
      * @param name of health check.
      * @return InetAddressHealthCheck instance.
      */

@@ -69,8 +69,9 @@
       <artifactId>jakarta.json-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.glassfish</groupId>
+      <groupId>org.eclipse.parsson</groupId>
       <artifactId>jakarta.json</artifactId>
+      <version>${version.eclipse.parsson}</version>
     </dependency>
 
     <dependency>

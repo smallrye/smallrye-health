@@ -29,25 +29,25 @@ import io.smallrye.common.annotation.Experimental;
  * <p>
  * Programmatic API for the dynamic registrations and removals of health check procedures.
  * </p>
- * 
+ *
  * <p>
  * The {@link HealthRegistry} can be injected as a CDI bean with two qualifiers:
  * </p>
- * 
+ *
  * <ul>
  * <li><b>Liveness</b></li>
  * </ul>
- * 
+ *
  * <pre>
  * &#64;Inject
  * &#64;Liveness
  * HealthRegistry livenessHealthRegistry;
  * </pre>
- * 
+ *
  * <ul>
  * <li><b>Readiness</b>:</li>
  * </ul>
- * 
+ *
  * <pre>
  * &#64;Inject
  * &#64;Readiness
@@ -59,7 +59,7 @@ public interface HealthRegistry {
 
     /**
      * Programmatic registration of a {@link HealthCheck} instances.
-     * 
+     *
      * @param id the id of the registered check which can be later used for its removal
      * @param healthCheck the {@link HealthCheck} instance to be registered
      * @return this instance for fluent registration
@@ -69,7 +69,7 @@ public interface HealthRegistry {
 
     /**
      * Asynchronous variant of the {@link HealthRegistry#register(String, HealthCheck)}.
-     * 
+     *
      * @param id the id of the registered asynchronous check which can be later used for its removal
      * @param asyncHealthCheck the {@link AsyncHealthCheck} instance to be registered
      * @return this instance for fluent registration
@@ -80,7 +80,7 @@ public interface HealthRegistry {
     /**
      * Programmatic registration of a {@link HealthCheck} intances with the id set to
      * to the health check class name.
-     * 
+     *
      * @param healthCheck the {@link HealthCheck} instance to be registered
      * @return this instance for fluent registration
      * @throws IllegalStateException if the {@link HealthCheck} instance cannot be registered
@@ -92,7 +92,7 @@ public interface HealthRegistry {
 
     /**
      * Asynchronous variant of {@link HealthRegistry#register(HealthCheck)}.
-     * 
+     *
      * @param asyncHealthCheck the {@link AsyncHealthCheck} instance to be registered
      * @return this instance for fluent registration
      * @throws IllegalStateException if the {@link HealthCheck} instance cannot be registered
@@ -105,7 +105,7 @@ public interface HealthRegistry {
     /**
      * Programmatic removal of a programmatically registered check
      * ({@link HealthCheck} or {@link AsyncHealthCheck}) instances.
-     * 
+     *
      * @param id the id of the registered check to be removed
      * @return this instance for fluent registration
      * @throws IllegalStateException if the {@link HealthCheck} instance cannot be removed
@@ -115,7 +115,7 @@ public interface HealthRegistry {
     /**
      * Programmatic removal of a programmatically registered {@link HealthCheck} instances with the id set to
      * the the health check class name.
-     * 
+     *
      * @param healthCheck the {@link HealthCheck} instance to be removed
      * @return this instance for fluent registration
      * @throws IllegalStateException if the {@link HealthCheck} instance cannot be removed
@@ -127,7 +127,7 @@ public interface HealthRegistry {
 
     /**
      * Asynchronous variant of {@link HealthRegistry#remove(HealthCheck)}.
-     * 
+     *
      * @param asyncHealthCheck the {@link AsyncHealthCheck} instance to be removed
      * @return this instance for fluent registration
      * @throws IllegalStateException if the {@link HealthCheck} instance cannot be removed

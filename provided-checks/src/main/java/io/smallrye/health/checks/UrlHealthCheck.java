@@ -17,7 +17,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
  * &#64;ApplicationScoped
  * &#64;Liveness
  * HealthCheck check1() {
- *   return new UrlHealthCheck("www.google.com");
+ *     return new UrlHealthCheck("www.google.com");
  * }
  * }
  * </pre>
@@ -86,7 +86,7 @@ public class UrlHealthCheck implements HealthCheck {
 
     /**
      * Sets the name of the health check.
-     * 
+     *
      * @param name of health check.
      * @return UrlHealthCheck instance.
      */
@@ -97,7 +97,7 @@ public class UrlHealthCheck implements HealthCheck {
 
     /**
      * Sets timeout in millis.
-     * 
+     *
      * @param timeout in millis.
      * @return UrlHealthCheck instance.
      */
@@ -108,7 +108,7 @@ public class UrlHealthCheck implements HealthCheck {
 
     /**
      * Sets the expected status code to be returned as valid.
-     * 
+     *
      * @param statusCode expected.
      * @return UrlHealthCheck instance.
      */
@@ -119,7 +119,7 @@ public class UrlHealthCheck implements HealthCheck {
 
     /**
      * Sets the request method to be used (ie GET, POST, PUT, ...)
-     * 
+     *
      * @param requestMethod to use.
      * @return UrlHealthCheck instance.
      */

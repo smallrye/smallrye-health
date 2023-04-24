@@ -16,7 +16,7 @@ import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
  * &#64;ApplicationScoped
  * &#64;Liveness
  * HealthCheck check1() {
- *   return new ThreadHealthCheck(9999999L);
+ *     return new ThreadHealthCheck(9999999L);
  * }
  * }
  * </pre>
