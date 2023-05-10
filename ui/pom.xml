@@ -49,7 +49,7 @@
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.6.8</version>
+                <version>1.7.0</version>
                 <executions>
                     <execution>
                         <id>install-bootstrap-css</id>
@@ -62,6 +62,9 @@
                             <unpack>false</unpack>
                             <outputDirectory>${project.build.directory}/classes/META-INF/resources/health-ui</outputDirectory>
                             <md5>3afe15e976734d9daac26310110c4594</md5>
+ 			    <overwrite>true</overwrite>
+			    <skipCache>true</skipCache>
+			    <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
                     <execution>
@@ -75,6 +78,9 @@
                             <unpack>false</unpack>
                             <outputDirectory>${project.build.directory}/classes/META-INF/resources/health-ui</outputDirectory>
                             <md5>6bea60c34c5db6797150610dacdc6bce</md5>
+			    <overwrite>true</overwrite>
+			    <skipCache>true</skipCache>
+			    <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
                     <execution>
@@ -88,6 +94,9 @@
                             <unpack>false</unpack>
                             <outputDirectory>${project.build.directory}/classes/META-INF/resources/health-ui</outputDirectory>
                             <md5>dc5e7f18c8d36ac1d3d4753a87c98d0a</md5>
+			    <overwrite>true</overwrite>
+			    <skipCache>true</skipCache>
+			    <alwaysVerifyChecksum>true</alwaysVerifyChecksum>
                         </configuration>
                     </execution>
                 </executions>
