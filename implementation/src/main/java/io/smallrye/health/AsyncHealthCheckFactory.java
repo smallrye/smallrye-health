@@ -17,6 +17,8 @@ import io.smallrye.mutiny.Uni;
 @ApplicationScoped
 public class AsyncHealthCheckFactory {
 
+    private static final String EXCEPTION_CLASS = "exceptionClass";
+    private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String ROOT_CAUSE = "rootCause";
     private static final String STACK_TRACE = "stackTrace";
 
@@ -52,15 +54,20 @@ public class AsyncHealthCheckFactory {
 
         HealthCheckResponseBuilder response = HealthCheckResponse.named(name).down();
 
-        switch (uncheckedExceptionDataStyle) {
-            case ROOT_CAUSE:
-                response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
-                break;
-            case STACK_TRACE:
-                response.withData(STACK_TRACE, getStackTrace(e));
-                break;
-            default:
-                // don't add anything
+        if (!uncheckedExceptionDataStyle.equals("none")) {
+            response.withData(EXCEPTION_CLASS, e.getClass().getName());
+            response.withData(EXCEPTION_MESSAGE, e.getMessage());
+
+            switch (uncheckedExceptionDataStyle) {
+                case ROOT_CAUSE:
+                    response.withData(ROOT_CAUSE, getRootCause(e).getMessage());
+                    break;
+                case STACK_TRACE:
+                    response.withData(STACK_TRACE, getStackTrace(e));
+                    break;
+                default:
+                    // don't add anything
+            }
         }
 
         return response.build();

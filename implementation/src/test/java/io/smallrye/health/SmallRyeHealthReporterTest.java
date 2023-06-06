@@ -308,7 +308,10 @@ public class SmallRyeHealthReporterTest {
         assertLogContainsMessage("SRHCK01000: Error processing Health Checks");
         assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
                 "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$FailingHealthCheck\"," +
-                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"this health check has failed\"}}]}");
+                "\"status\":\"DOWN\",\"data\":{" +
+                "\"exceptionClass\":\"java.lang.RuntimeException\",\"exceptionMessage\":" +
+                "\"this health check has failed\"," +
+                "\"rootCause\":\"this health check has failed\"}}]}");
     }
 
     @Test
@@ -318,7 +321,10 @@ public class SmallRyeHealthReporterTest {
         assertLogContainsMessage("SRHCK01000: Error processing Health Checks");
         assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
                 "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$FailingAsyncHealthCheck\"," +
-                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"this health check has failed\"}}]}");
+                "\"status\":\"DOWN\",\"data\":{" +
+                "\"exceptionClass\":\"java.lang.RuntimeException\"," +
+                "\"exceptionMessage\":\"this health check has failed\"," +
+                "\"rootCause\":\"this health check has failed\"}}]}");
     }
 
     @Test
@@ -327,8 +333,12 @@ public class SmallRyeHealthReporterTest {
         reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealth());
         assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
         assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
-                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullHealthCheck\"," +
-                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"SRHCK00001: Health Check returned null.\"}}]}");
+                "\"checks\":[{" +
+                "\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{" +
+                "\"exceptionClass\":\"java.lang.NullPointerException\"," +
+                "\"exceptionMessage\":\"SRHCK00001: Health Check returned null.\"," +
+                "\"rootCause\":\"SRHCK00001: Health Check returned null.\"}}]}");
     }
 
     @Test
@@ -336,9 +346,13 @@ public class SmallRyeHealthReporterTest {
         reporter.addHealthCheck(new NullAsyncHealthCheck());
         reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
         assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
-        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
-                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullAsyncHealthCheck\"," +
-                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"The supplier returned `null`\"}}]}");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {" +
+                "\"status\":\"DOWN\",\"checks\":[{" +
+                "\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullAsyncHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{" +
+                "\"exceptionClass\":\"java.lang.NullPointerException\"," +
+                "\"exceptionMessage\":\"The supplier returned `null`\"," +
+                "\"rootCause\":\"The supplier returned `null`\"}}]}");
     }
 
     @Test
@@ -346,9 +360,13 @@ public class SmallRyeHealthReporterTest {
         reporter.addHealthCheck(new NullUniAsyncHealthCheck());
         reporter.reportHealth(new ByteArrayOutputStream(), reporter.getHealthAsync().await().atMost(maxDuration));
         assertLogContainsMessage("ERROR: SRHCK01000: Error processing Health Checks");
-        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {\"status\":\"DOWN\"," +
-                "\"checks\":[{\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullUniAsyncHealthCheck\"," +
-                "\"status\":\"DOWN\",\"data\":{\"rootCause\":\"`supplier` must not be `null`\"}}]}");
+        assertLogContainsMessage(1, "SRHCK01001: Reporting health down status: {" +
+                "\"status\":\"DOWN\",\"checks\":[{" +
+                "\"name\":\"io.smallrye.health.SmallRyeHealthReporterTest$NullUniAsyncHealthCheck\"," +
+                "\"status\":\"DOWN\",\"data\":{" +
+                "\"exceptionClass\":\"java.lang.IllegalArgumentException\"," +
+                "\"exceptionMessage\":\"`supplier` must not be `null`\"," +
+                "\"rootCause\":\"`supplier` must not be `null`\"}}]}");
     }
 
     @Test
@@ -409,7 +427,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assertions.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
 
@@ -431,7 +449,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assertions.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
 
@@ -452,7 +470,7 @@ public class SmallRyeHealthReporterTest {
             } else if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assertions.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
 
@@ -473,7 +491,7 @@ public class SmallRyeHealthReporterTest {
             if (check.getString("name").equals("down")) {
                 assertThat(check.getString("status"), is("DOWN"));
             } else {
-                Assertions.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
 
@@ -616,7 +634,7 @@ public class SmallRyeHealthReporterTest {
     }
 
     public void testGetHealthWithFailingCheckAndStyleNone(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("NONE");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("none");
 
         SmallRyeHealth health = supplier.get();
 
@@ -661,13 +679,13 @@ public class SmallRyeHealthReporterTest {
                 assertThat(check.getJsonObject("data").getString("rootCause"),
                         is("this health check has failed"));
             } else {
-                Assertions.fail("Health returned unexpected health check: " + check.toString());
+                Assertions.fail("Health returned unexpected health check: " + check);
             }
         }
     }
 
     public void testGetHealthWithMixedChecksAndStyleNone(String expectedCheckName, Supplier<SmallRyeHealth> supplier) {
-        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("NONE");
+        asyncHealthCheckFactory.setUncheckedExceptionDataStyle("none");
 
         SmallRyeHealth health = supplier.get();
 
