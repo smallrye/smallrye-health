@@ -4,7 +4,7 @@
   <parent>
     <artifactId>smallrye-health-parent</artifactId>
     <groupId>io.smallrye</groupId>
-    <version>4.0.2-SNAPSHOT</version>
+    <version>4.0.2</version>
   </parent>
 
   <artifactId>smallrye-health-provided-checks</artifactId>
