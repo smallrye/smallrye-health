@@ -124,7 +124,7 @@ public class SmallRyeHealthReporter {
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
     private final JsonProvider jsonProvider = JsonProvider.provider();
-    private boolean checksInitialized = false;
+    private volatile boolean checksInitialized = false;
 
     private Uni<SmallRyeHealth> smallRyeHealthUni = null;
     private Uni<SmallRyeHealth> smallRyeLivenessUni = null;
@@ -180,7 +180,10 @@ public class SmallRyeHealthReporter {
         }
     }
 
-    private void initChecks() {
+    private synchronized void initChecks() {
+        if (checksInitialized) {
+            return;
+        }
         initUnis(livenessUnis, livenessChecks, asyncLivenessChecks);
         initUnis(readinessUnis, readinessChecks, asyncReadinessChecks);
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
