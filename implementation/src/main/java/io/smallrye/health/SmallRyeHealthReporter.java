@@ -431,6 +431,7 @@ public class SmallRyeHealthReporter {
         readinessUnis.clear();
         wellnessUnis.clear();
         startupUnis.clear();
+        checksInitialized = false;
 
         initChecks();
     }
