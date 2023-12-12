@@ -1,10 +1,10 @@
 package io.smallrye.health.registry;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -16,23 +16,24 @@ import io.smallrye.mutiny.Uni;
 
 public class HealthRegistryImpl implements HealthRegistry {
 
-    Map<String, Uni<HealthCheckResponse>> checks = new HashMap<>();
+    Map<String, HealthCheck> checks = new HashMap<>();
+    Map<String, AsyncHealthCheck> asyncChecks = new HashMap<>();
     private boolean checksChanged = false;
 
     AsyncHealthCheckFactory asyncHealthCheckFactory = new AsyncHealthCheckFactory();
 
     @Override
     public HealthRegistry register(String id, HealthCheck healthCheck) {
-        return register(id, asyncHealthCheckFactory.callSync(healthCheck));
+        return register(id, healthCheck, checks);
     }
 
     @Override
     public HealthRegistry register(String id, AsyncHealthCheck asyncHealthCheck) {
-        return register(id, asyncHealthCheckFactory.callAsync(asyncHealthCheck));
+        return register(id, asyncHealthCheck, asyncChecks);
     }
 
-    private HealthRegistry register(String id, Uni<HealthCheckResponse> healthCheckResponseUni) {
-        checks.put(id, healthCheckResponseUni);
+    private <T> HealthRegistry register(String id, T check, Map<String, T> checks) {
+        checks.put(id, check);
         checksChanged = true;
         return this;
     }
@@ -40,7 +41,7 @@ public class HealthRegistryImpl implements HealthRegistry {
     @Override
     public HealthRegistry remove(String id) {
         try {
-            if (checks.remove(id) == null) {
+            if (checks.remove(id) == null && asyncChecks.remove(id) == null) {
                 throw new IllegalStateException(String.format("ID '%s' not found", id));
             }
             checksChanged = true;
@@ -51,9 +52,13 @@ public class HealthRegistryImpl implements HealthRegistry {
     }
 
     public Collection<Uni<HealthCheckResponse>> getChecks(Map<String, Boolean> healthChecksConfigs) {
-        return Collections.unmodifiableCollection(checks.entrySet().stream()
+        var enabledChecks = checks.entrySet().stream()
                 .filter(e -> healthChecksConfigs.getOrDefault(e.getKey(), true))
-                .map(Map.Entry::getValue).collect(Collectors.toList()));
+                .map(e -> asyncHealthCheckFactory.callSync(e.getValue()));
+        var enabledAsyncChecks = asyncChecks.entrySet().stream()
+                .filter(e -> healthChecksConfigs.getOrDefault(e.getKey(), true))
+                .map(e -> asyncHealthCheckFactory.callAsync(e.getValue()));
+        return Stream.concat(enabledChecks, enabledAsyncChecks).collect(Collectors.toList());
     }
 
     public boolean checksChanged() {

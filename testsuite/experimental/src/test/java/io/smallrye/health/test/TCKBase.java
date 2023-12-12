@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -65,6 +66,10 @@ public abstract class TCKBase extends Arquillian {
         LOG.info(String.format("Running test: %s#%s", method.getDeclaringClass().getSimpleName(), method.getName()));
     }
 
+    Response getUrlHealthContents(Map<String, String> headers) {
+        return getUrlContents(this.uri + "/health", false, true, headers);
+    }
+
     Response getUrlHealthContents() {
         return getUrlContents(this.uri + "/health", false);
     }
@@ -98,6 +103,10 @@ public abstract class TCKBase extends Arquillian {
     }
 
     private Response getUrlContents(String theUrl, boolean useAuth, boolean followRedirects) {
+        return getUrlContents(theUrl, useAuth, followRedirects, Map.of());
+    }
+
+    private Response getUrlContents(String theUrl, boolean useAuth, boolean followRedirects, Map<String, String> headers) {
 
         StringBuilder content = new StringBuilder();
         int code;
@@ -117,8 +126,9 @@ public abstract class TCKBase extends Arquillian {
             }
 
             HttpClient client = builder.build();
-
-            HttpResponse response = client.execute(new HttpGet(theUrl));
+            var httpGet = new HttpGet(theUrl);
+            headers.forEach(httpGet::addHeader);
+            HttpResponse response = client.execute(httpGet);
             code = response.getStatusLine().getStatusCode();
 
             if (response.getEntity() != null) {
