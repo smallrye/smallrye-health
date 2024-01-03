@@ -24,7 +24,6 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
@@ -409,14 +408,12 @@ public class SmallRyeHealthReporter {
     }
 
     private Uni<SmallRyeHealth> getHealthAsync(Uni<SmallRyeHealth> cachedHealth, HealthType... types) {
-        if (!checksInitialized) {
-            initChecks();
-        }
-
         if (contextPropagated) {
-            recreateCheckUnis();
-            return computeHealth(types);
+            return computeHealthWithContext(types);
         } else {
+            if (!checksInitialized) {
+                initChecks();
+            }
             if (additionalListsChanged(types) || additionalListsChanged || cachedHealth == null) {
                 additionalListsChanged = false;
                 cachedHealth = computeHealth(types);
@@ -426,14 +423,29 @@ public class SmallRyeHealthReporter {
         }
     }
 
-    private void recreateCheckUnis() {
-        livenessUnis.clear();
-        readinessUnis.clear();
-        wellnessUnis.clear();
-        startupUnis.clear();
-        checksInitialized = false;
-
-        initChecks();
+    private Uni<SmallRyeHealth> computeHealthWithContext(HealthType... types) {
+        List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
+        for (HealthType type : types) {
+            switch (type) {
+                case LIVENESS:
+                    initUnis(checks, livenessChecks, asyncLivenessChecks);
+                    checks.addAll(livenessHealthRegistry.getChecks(healthChecksConfigs));
+                    break;
+                case READINESS:
+                    initUnis(checks, readinessChecks, asyncReadinessChecks);
+                    checks.addAll(readinessHealthRegistry.getChecks(healthChecksConfigs));
+                    break;
+                case WELLNESS:
+                    initUnis(checks, wellnessChecks, asyncWellnessChecks);
+                    checks.addAll(wellnessHealthRegistry.getChecks(healthChecksConfigs));
+                    break;
+                case STARTUP:
+                    initUnis(checks, startupChecks, asyncStartupChecks);
+                    checks.addAll(startupHealthRegistry.getChecks(healthChecksConfigs));
+                    break;
+            }
+        }
+        return getHealthAsync(checks);
     }
 
     private boolean additionalListsChanged(HealthType... types) {
@@ -467,7 +479,6 @@ public class SmallRyeHealthReporter {
 
     private Uni<SmallRyeHealth> computeHealth(HealthType[] types) {
         List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
-
         for (HealthType type : types) {
             switch (type) {
                 case LIVENESS:
@@ -488,7 +499,6 @@ public class SmallRyeHealthReporter {
                     break;
             }
         }
-
         return getHealthAsync(checks);
     }
 
@@ -508,7 +518,7 @@ public class SmallRyeHealthReporter {
         }
 
         return Uni.combine().all().unis(healthCheckUnis)
-                .combinedWith(responses -> {
+                .with(responses -> {
                     JsonArrayBuilder results = jsonProvider.createArrayBuilder();
                     HealthCheckResponse.Status status = HealthCheckResponse.Status.UP;
 
