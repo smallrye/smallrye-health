@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.smallrye</groupId>
     <artifactId>smallrye-health-testsuite-parent</artifactId>
-    <version>4.0.5-SNAPSHOT</version>
+    <version>4.1.0</version>
   </parent>
 
   <artifactId>smallrye-health-tck</artifactId>
