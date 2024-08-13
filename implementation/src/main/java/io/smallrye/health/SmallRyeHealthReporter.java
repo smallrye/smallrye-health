@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
@@ -45,6 +46,7 @@ import org.eclipse.microprofile.health.Startup;
 import io.smallrye.common.annotation.Experimental;
 import io.smallrye.config.SmallRyeConfig;
 import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.api.HealthContentFilter;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.HealthType;
 import io.smallrye.health.api.Wellness;
@@ -99,6 +101,10 @@ public class SmallRyeHealthReporter {
     @Inject
     @Any
     Instance<AsyncHealthCheck> allAsyncHealthChecks;
+
+    @Inject
+    @Any
+    Instance<HealthContentFilter> healthContentFilters;
 
     @Inject
     BeanManager beanManager;
@@ -210,15 +216,28 @@ public class SmallRyeHealthReporter {
     }
 
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
+        JsonObject payload = health.getPayload();
         if (health.isDown() && HealthLogging.logger.isInfoEnabled()) {
             // Log reason, as not reported by container orchestrators, yet container may get killed.
-            HealthLogging.logger.healthDownStatus(health.getPayload().toString());
+            HealthLogging.logger.healthDownStatus(payload.toString());
+        }
+
+        if (healthContentFilters != null) {
+            for (Instance.Handle<HealthContentFilter> handle : healthContentFilters.handles()) {
+                try {
+                    payload = handle.get().filter(payload);
+                } finally {
+                    if (handle.getBean().getScope().equals(Dependent.class)) {
+                        handle.destroy();
+                    }
+                }
+            }
         }
 
         JsonWriterFactory factory = JSON_PROVIDER.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
 
-        writer.writeObject(health.getPayload());
+        writer.writeObject(payload);
         writer.close();
     }
 
