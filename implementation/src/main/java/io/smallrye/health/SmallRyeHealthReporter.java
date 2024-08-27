@@ -122,7 +122,7 @@ public class SmallRyeHealthReporter {
 
     private final Map<String, Uni<HealthCheckResponse>> additionalChecks = new HashMap<>();
 
-    private final JsonProvider jsonProvider = JsonProvider.provider();
+    private static final JsonProvider JSON_PROVIDER = JsonProvider.provider();
     private volatile boolean checksInitialized = false;
 
     private Uni<SmallRyeHealth> smallRyeHealthUni = null;
@@ -215,7 +215,7 @@ public class SmallRyeHealthReporter {
             HealthLogging.logger.healthDownStatus(health.getPayload().toString());
         }
 
-        JsonWriterFactory factory = jsonProvider.createWriterFactory(JSON_CONFIG);
+        JsonWriterFactory factory = JSON_PROVIDER.createWriterFactory(JSON_CONFIG);
         JsonWriter writer = factory.createWriter(out);
 
         writer.writeObject(health.getPayload());
@@ -519,7 +519,7 @@ public class SmallRyeHealthReporter {
 
         return Uni.combine().all().unis(healthCheckUnis)
                 .with(responses -> {
-                    JsonArrayBuilder results = jsonProvider.createArrayBuilder();
+                    JsonArrayBuilder results = JSON_PROVIDER.createArrayBuilder();
                     HealthCheckResponse.Status status = HealthCheckResponse.Status.UP;
 
                     for (Object o : responses) {
@@ -532,12 +532,12 @@ public class SmallRyeHealthReporter {
     }
 
     private SmallRyeHealth createEmptySmallRyeHealth(String emptyOutcome) {
-        return createSmallRyeHealth(jsonProvider.createArrayBuilder(), null, emptyOutcome);
+        return createSmallRyeHealth(JSON_PROVIDER.createArrayBuilder(), null, emptyOutcome);
     }
 
     private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status,
             String emptyOutcome) {
-        JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
+        JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
         JsonArray checkResults = results.build();
 
         builder.add("status", checkResults.isEmpty() ? emptyOutcome : status.toString());
@@ -566,11 +566,11 @@ public class SmallRyeHealthReporter {
     }
 
     private JsonObject jsonObject(HealthCheckResponse response) {
-        JsonObjectBuilder builder = jsonProvider.createObjectBuilder();
+        JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
         builder.add("name", response.getName());
         builder.add("status", response.getStatus().toString());
         response.getData().ifPresent(d -> {
-            JsonObjectBuilder data = jsonProvider.createObjectBuilder();
+            JsonObjectBuilder data = JSON_PROVIDER.createObjectBuilder();
             for (Map.Entry<String, Object> entry : d.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof String) {
