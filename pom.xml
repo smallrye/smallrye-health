@@ -42,7 +42,7 @@
     <version.smallrye.config>3.9.1</version.smallrye.config>
     <version.smallrye.common>2.5.0</version.smallrye.common>
     <version.smallrye.testing>2.3.0</version.smallrye.testing>
-    <version.wildfly>33.0.0.Final</version.wildfly>
+    <version.wildfly>33.0.1.Final</version.wildfly>
 
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.coverage.exclusions>testsuite/tck/src/main/java/**/*Servlet.java</sonar.coverage.exclusions>
