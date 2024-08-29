@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
@@ -188,6 +189,37 @@ public class SmallRyeHealthReporter {
         initUnis(wellnessUnis, wellnessChecks, asyncWellnessChecks);
         initUnis(startupUnis, startupChecks, asyncStartupChecks);
         checksInitialized = true;
+    }
+
+    private void initUnis(List<Uni<HealthCheckResponse>> list, Instance<HealthCheck> checks,
+            Instance<AsyncHealthCheck> asyncChecks) {
+        if (checks != null) {
+            for (Instance.Handle<HealthCheck> handle : checks.handles()) {
+                HealthCheck check = handle.get();
+                if (check != null && isHealthCheckEnabled(check)) {
+                    list.add(asyncHealthCheckFactory.callSync(check).chain(response -> {
+                        if (handle.getBean().getScope().equals(Dependent.class)) {
+                            handle.destroy();
+                        }
+                        return Uni.createFrom().item(response);
+                    }));
+                }
+            }
+        }
+
+        if (asyncChecks != null) {
+            for (Instance.Handle<AsyncHealthCheck> handle : asyncChecks.handles()) {
+                AsyncHealthCheck asyncCheck = handle.get();
+                if (asyncCheck != null && isHealthCheckEnabled(asyncCheck)) {
+                    list.add(asyncHealthCheckFactory.callAsync(asyncCheck).chain(response -> {
+                        if (handle.getBean().getScope().equals(Dependent.class)) {
+                            handle.destroy();
+                        }
+                        return Uni.createFrom().item(response);
+                    }));
+                }
+            }
+        }
     }
 
     private void initUnis(List<Uni<HealthCheckResponse>> list, Iterable<HealthCheck> checks,
