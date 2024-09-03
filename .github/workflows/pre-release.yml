@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: smallrye-health
           path: ~/.m2/repository/io/smallrye
@@ -102,7 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: smallrye-health
           path: ~/.m2/repository/io/smallrye
