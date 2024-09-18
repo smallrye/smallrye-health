@@ -68,7 +68,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: TCK report
         with:
-          name: tck-report
+          name: tck-report-jdk-${{ matrix.java.name }}
           path: testsuite/tck/target/surefire-reports
           overwrite: 'true'
 
