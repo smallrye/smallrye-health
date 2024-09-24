@@ -41,7 +41,7 @@
     <version.mutiny>2.6.2</version.mutiny>
     <version.smallrye.config>3.9.1</version.smallrye.config>
     <version.smallrye.common>2.6.0</version.smallrye.common>
-    <version.smallrye.testing>2.3.0</version.smallrye.testing>
+    <version.smallrye.testing>2.3.1</version.smallrye.testing>
     <version.wildfly>33.0.2.Final</version.wildfly>
 
     <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
