@@ -79,7 +79,6 @@
   <modules>
     <module>api</module>
     <module>implementation</module>
-    <module>testsuite</module>
     <module>ui</module>
     <module>provided-checks</module>
   </modules>
@@ -282,6 +281,19 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>unpublished</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>testsuite</module>
+      </modules>
+    </profile>
+
     <profile>
       <id>release</id>
       <activation>
