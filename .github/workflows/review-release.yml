@@ -89,9 +89,9 @@ jobs:
         env:
           SNAPSHOT_VERSION: ${{ needs.integration-build-smallrye-health.outputs.SNAPSHOT_VERSION }}
         run: |
-          mvn -Dquickly -Dsmallrye-health.version="$SNAPSHOT_VERSION"
-          mvn clean verify -pl extensions/smallrye-health/deployment -Dsmallrye-health.version="$SNAPSHOT_VERSION"
-          mvn clean verify -pl tcks/microprofile-health -Dtcks -Dsmallrye-health.version="$SNAPSHOT_VERSION"
+          ./mvnw -Dquickly -Dsmallrye-health.version="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl extensions/smallrye-health/deployment -Dsmallrye-health.version="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl tcks/microprofile-health -Dtcks -Dsmallrye-health.version="$SNAPSHOT_VERSION"
 
   integration-verification-wildfly:
     runs-on: ubuntu-latest
@@ -122,11 +122,11 @@ jobs:
         env:
           SNAPSHOT_VERSION: ${{ needs.integration-build-smallrye-health.outputs.SNAPSHOT_VERSION }}
         run: |
-          mvn clean install -DskipTests -DskipITs -Denforcer.skip -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
-          mvn clean verify -pl microprofile/health-smallrye -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
-          mvn clean verify -pl testsuite/integration/microprofile -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
-          mvn clean verify -pl testsuite/integration/microprofile-tck/health -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
-          mvn clean verify -pl testsuite/integration/manualmode -Dts.manualmode -Dtest="MicroProfile*" -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean install -DskipTests -DskipITs -Denforcer.skip -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl microprofile/health-smallrye -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl testsuite/integration/microprofile -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl testsuite/integration/microprofile-tck/health -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean verify -pl testsuite/integration/manualmode -Dts.manualmode -Dtest="MicroProfile*" -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
 
 
 
