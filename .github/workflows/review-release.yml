@@ -122,7 +122,7 @@ jobs:
         env:
           SNAPSHOT_VERSION: ${{ needs.integration-build-smallrye-health.outputs.SNAPSHOT_VERSION }}
         run: |
-          ./mvnw clean install -DskipTests -DskipITs -Denforcer.skip -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
+          ./mvnw clean install -DallTests -DskipTests -DskipITs -Denforcer.skip -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
           ./mvnw clean verify -pl microprofile/health-smallrye -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
           ./mvnw clean verify -pl testsuite/integration/microprofile -Dts.standalone.microprofile -Dtest="org.wildfly.test.integration.microprofile.health.*TestCase" -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
           ./mvnw clean verify -pl testsuite/integration/microprofile-tck/health -Dts.standalone.microprofile -Dversion.io.smallrye.smallrye-health="$SNAPSHOT_VERSION"
