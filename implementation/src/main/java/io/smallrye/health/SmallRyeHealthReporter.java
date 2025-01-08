@@ -143,7 +143,8 @@ public class SmallRyeHealthReporter {
     private List<Uni<HealthCheckResponse>> wellnessUnis = new CopyOnWriteArrayList<>();
     private List<Uni<HealthCheckResponse>> startupUnis = new CopyOnWriteArrayList<>();
 
-    public SmallRyeHealthReporter() {
+    @PostConstruct
+    public void postConstruct() {
         try {
             Config config = ConfigProvider.getConfig();
             contextPropagated = config
@@ -176,10 +177,7 @@ public class SmallRyeHealthReporter {
         if (asyncHealthCheckFactory == null) {
             asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         }
-    }
 
-    @PostConstruct
-    public void postConstruct() {
         if (!delayHealthCheckInit) {
             initChecks();
         }
