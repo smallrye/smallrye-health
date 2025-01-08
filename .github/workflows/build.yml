@@ -31,7 +31,6 @@ jobs:
         # To list the available releases for a given "feature version" (example for 16):
         # https://api.adoptium.net/v3/assets/latest/16/hotspot
         java:
-          - { name: "11" }
           - { name: "17" }
           - { name: "18" }
           - { name: "19" }
