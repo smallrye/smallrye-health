@@ -1,5 +1,6 @@
 package io.smallrye.health;
 
+import static org.eclipse.microprofile.health.HealthCheckResponse.Status.UP;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -120,7 +121,7 @@ public class SmallRyeHealthReporterTest {
     @BeforeEach
     public void createReporter() {
         reporter = new SmallRyeHealthReporter();
-        reporter.emptyChecksOutcome = "UP";
+        reporter.emptyChecksOutcome = UP;
         reporter.timeoutSeconds = 300;
 
         HealthRegistries healthRegistries = new HealthRegistries();
