@@ -18,4 +18,8 @@ interface HealthLogging extends BasicLogger {
     @LogMessage(level = Logger.Level.INFO)
     @Message(id = 1001, value = "Reporting health down status: %s")
     void healthDownStatus(String cause);
+
+    @LogMessage(level = Logger.Level.ERROR)
+    @Message(id = 1002, value = "Health change observer error")
+    void healthChangeObserverError(@Cause Throwable throwable);
 }

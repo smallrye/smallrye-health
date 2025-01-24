@@ -4,6 +4,8 @@ import static io.smallrye.health.api.HealthType.LIVENESS;
 import static io.smallrye.health.api.HealthType.READINESS;
 import static io.smallrye.health.api.HealthType.STARTUP;
 import static io.smallrye.health.api.HealthType.WELLNESS;
+import static org.eclipse.microprofile.health.HealthCheckResponse.Status.DOWN;
+import static org.eclipse.microprofile.health.HealthCheckResponse.Status.UP;
 
 import java.io.OutputStream;
 import java.time.Duration;
@@ -21,7 +23,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObserverException;
 import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
@@ -50,6 +55,7 @@ import io.smallrye.health.api.HealthContentFilter;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.HealthType;
 import io.smallrye.health.api.Wellness;
+import io.smallrye.health.api.event.HealthStatusChangeEvent;
 import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
@@ -116,7 +122,7 @@ public class SmallRyeHealthReporter {
 
     // Config properties
     boolean contextPropagated = false;
-    String emptyChecksOutcome = "UP";
+    HealthCheckResponse.Status emptyChecksOutcome = UP;
     int timeoutSeconds = 60;
     Map<String, String> additionalProperties = new ConcurrentHashMap<>();
     Map<String, Boolean> healthChecksConfigs = new ConcurrentHashMap<>();
@@ -136,6 +142,13 @@ public class SmallRyeHealthReporter {
     private Uni<SmallRyeHealth> smallRyeReadinessUni = null;
     private Uni<SmallRyeHealth> smallryeWellnessUni = null;
     private Uni<SmallRyeHealth> smallryeStartupUni = null;
+
+    private HealthCheckResponse.Status healthStatus = UP;
+    private HealthCheckResponse.Status livenessStatus = UP;
+    private HealthCheckResponse.Status readinessStatus = UP;
+    private HealthCheckResponse.Status startupStatus = UP;
+    private HealthCheckResponse.Status wellnessStatus = UP;
+
     private boolean additionalListsChanged = false;
 
     private List<Uni<HealthCheckResponse>> livenessUnis = new CopyOnWriteArrayList<>();
@@ -147,29 +160,21 @@ public class SmallRyeHealthReporter {
     public void postConstruct() {
         try {
             Config config = ConfigProvider.getConfig();
-            contextPropagated = config
-                    .getOptionalValue("io.smallrye.health.context.propagation", Boolean.class)
-                    .orElse(false);
+            contextPropagated = config.getOptionalValue("io.smallrye.health.context.propagation", Boolean.class).orElse(false);
 
             emptyChecksOutcome = config
-                    .getOptionalValue("io.smallrye.health.emptyChecksOutcome", String.class)
-                    .orElse("UP");
+                    .getOptionalValue("io.smallrye.health.emptyChecksOutcome", HealthCheckResponse.Status.class).orElse(UP);
 
-            timeoutSeconds = config
-                    .getOptionalValue("io.smallrye.health.timeout.seconds", Integer.class)
-                    .orElse(60);
+            timeoutSeconds = config.getOptionalValue("io.smallrye.health.timeout.seconds", Integer.class).orElse(60);
 
             additionalProperties = ((SmallRyeConfig) config)
                     .getOptionalValues("io.smallrye.health.additional.property", String.class, String.class)
                     .orElse(new ConcurrentHashMap<>());
 
-            delayHealthCheckInit = config
-                    .getOptionalValue("io.smallrye.health.delayChecksInitializations", Boolean.class)
+            delayHealthCheckInit = config.getOptionalValue("io.smallrye.health.delayChecksInitializations", Boolean.class)
                     .orElse(false);
 
-            defaultHealthGroup = config
-                    .getOptionalValue("io.smallrye.health.defaultHealthGroup", String.class)
-                    .orElse(null);
+            defaultHealthGroup = config.getOptionalValue("io.smallrye.health.defaultHealthGroup", String.class).orElse(null);
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
         }
@@ -244,6 +249,12 @@ public class SmallRyeHealthReporter {
         }
     }
 
+    private List<Uni<HealthCheckResponse>> recreateUnis(Iterable<HealthCheck> checks, Iterable<AsyncHealthCheck> asyncChecks) {
+        List<Uni<HealthCheckResponse>> list = new ArrayList<>();
+        initUnis(list, checks, asyncChecks);
+        return list;
+    }
+
     public void reportHealth(OutputStream out, SmallRyeHealth health) {
         JsonObject payload = health.getPayload();
         if (health.isDown() && HealthLogging.logger.isInfoEnabled()) {
@@ -299,6 +310,26 @@ public class SmallRyeHealthReporter {
         return getHealthGroupsAsync().await().atMost(Duration.ofSeconds(timeoutSeconds));
     }
 
+    @Inject
+    @Default
+    Event<HealthStatusChangeEvent> healthEvent;
+
+    @Inject
+    @Liveness
+    Event<HealthStatusChangeEvent> livenessEvent;
+
+    @Inject
+    @Readiness
+    Event<HealthStatusChangeEvent> readinessEvent;
+
+    @Inject
+    @Wellness
+    Event<HealthStatusChangeEvent> wellnessEvent;
+
+    @Inject
+    @Startup
+    Event<HealthStatusChangeEvent> startupEvent;
+
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getHealthAsync() {
         smallRyeHealthUni = getHealthAsync(smallRyeHealthUni, LIVENESS, READINESS, WELLNESS, STARTUP);
@@ -344,7 +375,7 @@ public class SmallRyeHealthReporter {
 
         checks.addAll(((HealthRegistryImpl) HealthRegistries.getHealthGroupRegistry(groupName)).getChecks(healthChecksConfigs));
 
-        return getHealthAsync(checks);
+        return getHealthResult(checks).map(HealthResult::toSmallRyeHealth);
     }
 
     @Experimental("Asynchronous Health Check procedures and Health Groups")
@@ -360,12 +391,11 @@ public class SmallRyeHealthReporter {
                 initUnis(checks, getHealthGroupsChecks(HealthCheck.class), getHealthGroupsChecks(AsyncHealthCheck.class));
             }
 
-            HealthRegistries.getHealthGroupRegistries()
-                    .forEach(healthRegistry -> checks
-                            .addAll(((HealthRegistryImpl) healthRegistry).getChecks(healthChecksConfigs)));
+            HealthRegistries.getHealthGroupRegistries().forEach(
+                    healthRegistry -> checks.addAll(((HealthRegistryImpl) healthRegistry).getChecks(healthChecksConfigs)));
         }
 
-        return getHealthAsync(checks);
+        return getHealthResult(checks).map(HealthResult::toSmallRyeHealth);
     }
 
     public void addHealthCheck(HealthCheck check) {
@@ -400,7 +430,7 @@ public class SmallRyeHealthReporter {
 
     public void setEmptyChecksOutcome(String emptyChecksOutcome) {
         Objects.requireNonNull(emptyChecksOutcome);
-        this.emptyChecksOutcome = emptyChecksOutcome;
+        this.emptyChecksOutcome = HealthCheckResponse.Status.valueOf(emptyChecksOutcome);
     }
 
     public void setTimeoutSeconds(int timeoutSeconds) {
@@ -430,8 +460,8 @@ public class SmallRyeHealthReporter {
         while (iterator.hasNext()) {
             Bean<?> bean = iterator.next();
             if (bean.getQualifiers().stream().anyMatch(annotation -> annotation.annotationType().equals(HealthGroup.class))) {
-                groupHealthChecks.add((T) beanManager.getReference(bean, bean.getBeanClass(),
-                        beanManager.createCreationalContext(bean)));
+                groupHealthChecks.add(
+                        (T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
             }
         }
 
@@ -447,8 +477,8 @@ public class SmallRyeHealthReporter {
         while (iterator.hasNext()) {
             Bean<?> bean = iterator.next();
             if (bean.getQualifiers().stream().noneMatch(annotation -> annotation.annotationType().equals(HealthGroup.class))) {
-                healthChecks.add((T) beanManager.getReference(bean, bean.getBeanClass(),
-                        beanManager.createCreationalContext(bean)));
+                healthChecks.add(
+                        (T) beanManager.getReference(bean, bean.getBeanClass(), beanManager.createCreationalContext(bean)));
             }
         }
 
@@ -471,29 +501,143 @@ public class SmallRyeHealthReporter {
         }
     }
 
-    private Uni<SmallRyeHealth> computeHealthWithContext(HealthType... types) {
-        List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
+    private Uni<SmallRyeHealth> computeHealth(HealthType[] types) {
+        Map<HealthType, Uni<HealthResult>> healthResults = new HashMap<>();
+
         for (HealthType type : types) {
             switch (type) {
                 case LIVENESS:
-                    initUnis(checks, livenessChecks, asyncLivenessChecks);
-                    checks.addAll(livenessHealthRegistry.getChecks(healthChecksConfigs));
+                    healthResults.put(LIVENESS,
+                            getHealthResult(livenessUnis, livenessHealthRegistry.getChecks(healthChecksConfigs)));
                     break;
                 case READINESS:
-                    initUnis(checks, readinessChecks, asyncReadinessChecks);
-                    checks.addAll(readinessHealthRegistry.getChecks(healthChecksConfigs));
+                    healthResults.put(READINESS,
+                            getHealthResult(readinessUnis, readinessHealthRegistry.getChecks(healthChecksConfigs)));
                     break;
                 case WELLNESS:
-                    initUnis(checks, wellnessChecks, asyncWellnessChecks);
-                    checks.addAll(wellnessHealthRegistry.getChecks(healthChecksConfigs));
+                    healthResults.put(WELLNESS,
+                            getHealthResult(wellnessUnis, wellnessHealthRegistry.getChecks(healthChecksConfigs)));
                     break;
                 case STARTUP:
-                    initUnis(checks, startupChecks, asyncStartupChecks);
-                    checks.addAll(startupHealthRegistry.getChecks(healthChecksConfigs));
+                    healthResults.put(STARTUP,
+                            getHealthResult(startupUnis, startupHealthRegistry.getChecks(healthChecksConfigs)));
                     break;
             }
         }
-        return getHealthAsync(checks);
+
+        return processHealthResults(healthResults);
+    }
+
+    private Uni<SmallRyeHealth> computeHealthWithContext(HealthType... types) {
+        Map<HealthType, Uni<HealthResult>> healthResults = new HashMap<>();
+
+        for (HealthType type : types) {
+            switch (type) {
+                case LIVENESS:
+                    healthResults.put(LIVENESS, getHealthResult(recreateUnis(livenessChecks, asyncLivenessChecks),
+                            livenessHealthRegistry.getChecks(healthChecksConfigs)));
+                    break;
+                case READINESS:
+                    healthResults.put(READINESS, getHealthResult(recreateUnis(readinessChecks, asyncReadinessChecks),
+                            readinessHealthRegistry.getChecks(healthChecksConfigs)));
+                    break;
+                case WELLNESS:
+                    healthResults.put(WELLNESS, getHealthResult(recreateUnis(wellnessChecks, asyncWellnessChecks),
+                            wellnessHealthRegistry.getChecks(healthChecksConfigs)));
+                    break;
+                case STARTUP:
+                    healthResults.put(STARTUP, getHealthResult(recreateUnis(startupChecks, asyncStartupChecks),
+                            startupHealthRegistry.getChecks(healthChecksConfigs)));
+                    break;
+            }
+        }
+
+        return processHealthResults(healthResults);
+    }
+
+    private Uni<HealthResult> emptyHealthResult() {
+        return Uni.createFrom().item(new HealthResult(emptyChecksOutcome));
+    }
+
+    private Uni<SmallRyeHealth> processHealthResults(Map<HealthType, Uni<HealthResult>> healthResults) {
+        Uni<HealthResult> additionalHealthResult = emptyHealthResult();
+        if (!additionalChecks.isEmpty()) {
+            additionalHealthResult = getHealthResult(additionalChecks.values());
+        }
+
+        return Uni.combine().all().unis(
+                healthResults.getOrDefault(LIVENESS, emptyHealthResult()),
+                healthResults.getOrDefault(READINESS, emptyHealthResult()),
+                healthResults.getOrDefault(WELLNESS, emptyHealthResult()),
+                healthResults.getOrDefault(STARTUP, emptyHealthResult()),
+                additionalHealthResult)
+                .with((liveness, readiness, wellness, startup, additionalChecks) -> {
+                    HealthResult result = new HealthResult();
+
+                    livenessStatus = handleHealthResult(liveness, LIVENESS, livenessEvent, livenessStatus, result);
+                    readinessStatus = handleHealthResult(readiness, READINESS, readinessEvent, readinessStatus, result);
+                    wellnessStatus = handleHealthResult(wellness, WELLNESS, wellnessEvent, wellnessStatus, result);
+                    startupStatus = handleHealthResult(startup, STARTUP, startupEvent, startupStatus, result);
+
+                    if (!additionalChecks.checks.isEmpty()) {
+                        result.checks.addAll(additionalChecks.checks);
+
+                        if (result.status == UP && additionalChecks.status == DOWN) {
+                            result.status = DOWN;
+                        }
+                    }
+
+                    fireGlobalHealthStatusChangeIfNeeded();
+
+                    return result.toSmallRyeHealth();
+                });
+    }
+
+    private HealthCheckResponse.Status handleHealthResult(HealthResult partialResult, HealthType healthType,
+            Event<HealthStatusChangeEvent> event,
+            HealthCheckResponse.Status currentStatus, HealthResult result) {
+        if (!partialResult.checks.isEmpty()) {
+            result.checks.addAll(partialResult.checks);
+
+            if (result.status == UP && partialResult.status == DOWN) {
+                result.status = DOWN;
+            }
+
+            return fireEventIfStatusChanged(event, healthType, currentStatus, partialResult.status);
+        }
+        return currentStatus;
+    }
+
+    private HealthCheckResponse.Status fireEventIfStatusChanged(Event<HealthStatusChangeEvent> event, HealthType healthType,
+            HealthCheckResponse.Status oldStatus, HealthCheckResponse.Status newStatus) {
+
+        if (oldStatus != newStatus) {
+            try {
+                event.fire(new HealthStatusChangeEvent(healthType, newStatus));
+            } catch (ObserverException e) {
+                HealthLogging.logger.healthChangeObserverError(e);
+            }
+        }
+
+        return newStatus;
+    }
+
+    private void fireGlobalHealthStatusChangeIfNeeded() {
+
+        HealthCheckResponse.Status newStatus = UP;
+        if (List.of(livenessStatus, readinessStatus, startupStatus, wellnessStatus).contains(DOWN)) {
+            newStatus = DOWN;
+        }
+
+        if (healthStatus != newStatus) {
+            healthStatus = newStatus;
+            try {
+                healthEvent.fire(new HealthStatusChangeEvent(newStatus));
+            } catch (ObserverException e) {
+                HealthLogging.logger.healthChangeObserverError(e);
+            }
+        }
+
     }
 
     private boolean additionalListsChanged(HealthType... types) {
@@ -525,124 +669,43 @@ public class SmallRyeHealthReporter {
         return needRecompute;
     }
 
-    private Uni<SmallRyeHealth> computeHealth(HealthType[] types) {
-        List<Uni<HealthCheckResponse>> checks = new ArrayList<>();
-        for (HealthType type : types) {
-            switch (type) {
-                case LIVENESS:
-                    checks.addAll(livenessUnis);
-                    checks.addAll(livenessHealthRegistry.getChecks(healthChecksConfigs));
-                    break;
-                case READINESS:
-                    checks.addAll(readinessUnis);
-                    checks.addAll(readinessHealthRegistry.getChecks(healthChecksConfigs));
-                    break;
-                case WELLNESS:
-                    checks.addAll(wellnessUnis);
-                    checks.addAll(wellnessHealthRegistry.getChecks(healthChecksConfigs));
-                    break;
-                case STARTUP:
-                    checks.addAll(startupUnis);
-                    checks.addAll(startupHealthRegistry.getChecks(healthChecksConfigs));
-                    break;
-            }
-        }
-        return getHealthAsync(checks);
-    }
-
-    private Uni<SmallRyeHealth> getHealthAsync(Collection<Uni<HealthCheckResponse>> checks) {
+    @SafeVarargs
+    private Uni<HealthResult> getHealthResult(Collection<Uni<HealthCheckResponse>>... checkLists) {
         List<Uni<HealthCheckResponse>> healthCheckUnis = new ArrayList<>();
 
-        if (checks != null) {
-            healthCheckUnis.addAll(checks);
-        }
-
-        if (!additionalChecks.isEmpty()) {
-            healthCheckUnis.addAll(additionalChecks.values());
+        if (checkLists != null) {
+            for (Collection<Uni<HealthCheckResponse>> checks : checkLists) {
+                healthCheckUnis.addAll(checks);
+            }
         }
 
         if (healthCheckUnis.isEmpty()) {
-            return Uni.createFrom().item(createEmptySmallRyeHealth(emptyChecksOutcome));
+            return emptyHealthResult();
         }
 
-        return Uni.combine().all().unis(healthCheckUnis)
-                .with(responses -> {
-                    JsonArrayBuilder results = JSON_PROVIDER.createArrayBuilder();
-                    HealthCheckResponse.Status status = HealthCheckResponse.Status.UP;
+        return Uni.combine().all().unis(healthCheckUnis).with(responses -> {
+            HealthResult healthResult = new HealthResult();
 
-                    for (Object o : responses) {
-                        HealthCheckResponse response = (HealthCheckResponse) o;
-                        status = handleResponse(response, results, status);
-                    }
-
-                    return createSmallRyeHealth(results, status, emptyChecksOutcome);
-                });
-    }
-
-    private SmallRyeHealth createEmptySmallRyeHealth(String emptyOutcome) {
-        return createSmallRyeHealth(JSON_PROVIDER.createArrayBuilder(), null, emptyOutcome);
-    }
-
-    private SmallRyeHealth createSmallRyeHealth(JsonArrayBuilder results, HealthCheckResponse.Status status,
-            String emptyOutcome) {
-        JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
-        JsonArray checkResults = results.build();
-
-        builder.add("status", checkResults.isEmpty() ? emptyOutcome : status.toString());
-        builder.add("checks", checkResults);
-
-        if (!additionalProperties.isEmpty()) {
-            additionalProperties.forEach(builder::add);
-        }
-
-        return new SmallRyeHealth(builder.build());
-    }
-
-    private HealthCheckResponse.Status handleResponse(HealthCheckResponse response, JsonArrayBuilder results,
-            HealthCheckResponse.Status globalOutcome) {
-        JsonObject responseJson = jsonObject(response);
-        results.add(responseJson);
-
-        if (globalOutcome == HealthCheckResponse.Status.UP) {
-            String status = responseJson.getString("status");
-            if (status.equals("DOWN")) {
-                return HealthCheckResponse.Status.DOWN;
-            }
-        }
-
-        return globalOutcome;
-    }
-
-    private JsonObject jsonObject(HealthCheckResponse response) {
-        JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
-        builder.add("name", response.getName());
-        builder.add("status", response.getStatus().toString());
-        response.getData().ifPresent(d -> {
-            JsonObjectBuilder data = JSON_PROVIDER.createObjectBuilder();
-            for (Map.Entry<String, Object> entry : d.entrySet()) {
-                Object value = entry.getValue();
-                if (value instanceof String) {
-                    data.add(entry.getKey(), (String) value);
-                } else if (value instanceof Long) {
-                    data.add(entry.getKey(), (Long) value);
-                } else if (value instanceof Boolean) {
-                    data.add(entry.getKey(), (Boolean) value);
+            for (Object o : responses) {
+                HealthCheckResponse response = (HealthCheckResponse) o;
+                if (healthResult.status == UP && response.getStatus() == DOWN) {
+                    healthResult.status = DOWN;
                 }
-            }
-            builder.add("data", data.build());
-        });
 
-        return builder.build();
+                healthResult.checks.add(response);
+            }
+
+            return healthResult;
+        });
     }
 
     private boolean isHealthCheckEnabled(HealthCheck healthCheck) {
-        return isEnabled(healthCheck.getClass().getName()) &&
-                isEnabled(healthCheck.getClass().getSuperclass().getName());
+        return isEnabled(healthCheck.getClass().getName()) && isEnabled(healthCheck.getClass().getSuperclass().getName());
     }
 
     private boolean isHealthCheckEnabled(AsyncHealthCheck asyncHealthCheck) {
-        return isEnabled(asyncHealthCheck.getClass().getName()) &&
-                isEnabled(asyncHealthCheck.getClass().getSuperclass().getName());
+        return isEnabled(asyncHealthCheck.getClass().getName())
+                && isEnabled(asyncHealthCheck.getClass().getSuperclass().getName());
     }
 
     private boolean isEnabled(String checkClassName) {
@@ -658,5 +721,72 @@ public class SmallRyeHealthReporter {
             return true;
         });
 
+    }
+
+    private final class HealthResult {
+        HealthCheckResponse.Status status = UP;
+        List<HealthCheckResponse> checks = new ArrayList<>();
+
+        public HealthResult() {
+        }
+
+        public HealthResult(HealthCheckResponse.Status status) {
+            this.status = status;
+        }
+
+        public SmallRyeHealth toSmallRyeHealth() {
+            return createSmallRyeHealth();
+        }
+
+        private SmallRyeHealth createSmallRyeHealth() {
+            JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
+            JsonArray checkResults = createChecksJsonArray();
+
+            builder.add("status", checkResults.isEmpty() ? emptyChecksOutcome.toString() : status.toString());
+            builder.add("checks", checkResults);
+
+            if (!additionalProperties.isEmpty()) {
+                additionalProperties.forEach(builder::add);
+            }
+
+            return new SmallRyeHealth(builder.build());
+        }
+
+        private JsonArray createChecksJsonArray() {
+            JsonArrayBuilder results = JSON_PROVIDER.createArrayBuilder();
+
+            for (HealthCheckResponse response : checks) {
+                handleResponse(response, results);
+            }
+
+            return results.build();
+        }
+
+        private void handleResponse(HealthCheckResponse response, JsonArrayBuilder results) {
+            JsonObject responseJson = jsonObject(response);
+            results.add(responseJson);
+        }
+
+        private JsonObject jsonObject(HealthCheckResponse response) {
+            JsonObjectBuilder builder = JSON_PROVIDER.createObjectBuilder();
+            builder.add("name", response.getName());
+            builder.add("status", response.getStatus().toString());
+            response.getData().ifPresent(d -> {
+                JsonObjectBuilder data = JSON_PROVIDER.createObjectBuilder();
+                for (Map.Entry<String, Object> entry : d.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value instanceof String) {
+                        data.add(entry.getKey(), (String) value);
+                    } else if (value instanceof Long) {
+                        data.add(entry.getKey(), (Long) value);
+                    } else if (value instanceof Boolean) {
+                        data.add(entry.getKey(), (Boolean) value);
+                    }
+                }
+                builder.add("data", data.build());
+            });
+
+            return builder.build();
+        }
     }
 }
