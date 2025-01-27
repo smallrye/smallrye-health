@@ -205,6 +205,33 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Temporary override compiler plugin, to compile on JDK 23 until
+        https://github.com/smallrye/smallrye-parent/pull/576 is merged and parent updated -->
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default-compile</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+              <!-- Ensure that the logging generator does not generate invalid annotations -->
+              <configuration>
+                <compilerArgs>
+                  <arg>-Aorg.jboss.logging.tools.addGeneratedAnnotation=false</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                  <path>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-processor</artifactId>
+                    <version>${version.org.jboss.logging-processor}</version>
+                  </path>
+                </annotationProcessorPaths>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>org.asciidoctor</groupId>
           <artifactId>asciidoctor-maven-plugin</artifactId>
