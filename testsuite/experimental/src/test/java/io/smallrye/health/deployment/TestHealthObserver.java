@@ -12,7 +12,7 @@ import org.eclipse.microprofile.health.Readiness;
 import org.eclipse.microprofile.health.Startup;
 
 import io.smallrye.health.api.Wellness;
-import io.smallrye.health.api.event.HealthStatusChangeEvent;
+import io.smallrye.health.event.SmallRyeHealthStatusChangeEvent;
 
 @ApplicationScoped
 public class TestHealthObserver {
@@ -29,29 +29,29 @@ public class TestHealthObserver {
     private HealthCheckResponse.Status wellnessStatus = UP;
     private HealthCheckResponse.Status startupStatus = UP;
 
-    public void observeHealth(@Observes @Default HealthStatusChangeEvent event) {
+    public void observeHealth(@Observes @Default SmallRyeHealthStatusChangeEvent event) {
         counterHealth++;
-        healthStatus = event.status();
+        healthStatus = event.health().getStatus();
     }
 
-    public void observeLiveness(@Observes @Liveness HealthStatusChangeEvent event) {
+    public void observeLiveness(@Observes @Liveness SmallRyeHealthStatusChangeEvent event) {
         counterLiveness++;
-        livenessStatus = event.status();
+        livenessStatus = event.health().getStatus();
     }
 
-    public void observeReadiness(@Observes @Readiness HealthStatusChangeEvent event) {
+    public void observeReadiness(@Observes @Readiness SmallRyeHealthStatusChangeEvent event) {
         counterReadiness++;
-        readinessStatus = event.status();
+        readinessStatus = event.health().getStatus();
     }
 
-    public void observeWellness(@Observes @Wellness HealthStatusChangeEvent event) {
+    public void observeWellness(@Observes @Wellness SmallRyeHealthStatusChangeEvent event) {
         counterWellness++;
-        wellnessStatus = event.status();
+        wellnessStatus = event.health().getStatus();
     }
 
-    public void observeStartup(@Observes @Startup HealthStatusChangeEvent event) {
+    public void observeStartup(@Observes @Startup SmallRyeHealthStatusChangeEvent event) {
         counterStartup++;
-        startupStatus = event.status();
+        startupStatus = event.health().getStatus();
     }
 
     public int getCounterHealth() {
