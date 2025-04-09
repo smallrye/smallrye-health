@@ -588,7 +588,8 @@ public class SmallRyeHealthReporter {
                     }
 
                     SmallRyeHealth smallRyeHealth = result.toSmallRyeHealth();
-                    fireGlobalHealthStatusChangeIfNeeded(smallRyeHealth);
+                    fireGlobalHealthStatusChangeIfNeeded(smallRyeHealth,
+                            List.of(livenessStatus, readinessStatus, startupStatus, wellnessStatus));
 
                     return smallRyeHealth;
                 });
@@ -624,10 +625,10 @@ public class SmallRyeHealthReporter {
         return newStatus;
     }
 
-    private void fireGlobalHealthStatusChangeIfNeeded(SmallRyeHealth smallRyeHealth) {
-
+    private void fireGlobalHealthStatusChangeIfNeeded(SmallRyeHealth smallRyeHealth,
+            List<HealthCheckResponse.Status> healthStatuses) {
         HealthCheckResponse.Status newStatus = UP;
-        if (List.of(livenessStatus, readinessStatus, startupStatus, wellnessStatus).contains(DOWN)) {
+        if (healthStatuses.contains(DOWN)) {
             newStatus = DOWN;
         }
 
