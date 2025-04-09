@@ -55,7 +55,7 @@ import io.smallrye.health.api.HealthContentFilter;
 import io.smallrye.health.api.HealthGroup;
 import io.smallrye.health.api.HealthType;
 import io.smallrye.health.api.Wellness;
-import io.smallrye.health.api.event.HealthStatusChangeEvent;
+import io.smallrye.health.event.SmallRyeHealthStatusChangeEvent;
 import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
@@ -312,23 +312,23 @@ public class SmallRyeHealthReporter {
 
     @Inject
     @Default
-    Event<HealthStatusChangeEvent> healthEvent;
+    Event<SmallRyeHealthStatusChangeEvent> healthEvent;
 
     @Inject
     @Liveness
-    Event<HealthStatusChangeEvent> livenessEvent;
+    Event<SmallRyeHealthStatusChangeEvent> livenessEvent;
 
     @Inject
     @Readiness
-    Event<HealthStatusChangeEvent> readinessEvent;
+    Event<SmallRyeHealthStatusChangeEvent> readinessEvent;
 
     @Inject
     @Wellness
-    Event<HealthStatusChangeEvent> wellnessEvent;
+    Event<SmallRyeHealthStatusChangeEvent> wellnessEvent;
 
     @Inject
     @Startup
-    Event<HealthStatusChangeEvent> startupEvent;
+    Event<SmallRyeHealthStatusChangeEvent> startupEvent;
 
     @Experimental("Asynchronous Health Check procedures")
     public Uni<SmallRyeHealth> getHealthAsync() {
@@ -587,14 +587,15 @@ public class SmallRyeHealthReporter {
                         }
                     }
 
-                    fireGlobalHealthStatusChangeIfNeeded();
+                    SmallRyeHealth smallRyeHealth = result.toSmallRyeHealth();
+                    fireGlobalHealthStatusChangeIfNeeded(smallRyeHealth);
 
-                    return result.toSmallRyeHealth();
+                    return smallRyeHealth;
                 });
     }
 
     private HealthCheckResponse.Status handleHealthResult(HealthResult partialResult, HealthType healthType,
-            Event<HealthStatusChangeEvent> event,
+            Event<SmallRyeHealthStatusChangeEvent> event,
             HealthCheckResponse.Status currentStatus, HealthResult result) {
         if (!partialResult.checks.isEmpty()) {
             result.checks.addAll(partialResult.checks);
@@ -603,17 +604,18 @@ public class SmallRyeHealthReporter {
                 result.status = DOWN;
             }
 
-            return fireEventIfStatusChanged(event, healthType, currentStatus, partialResult.status);
+            return fireEventIfStatusChanged(event, healthType, currentStatus, partialResult);
         }
         return currentStatus;
     }
 
-    private HealthCheckResponse.Status fireEventIfStatusChanged(Event<HealthStatusChangeEvent> event, HealthType healthType,
-            HealthCheckResponse.Status oldStatus, HealthCheckResponse.Status newStatus) {
-
+    private HealthCheckResponse.Status fireEventIfStatusChanged(Event<SmallRyeHealthStatusChangeEvent> event,
+            HealthType healthType,
+            HealthCheckResponse.Status oldStatus, HealthResult result) {
+        HealthCheckResponse.Status newStatus = result.status;
         if (oldStatus != newStatus) {
             try {
-                event.fire(new HealthStatusChangeEvent(healthType, newStatus));
+                event.fire(new SmallRyeHealthStatusChangeEvent(healthType, result.toSmallRyeHealth()));
             } catch (ObserverException e) {
                 HealthLogging.logger.healthChangeObserverError(e);
             }
@@ -622,7 +624,7 @@ public class SmallRyeHealthReporter {
         return newStatus;
     }
 
-    private void fireGlobalHealthStatusChangeIfNeeded() {
+    private void fireGlobalHealthStatusChangeIfNeeded(SmallRyeHealth smallRyeHealth) {
 
         HealthCheckResponse.Status newStatus = UP;
         if (List.of(livenessStatus, readinessStatus, startupStatus, wellnessStatus).contains(DOWN)) {
@@ -632,7 +634,7 @@ public class SmallRyeHealthReporter {
         if (healthStatus != newStatus) {
             healthStatus = newStatus;
             try {
-                healthEvent.fire(new HealthStatusChangeEvent(newStatus));
+                healthEvent.fire(new SmallRyeHealthStatusChangeEvent(smallRyeHealth));
             } catch (ObserverException e) {
                 HealthLogging.logger.healthChangeObserverError(e);
             }
