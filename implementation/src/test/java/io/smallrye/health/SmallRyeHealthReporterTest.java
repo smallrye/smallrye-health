@@ -511,14 +511,6 @@ public class SmallRyeHealthReporterTest {
     }
 
     @Test
-    public void contextPropagationConfigTest() {
-        reporter.setContextPropagated(true);
-        testDefaultGetHealth(() -> reporter.getHealth());
-        reporter.setContextPropagated(false);
-        testDefaultGetHealth(() -> reporter.getHealth());
-    }
-
-    @Test
     public void nullEmptyCheckOutcomeTest() {
         assertThrows(NullPointerException.class, () -> reporter.setEmptyChecksOutcome(null));
     }
