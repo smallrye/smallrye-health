@@ -60,6 +60,7 @@ import io.smallrye.health.event.SmallRyeHealthStatusChangeEvent;
 import io.smallrye.health.registry.HealthRegistries;
 import io.smallrye.health.registry.HealthRegistryImpl;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 
 @ApplicationScoped
 public class SmallRyeHealthReporter {
@@ -592,7 +593,13 @@ public class SmallRyeHealthReporter {
             return emptyHealthResult();
         }
 
-        return Uni.combine().all().unis(healthCheckUnis).with(responses -> {
+        // Process each Uni on an isolated thread to maintain mdc isolation while
+        // keeping the vertx context in place.
+        List<Uni<HealthCheckResponse>> threadIsolatedUnis = healthCheckUnis.stream()
+                .map(uni -> uni.emitOn(Infrastructure.getDefaultExecutor()))
+                .toList();
+
+        return Uni.combine().all().unis(threadIsolatedUnis).with(responses -> {
             HealthResult healthResult = new HealthResult();
 
             for (Object o : responses) {
