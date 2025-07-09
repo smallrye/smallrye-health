@@ -45,7 +45,7 @@
     <version.jakarta.servlet>6.1.0</version.jakarta.servlet>
     <version.mutiny>2.9.2</version.mutiny>
     <version.smallrye.config>3.13.2</version.smallrye.config>
-    <version.smallrye.common>2.13.2</version.smallrye.common>
+    <version.smallrye.common>2.13.6</version.smallrye.common>
     <version.smallrye.testing>2.3.1</version.smallrye.testing>
     <version.wildfly>36.0.1.Final</version.wildfly>
 
