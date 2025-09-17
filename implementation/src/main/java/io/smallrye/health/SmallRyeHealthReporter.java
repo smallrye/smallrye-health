@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.event.Event;
@@ -31,6 +30,7 @@ import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
@@ -148,8 +148,7 @@ public class SmallRyeHealthReporter {
     private List<Uni<HealthCheckResponse>> wellnessUnis = new CopyOnWriteArrayList<>();
     private List<Uni<HealthCheckResponse>> startupUnis = new CopyOnWriteArrayList<>();
 
-    @PostConstruct
-    public void postConstruct() {
+    public SmallRyeHealthReporter() {
         try {
             Config config = ConfigProvider.getConfig();
             emptyChecksOutcome = config
@@ -169,12 +168,15 @@ public class SmallRyeHealthReporter {
             // OK, no config provider was found, use default values
         }
 
-        if (asyncHealthCheckFactory == null) {
-            asyncHealthCheckFactory = new AsyncHealthCheckFactory();
-        }
-
         if (!delayHealthCheckInit) {
             initChecks();
+        }
+
+        try {
+            asyncHealthCheckFactory = CDI.current().select(AsyncHealthCheckFactory.class).get();
+        } catch (Exception e) {
+            // CDI not available, use default
+            asyncHealthCheckFactory = new AsyncHealthCheckFactory();
         }
     }
 
@@ -553,6 +555,9 @@ public class SmallRyeHealthReporter {
             HealthType healthType,
             HealthCheckResponse.Status oldStatus, HealthResult result) {
         HealthCheckResponse.Status newStatus = result.status;
+        if (event == null) {
+            return newStatus;
+        }
         if (oldStatus != newStatus) {
             try {
                 event.fire(new SmallRyeHealthStatusChangeEvent(healthType, result.toSmallRyeHealth()));
@@ -566,6 +571,10 @@ public class SmallRyeHealthReporter {
 
     private void fireGlobalHealthStatusChangeIfNeeded(SmallRyeHealth smallRyeHealth,
             List<HealthCheckResponse.Status> healthStatuses) {
+        if (healthEvent == null) {
+            return;
+        }
+
         HealthCheckResponse.Status newStatus = UP;
         if (healthStatuses.contains(DOWN)) {
             newStatus = DOWN;
