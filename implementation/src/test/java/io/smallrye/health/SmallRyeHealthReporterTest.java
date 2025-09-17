@@ -1,5 +1,6 @@
 package io.smallrye.health;
 
+import static org.eclipse.microprofile.health.HealthCheckResponse.Status.DOWN;
 import static org.eclipse.microprofile.health.HealthCheckResponse.Status.UP;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -586,6 +587,45 @@ public class SmallRyeHealthReporterTest {
     @Test
     public void nullHealthCheckConfigsTest() {
         assertThrows(NullPointerException.class, () -> reporter.setHealthChecksConfigs(null));
+    }
+
+    @Test
+    public void defaultConstructorWithChangingHealthCheckTest() {
+        SmallRyeHealthReporter defaultReporter = new SmallRyeHealthReporter();
+        HealthRegistry registry = HealthRegistries.getRegistry(HealthType.LIVENESS);
+        registry.register("test", new ChangingHealthCheck());
+
+        SmallRyeHealth health = defaultReporter.getHealth();
+        assertEquals(UP, health.getStatus());
+        JsonArray checks = health.getPayload().getJsonArray("checks");
+        assertEquals(1, checks.size());
+        assertThat(checks.getJsonObject(0).getString("name"), is("changing"));
+        assertThat(checks.getJsonObject(0).getString("status"), is("UP"));
+
+        health = defaultReporter.getHealth();
+        assertEquals(DOWN, health.getStatus());
+        checks = health.getPayload().getJsonArray("checks");
+        assertEquals(1, checks.size());
+        assertThat(checks.getJsonObject(0).getString("name"), is("changing"));
+        assertThat(checks.getJsonObject(0).getString("status"), is("DOWN"));
+
+        registry.remove("test");
+        testDefaultGetHealth(() -> defaultReporter.getHealth());
+    }
+
+    private static final class ChangingHealthCheck implements HealthCheck {
+        private volatile boolean up = true;
+
+        @Override
+        public HealthCheckResponse call() {
+            if (up) {
+                up = false;
+                return HealthCheckResponse.up("changing");
+            } else {
+                up = true;
+                return HealthCheckResponse.down("changing");
+            }
+        }
     }
 
     private static final class TestHealthCheck implements HealthCheck {
