@@ -500,19 +500,23 @@ public class SmallRyeHealthReporter {
             additionalHealthResult = getHealthResult(additionalChecks.values());
         }
 
-        return Uni.combine().all().unis(
+        // Need to use Uni.join() because Uni.combine() has a performance issue - https://github.com/smallrye/smallrye-mutiny/issues/1993
+        return Uni.join().all(
                 healthResults.getOrDefault(LIVENESS, emptyHealthResult()),
                 healthResults.getOrDefault(READINESS, emptyHealthResult()),
                 healthResults.getOrDefault(WELLNESS, emptyHealthResult()),
                 healthResults.getOrDefault(STARTUP, emptyHealthResult()),
                 additionalHealthResult)
-                .with((liveness, readiness, wellness, startup, additionalChecks) -> {
+                .andCollectFailures()
+                .map(resultList -> {
                     HealthResult result = new HealthResult();
 
-                    livenessStatus = handleHealthResult(liveness, LIVENESS, livenessEvent, livenessStatus, result);
-                    readinessStatus = handleHealthResult(readiness, READINESS, readinessEvent, readinessStatus, result);
-                    wellnessStatus = handleHealthResult(wellness, WELLNESS, wellnessEvent, wellnessStatus, result);
-                    startupStatus = handleHealthResult(startup, STARTUP, startupEvent, startupStatus, result);
+                    livenessStatus = handleHealthResult(resultList.get(0), LIVENESS, livenessEvent, livenessStatus, result);
+                    readinessStatus = handleHealthResult(resultList.get(1), READINESS, readinessEvent, readinessStatus, result);
+                    wellnessStatus = handleHealthResult(resultList.get(2), WELLNESS, wellnessEvent, wellnessStatus, result);
+                    startupStatus = handleHealthResult(resultList.get(3), STARTUP, startupEvent, startupStatus, result);
+
+                    HealthResult additionalChecks = resultList.get(4);
 
                     if (!additionalChecks.checks.isEmpty()) {
                         result.checks.addAll(additionalChecks.checks);
@@ -592,20 +596,21 @@ public class SmallRyeHealthReporter {
             return emptyHealthResult();
         }
 
-        return Uni.combine().all().unis(healthCheckUnis).with(responses -> {
-            HealthResult healthResult = new HealthResult();
+        // Need to use Uni.join() because Uni.combine() has a performance issue - https://github.com/smallrye/smallrye-mutiny/issues/1993
+        return Uni.join().all(healthCheckUnis).andCollectFailures()
+                .map(healthCheckResponses -> {
+                    HealthResult healthResult = new HealthResult();
 
-            for (Object o : responses) {
-                HealthCheckResponse response = (HealthCheckResponse) o;
-                if (healthResult.status == UP && response.getStatus() == DOWN) {
-                    healthResult.status = DOWN;
-                }
+                    for (HealthCheckResponse response : healthCheckResponses) {
+                        if (healthResult.status == UP && response.getStatus() == DOWN) {
+                            healthResult.status = DOWN;
+                        }
 
-                healthResult.checks.add(response);
-            }
+                        healthResult.checks.add(response);
+                    }
 
-            return healthResult;
-        });
+                    return healthResult;
+                });
     }
 
     private boolean isHealthCheckEnabled(HealthCheck healthCheck) {
