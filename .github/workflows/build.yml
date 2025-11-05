@@ -32,12 +32,8 @@ jobs:
         # https://api.adoptium.net/v3/assets/latest/16/hotspot
         java:
           - { name: "17" }
-          - { name: "18" }
-          - { name: "19" }
-          - { name: "20" }
           - { name: "21" }
-          - { name: "22" }
-          - { name: "23" }
+          - { name: "25" }
 
     name: Build with JDK ${{ matrix.java.name }}
 
@@ -59,7 +55,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java.name }}
-          distribution: temurin
+          distribution: oracle
           cache: maven
           check-latest: true
       - name: Build and Test with Java ${{ matrix.java.name }}
