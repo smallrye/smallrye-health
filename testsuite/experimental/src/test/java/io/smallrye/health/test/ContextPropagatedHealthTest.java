@@ -6,7 +6,6 @@ import java.util.Map;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -24,10 +23,7 @@ class ContextPropagatedHealthTest extends TCKBase {
     public static Archive<WebArchive> getDeployment() {
         return DeploymentUtils
                 .createWarFileWithClasses(ContextPropagatedHealthTest.class.getSimpleName(),
-                        ContextHealthCheck.class, ContextInfo.class, RequestFilter.class, TCKBase.class)
-                .addAsManifestResource(
-                        new StringAsset("io.smallrye.health.context.propagation=true"),
-                        "microprofile-config.properties");
+                        ContextHealthCheck.class, ContextInfo.class, RequestFilter.class, TCKBase.class);
     }
 
     // got to repeat this test a couple of times to trigger potential race condition issue at least once.
