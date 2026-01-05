@@ -34,8 +34,9 @@ jobs:
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
           ZIP_NAME: smallrye-health-${{inputs.version}}-tck-results-java-${{matrix.java}}.zip
+          VERSION: ${{inputs.version}}
         run: |
           mvn -B formatter:validate verify --file pom.xml
           cd testsuite/tck/target
           zip -r $ZIP_NAME surefire-reports/
-          gh release upload ${{inputs.version}} $ZIP_NAME
+          gh release upload $VERSION $ZIP_NAME
