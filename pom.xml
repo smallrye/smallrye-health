@@ -38,7 +38,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.release>17</maven.compiler.release>
 
-    <version.eclipse.microprofile.config>3.1</version.eclipse.microprofile.config>
+    <version.eclipse.microprofile.config>3.1.1</version.eclipse.microprofile.config>
     <version.eclipse.microprofile.health>4.0.1</version.eclipse.microprofile.health>
     <version.eclipse.parsson>1.1.7</version.eclipse.parsson>
     <version.httpclient>4.5.14</version.httpclient>
