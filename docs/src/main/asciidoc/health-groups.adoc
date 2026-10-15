@@ -1,5 +1,6 @@
 [[health-groups]]
 = Health Groups
+include::_attributes.adoc[]
 
 A health group is simply a user defined group of health checks. Namely, liveness and readiness
 (and experimental wellness) are predefined health groups. With this feature users are allowed to

@@ -1,5 +1,6 @@
 [[wellness]]
 = Wellness
+include::_attributes.adoc[]
 
 The wellness is another health groups besides the liveness and readiness that can be standardized
 as a group of health checks that don't belong to either liveness (application restart) or

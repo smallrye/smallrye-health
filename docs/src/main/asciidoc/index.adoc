@@ -1,5 +1,6 @@
 [[index]]
 = SmallRye Health Documentation
+include::_attributes.adoc[]
 
 SmallRye Health 3.0 is an implementation of the MicroProfile Health 3.0 specification.
 
