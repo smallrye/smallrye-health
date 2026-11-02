@@ -1,5 +1,6 @@
 [[static-access]]
 = Static access to the SmallRye Health
+include::_attributes.adoc[]
 
 In some contexts it might have been necessary to access SmallRye health capabilities in the non-CDI environments where CDI injection access typical for MicroProfile application is not available. For this reason, SmallRye Health provides a programmatic non-CDI static access to the `SmallRyeHealthReporter` and all different type of `HealthRegistry` so users can register (and unregister) health checks dynamically and invoke the reporter to get the same JSON objects as from usual `/health` calls.
 
