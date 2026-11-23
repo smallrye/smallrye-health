@@ -1,5 +1,6 @@
 [[health-registry]]
 = Health Registry
+include::_attributes.adoc[]
 
 A health registry provides a way to register the health checks programatically. It also allows
 to remove the programatically registered health checks when they are no longer needed. This presents

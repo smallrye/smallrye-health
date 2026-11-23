@@ -1,0 +1,18 @@
+title: SmallRye Health
+nav:
+- title: Overview
+  page: index
+- title: Features on top of the specification
+  items:
+  - title: Asynchronous health checks
+    page: async-checks
+  - title: Health Groups
+    page: health-groups
+  - title: Health Registry
+    page: health-registry
+  - title: Wellness
+    page: wellness
+  - title: Static access
+    page: static-access
+  - title: Custom Config properties
+    page: custom-config-properties

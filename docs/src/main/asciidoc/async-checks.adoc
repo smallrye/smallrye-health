@@ -1,5 +1,6 @@
 [[async-checks]]
 = Asynchronous health checks
+include::_attributes.adoc[]
 
 == Defining asynchronous checks
 

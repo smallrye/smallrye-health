@@ -1,5 +1,6 @@
 [[custom-config-properties]]
 = Custom configuration values
+include::_attributes.adoc[]
 
 SmallRye Health provides several custom configuration values that are exposing additional features which are currently not a part of the MicroProfile Health specification. The following sections provide an overview of what users can configure to adjust the executions of health check invocations.
 
