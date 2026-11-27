@@ -3,15 +3,21 @@ package io.smallrye.health;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.jboss.logging.Logger;
 
 import io.smallrye.health.api.AsyncHealthCheck;
+import io.smallrye.health.log.ExceptionErrorIdDetail;
+import io.smallrye.health.log.ExceptionLogType;
 import io.smallrye.mutiny.Uni;
 
 @ApplicationScoped
@@ -22,13 +28,36 @@ public class AsyncHealthCheckFactory {
     private static final String ROOT_CAUSE = "rootCause";
     private static final String STACK_TRACE = "stackTrace";
 
+    // TODO unify these properties in the next major release
     String uncheckedExceptionDataStyle = ROOT_CAUSE;
+    ExceptionLogType exceptionLogType = ExceptionLogType.NONE;
+    ExceptionErrorIdDetail exceptionErrorIdDetail = ExceptionErrorIdDetail.STACKTRACE;
+    Logger.Level exceptionLogLevel = Logger.Level.ERROR;
+    boolean removeDeprecatedExceptionDataStyle = false;
 
     public AsyncHealthCheckFactory() {
         try {
-            uncheckedExceptionDataStyle = ConfigProvider.getConfig()
-                    .getOptionalValue("io.smallrye.health.uncheckedExceptionDataStyle", String.class)
-                    .orElse(ROOT_CAUSE);
+            Config config = ConfigProvider.getConfig();
+            Optional<String> optionalUncheckedExceptionDataStyle = config
+                    .getOptionalValue("io.smallrye.health.uncheckedExceptionDataStyle", String.class);
+            if (optionalUncheckedExceptionDataStyle.isPresent()) {
+                HealthLogging.logger
+                        .warn("Configuration property \"io.smallrye.health.uncheckedExceptionDataStyle\" is deprecated. Use " +
+                                "\"io.smallrye.health.exception-log-type\" and \"io.smallrye.health.exception.errorid.detail\" instead.");
+            }
+            uncheckedExceptionDataStyle = optionalUncheckedExceptionDataStyle.orElse(ROOT_CAUSE);
+
+            Optional<ExceptionLogType> optionalExceptionLogType = config
+                    .getOptionalValue("io.smallrye.health.exception.log.type", ExceptionLogType.class);
+            if (optionalExceptionLogType.isPresent()) {
+                removeDeprecatedExceptionDataStyle = true;
+            }
+            exceptionLogType = optionalExceptionLogType.orElse(ExceptionLogType.NONE);
+            exceptionErrorIdDetail = config
+                    .getOptionalValue("io.smallrye.health.exception.errorid.detail", ExceptionErrorIdDetail.class)
+                    .orElse(ExceptionErrorIdDetail.STACKTRACE);
+            exceptionLogLevel = config.getOptionalValue("io.smallrye.health.exception.log.level", Logger.Level.class)
+                    .orElse(Logger.Level.ERROR);
         } catch (IllegalStateException illegalStateException) {
             // OK, no config provider was found, use default values
         }
@@ -54,7 +83,29 @@ public class AsyncHealthCheckFactory {
 
         HealthCheckResponseBuilder response = HealthCheckResponse.named(name).down();
 
-        if (!uncheckedExceptionDataStyle.equals("none")) {
+        String errorKey = "<error>";
+        switch (exceptionLogType) {
+            case NONE:
+                break;
+            case ERROR_ID:
+                UUID uuid = UUID.randomUUID();
+                response.withData(errorKey, "See error-id " + uuid);
+                String errorToLog = switch (exceptionErrorIdDetail) {
+                    case STACKTRACE -> getStackTrace(e);
+                    case EXCEPTION_CLASS -> e.getClass().getName();
+                    case EXCEPTION_MESSAGE -> getRootCause(e).toString();
+                };
+                HealthLogging.logger.log(exceptionLogLevel,
+                        "Health check \"%s\" failed (error-id %s) %s".formatted(name, uuid, errorToLog));
+                break;
+            case EXCEPTION_CLASS:
+                response.withData(errorKey, e.getClass().getName());
+                break;
+            case EXCEPTION_MESSAGE:
+                response.withData(errorKey, getRootCause(e).toString());
+        }
+
+        if (!removeDeprecatedExceptionDataStyle && !uncheckedExceptionDataStyle.equals("none")) {
             response.withData(EXCEPTION_CLASS, e.getClass().getName());
             response.withData(EXCEPTION_MESSAGE, e.getMessage());
 
